@@ -7,6 +7,7 @@ const PUBLIC_PATHS = [
   "/_next",
   "/favicon.ico",
   "/api/auth",
+  "/images",
 ];
 
 export async function middleware(req: NextRequest) {
@@ -33,6 +34,6 @@ export async function middleware(req: NextRequest) {
 }
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|auth/login|auth/register).*)",
+    "/((?!_next/static|_next/image|favicon.ico|images|auth/login|auth/register).*)",
   ],
 };

@@ -31,15 +31,15 @@ export function CarouselAuth() {
   const items = [
     {
       title: "Capturing Moments,\nCreating Memories",
-      image: "/images/carousel1.png",
+      image: "/images/carousel/carousel1.png",
     },
     {
       title: "Document Every Journey,\nShare the Stories",
-      image: "/images/carousel2.png",
+      image: "/images/carousel/carousel2.png",
     },
     {
       title: "Photography is the Beauty\nof Life Captured",
-      image: "/images/carousel3.png",
+      image: "/images/carousel/carousel3.png",
     },
   ];
 
@@ -48,7 +48,7 @@ export function CarouselAuth() {
       <Carousel setApi={setApi} className="w-full h-full">
         <CarouselContent className="h-full">
           {items.map((item, index) => (
-            <CarouselItem key={index} className="relative min-h-screen">
+            <CarouselItem key={index} className="relative min-h-screen w-full">
               <Image
                 src={item.image}
                 alt={`Slide ${index + 1}`}

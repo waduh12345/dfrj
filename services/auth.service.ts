@@ -12,6 +12,24 @@ export const authApi = apiSlice.injectEndpoints({
       }),
     }),
 
+    // Register
+    register: builder.mutation({
+      query: (payload) => ({
+        url: "/register",
+        method: "POST",
+        body: payload,
+      }),
+    }),
+
+    // ✅ Resend Verification Email
+    resendVerification: builder.mutation<void, { email: string }>({
+      query: ({ email }) => ({
+        url: "/email/resend",
+        method: "POST",
+        body: { email },
+      }),
+    }),
+
     // Logout
     logout: builder.mutation<void, void>({
       query: () => ({
@@ -20,7 +38,7 @@ export const authApi = apiSlice.injectEndpoints({
       }),
     }),
 
-    // ✅ Get current user (/me)
+    // Get current user
     getCurrentUser: builder.query<User, void>({
       query: () => ({
         url: "/me",
@@ -37,6 +55,8 @@ export const authApi = apiSlice.injectEndpoints({
 
 export const {
   useLoginMutation,
+  useRegisterMutation,
+  useResendVerificationMutation,
   useLogoutMutation,
   useGetCurrentUserQuery,
 } = authApi;
