@@ -35,7 +35,7 @@ export default function TopHeader() {
           ? isScrolled
             ? "bg-white text-black shadow-sm"
             : "bg-transparent text-white"
-          : "bg-white text-[#3B0A0A] shadow-sm"
+          : "bg-white text-green-600 shadow-sm"
       )}
     >
       {/* Kiri: Logo */}
@@ -47,8 +47,7 @@ export default function TopHeader() {
           height={40}
         />
         <div className="leading-tight">
-          <p className="text-lg font-bold">KOPERASI</p>
-          <p className="text-sm">Merah Putih</p>
+          <p className="text-lg font-bold text-green">Marketplace Pondok</p>
         </div>
       </div>
 
@@ -61,7 +60,7 @@ export default function TopHeader() {
               "px-4 py-2 text-sm rounded-md transition",
               isWisataPage && !isScrolled
                 ? "bg-white/10 text-white border border-white hover:bg-white/30"
-                : "bg-[#A80038] text-white hover:bg-[#5b0f0f]"
+                : "bg-green-600 text-white hover:bg-green-700"
             )}
           >
             Search
@@ -74,7 +73,7 @@ export default function TopHeader() {
             size={24}
             className={clsx(
               "cursor-pointer transition",
-              isWisataPage && !isScrolled ? "text-white" : "text-[#A80038]"
+              isWisataPage && !isScrolled ? "text-white" : "text-green-600"
             )}
             onClick={() => {
               window.location.href = "/settings";
@@ -85,12 +84,12 @@ export default function TopHeader() {
               size={24}
               className={clsx(
                 "cursor-pointer transition",
-                isWisataPage && !isScrolled ? "text-white" : "text-[#A80038]"
+                isWisataPage && !isScrolled ? "text-white" : "text-green-600"
               )}
               onClick={openCart}
             />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#A80038] text-white text-[10px] px-[6px] rounded-full">
+              <span className="absolute -top-1 -right-1 bg-green-600 text-white text-[10px] px-[6px] rounded-full">
                 {cartCount}
               </span>
             )}

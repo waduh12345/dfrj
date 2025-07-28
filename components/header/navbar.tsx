@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { IconDeviceTabletDown, IconMenu2, IconX } from "@tabler/icons-react";
-import { Button } from "../ui/button";
+import { IconMenu2, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
 
 const navItems = [
@@ -12,32 +11,21 @@ const navItems = [
   { label: "Produk", href: "/product" },
   { label: "Berita", href: "/berita" },
   { label: "Galeri", href: "/galeri" },
-  { label: "Wisata", href: "/wisata" },
 ];
 
 export default function Navbar() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-[#A80038] shadow-md">
-      <div className="flex flex-wrap items-center justify-between mx-auto px-4 py-2">
-        {/* Logo / Icon */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-2 text-white hover:text-black"
-        >
-          <IconDeviceTabletDown size={20} />
-          <span className="font-semibold text-sm">Download App</span>
-        </Button>
-
+    <nav className="w-full bg-green-600 shadow-md">
+      <div className="flex flex-wrap items-center justify-end mx-auto px-4 py-2">
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-6 text-xs font-semibold">
+        <div className="hidden md:flex items-center gap-6 text-sm font-semibold">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-white hover:text-[#FFD1DC] transition-colors"
+              className="text-white hover:text-green-900 transition-colors"
             >
               {item.label}
             </Link>
@@ -47,13 +35,13 @@ export default function Navbar() {
           <div className="flex items-center gap-3 text-sm font-medium">
             <Link
               href="/auth/register"
-              className="text-white text-xs hover:text-[#FFD1DC] transition-colors"
+              className="text-white text-xs hover:text-green-900 transition-colors"
             >
               Sign Up
             </Link>
             <Link
               href="/auth/login"
-              className="bg-white text-[#A80038] text-xs px-4 py-2 rounded-md hover:bg-[#A80038] hover:text-white border border-transparent hover:border-white transition-colors"
+              className="bg-white text-green-800 text-xs px-4 py-2 rounded-md hover:bg-green-800 hover:text-white border border-transparent hover:border-white transition-colors"
             >
               Sign In
             </Link>

@@ -56,9 +56,9 @@ export default function SearchToggle() {
             "border px-3 py-1 rounded-md text-sm focus:outline-none transition-all duration-300",
             isWisataPage
               ? isScrolled
-                ? "border-gray-300 text-black placeholder-gray-500 bg-white focus:border-[#A80038] focus:ring-[#A80038]"
+                ? "border-gray-300 text-black placeholder-gray-500 bg-white focus:border-green-600 focus:ring-green-600"
                 : "border-white bg-transparent text-white placeholder-white focus:border-white focus:ring-white"
-              : "border-gray-300 text-black placeholder-gray-500 bg-white focus:border-[#A80038] focus:ring-[#A80038]"
+              : "border-gray-300 text-black placeholder-gray-500 bg-white focus:border-green-600 focus:ring-green-600"
           )}
           onBlur={() => setShowInput(false)}
         />

@@ -82,7 +82,7 @@ export default function ProdukPage() {
 
   return (
     <section className="min-h-screen py-10 px-6 md:px-12 bg-neutral-50">
-      <h2 className="text-3xl md:text-4xl font-bold text-center text-[#A80038] mb-4">
+      <h2 className="text-3xl md:text-4xl font-bold text-center text-green-600 mb-4">
         Produk Koperasi
       </h2>
       <p className="text-center text-neutral-600 text-base md:text-lg mb-10 max-w-2xl mx-auto">
@@ -158,7 +158,7 @@ export default function ProdukPage() {
                 height={300}
                 className="w-full h-52 object-cover"
               />
-              <button className="absolute top-2 right-2 bg-white rounded-full p-2 shadow hover:bg-[#A80038] hover:text-white transition cursor-pointer">
+              <button className="absolute top-2 right-2 bg-white rounded-full p-2 shadow hover:bg-green-600 hover:text-white transition cursor-pointer">
                 <Heart className="w-5 h-5" />
               </button>
             </div>
@@ -166,7 +166,7 @@ export default function ProdukPage() {
               <h3 className="text-lg font-semibold text-[#1D1D1D]">
                 {product.name}
               </h3>
-              <p className="text-[#A80038] font-bold text-sm">
+              <p className="text-green-600 font-bold text-sm">
                 Rp {product.price.toLocaleString()}
               </p>
               <div className="flex justify-between items-center pt-2">
@@ -179,7 +179,7 @@ export default function ProdukPage() {
                       setSelectedProduct(product);
                       openModal();
                     }}
-                    className="text-sm bg-[#A80038] text-white hover:bg-[#7a002a] flex items-center gap-2"
+                    className="text-sm bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
                   >
                     <ReceiptText className="w-4 h-4" />
                     Details
@@ -188,7 +188,7 @@ export default function ProdukPage() {
                     size="sm"
                     variant="secondary"
                     onClick={() => handleAddToCart(product)}
-                    className="text-sm bg-[#A80038] text-white hover:bg-[#7a002a] flex items-center gap-2"
+                    className="text-sm bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     Keranjang
@@ -206,7 +206,7 @@ export default function ProdukPage() {
           <Button
             disabled={currentPage === 1}
             onClick={handlePrevPage}
-            className="bg-white border text-[#A80038] hover:bg-[#A80038] hover:text-white"
+            className="bg-white border text-green-600 hover:bg-green-600 hover:text-white"
           >
             Prev
           </Button>
@@ -216,7 +216,7 @@ export default function ProdukPage() {
           <Button
             disabled={currentPage === totalPages}
             onClick={handleNextPage}
-            className="bg-white border text-[#A80038] hover:bg-[#A80038] hover:text-white"
+            className="bg-white border text-green-600 hover:bg-green-600 hover:text-white"
           >
             Next
           </Button>
