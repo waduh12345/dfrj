@@ -31,7 +31,7 @@ export default function NewsDetailModal({
         </Button>
 
         {/* Konten Detail */}
-        <h2 className="text-2xl font-bold text-[#A80038] mb-2">
+        <h2 className="text-2xl font-bold text-green-600 mb-2">
           {berita.title}
         </h2>
         <p className="text-sm text-gray-500 mb-4">

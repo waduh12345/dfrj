@@ -10,7 +10,7 @@ export default function KoperasiOverview() {
             Menyediakan Solusi Ekonomi untuk Anggota
           </h2>
           <p className="text-neutral-700 text-base md:text-lg">
-            Koperasi Merah Putih berkomitmen untuk memberdayakan masyarakat
+            Marketplace Pondok berkomitmen untuk memberdayakan masyarakat
             melalui layanan simpan pinjam yang adil, transparan, dan berbasis
             teknologi. Kami percaya bahwa setiap anggota berhak mendapatkan
             akses terhadap peluang ekonomi yang setara dan berkelanjutan.
@@ -22,22 +22,22 @@ export default function KoperasiOverview() {
         {/* Statistik */}
         <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-8 text-center border-t border-b py-6">
           <div className="flex-1">
-            <p className="text-3xl font-bold text-[#A80038]">500+</p>
+            <p className="text-3xl font-bold text-green-600">500+</p>
             <p className="text-sm text-gray-600">Anggota Aktif</p>
           </div>
           <div className="flex-1">
-            <p className="text-3xl font-bold text-[#A80038]">1000+</p>
+            <p className="text-3xl font-bold text-green-600">1000+</p>
             <p className="text-sm text-gray-600">Transaksi Tercatat</p>
           </div>
           <div className="flex-1">
-            <p className="text-3xl font-bold text-[#A80038]">5+</p>
+            <p className="text-3xl font-bold text-green-600">5+</p>
             <p className="text-sm text-gray-600">Tahun Pengalaman</p>
           </div>
         </div>
 
         {/* Tombol */}
         <div>
-          <button className="inline-flex items-center gap-2 bg-[#A80038] text-white px-6 py-3 rounded-md text-sm hover:bg-[#7a002a] transition">
+          <button className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-md text-sm hover:bg-[#7a002a] transition">
             Selengkapnya
             <ArrowRight size={16} />
           </button>

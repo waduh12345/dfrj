@@ -23,7 +23,7 @@ export default function NewsCardList({ list, onClick }: NewsCardListProps) {
             className="rounded-md object-cover"
           />
           <div>
-            <h2 className="font-semibold text-lg text-[#A80038] line-clamp-2">
+            <h2 className="font-semibold text-lg text-green-600 line-clamp-2">
               {item.title}
             </h2>
             <p className="text-sm text-gray-500">{item.date}</p>

@@ -30,11 +30,11 @@ export default function ProfileDesa() {
           {/* Text Kiri */}
           <div className="text-white space-y-6">
             <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-              Profil <span className="text-[#A80038]">Desa</span> Koperasi Merah
+              Profil <span className="text-green-600">Desa</span> Koperasi Merah
               Putih
             </h2>
             <p className="text-base md:text-lg text-neutral-200 max-w-xl">
-              Koperasi Merah Putih hadir di tengah desa-desa Indonesia, menjadi
+              Marketplace Pondok hadir di tengah desa-desa Indonesia, menjadi
               motor penggerak ekonomi rakyat yang adil dan mandiri. Melalui
               akses pembiayaan, pelatihan, dan teknologi, kami membangun desa
               yang produktif dan berkelanjutan.
@@ -43,7 +43,7 @@ export default function ProfileDesa() {
               Visi kami: menjadikan desa sebagai pusat pertumbuhan ekonomi
               berbasis gotong royong yang modern dan inklusif.
             </p>
-            <button className="inline-flex items-center gap-2 bg-[#A80038] text-white font-semibold px-5 py-3 rounded-md text-sm hover:bg-white hover:text-[#A80038] transition">
+            <button className="inline-flex items-center gap-2 bg-green-600 text-white font-semibold px-5 py-3 rounded-md text-sm hover:bg-white hover:text-green-600 transition">
               Pelajari Lebih Lanjut
               <ArrowRight size={16} />
             </button>

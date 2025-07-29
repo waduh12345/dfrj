@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <div className="relative bg-gradient-to-b from-[#A80038] to-[#D32F2F] overflow-hidden min-h-screen md:min-h-[600px] lg:min-h-[700px] flex items-center">
+    <div className="relative bg-green-600 overflow-hidden min-h-screen md:min-h-[600px] lg:min-h-[700px] flex items-center">
       {/* Konten Hero */}
       <div className="relative z-10 container mx-auto px-6 lg:px-12 flex flex-col md:pt-20 lg:pt-0 lg:flex-row items-center gap-8">
         {/* Text Section */}
@@ -12,9 +12,9 @@ export default function Hero() {
             Koperasi Digital untuk Masa Depan
           </h1>
           <p className="text-neutral-100 text-base md:text-lg max-w-xl mx-auto lg:mx-0">
-            Koperasi Merah Putih hadir untuk memperkuat ekonomi kerakyatan
-            dengan semangat gotong royong, transparansi, dan teknologi. Bersama,
-            kita membangun masa depan yang sejahtera bagi seluruh anggota.
+            Marketplace Pondok hadir untuk memperkuat ekonomi kerakyatan dengan
+            semangat gotong royong, transparansi, dan teknologi. Bersama, kita
+            membangun masa depan yang sejahtera bagi seluruh anggota.
           </p>
           <div>
             <button
@@ -25,7 +25,7 @@ export default function Hero() {
                   target.scrollIntoView({ behavior: "smooth" });
                 }
               }}
-              className="bg-white text-[#A80038] font-semibold px-6 py-3 rounded-md text-sm hover:bg-[#A80038] hover:text-white hover:border hover:border-white transition"
+              className="bg-white text-green-600 font-semibold px-6 py-3 rounded-md text-sm hover:bg-green-600 hover:text-white hover:border hover:border-white transition"
             >
               Gabung Sekarang
             </button>

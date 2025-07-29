@@ -33,7 +33,7 @@ export default function ProgramSection() {
   return (
     <section id="program" className="bg-white py-20 px-6 md:px-12">
       <div className="container mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-[#A80038] mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-green-600 mb-4">
           Program Unggulan Kami
         </h2>
         <p className="text-center text-neutral-600 text-base md:text-lg mb-12 max-w-3xl mx-auto">

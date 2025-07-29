@@ -55,13 +55,13 @@ export default function ProductDetailModal({
           {/* Detail Produk */}
           <div className="flex flex-col justify-between w-full md:w-1/2 space-y-4">
             <div>
-              <h3 className="text-2xl font-semibold text-[#A80038]">
+              <h3 className="text-2xl font-semibold text-green-600">
                 {product.name}
               </h3>
               <p className="text-gray-600 text-sm mt-1">
                 {product.kecamatan} • {product.kategori}
               </p>
-              <p className="text-lg font-bold text-[#A80038] mt-2">
+              <p className="text-lg font-bold text-green-600 mt-2">
                 Rp {product.price.toLocaleString("id-ID")}
               </p>
               <p className="text-sm text-gray-700 mt-4">
@@ -74,14 +74,14 @@ export default function ProductDetailModal({
             <div className="flex gap-3">
               <Button
                 onClick={handleAdd}
-                className="bg-[#A80038] text-white hover:bg-[#7a002a] flex gap-2 items-center"
+                className="bg-green-600 text-white hover:bg-[#7a002a] flex gap-2 items-center"
               >
                 <ShoppingCart className="w-4 h-4" />
                 Tambah ke Keranjang
               </Button>
               <Button
                 variant="ghost"
-                className="border border-[#A80038] text-[#A80038] hover:bg-[#A80038] hover:text-white p-2"
+                className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white p-2"
               >
                 <Heart className="w-5 h-5" />
               </Button>
