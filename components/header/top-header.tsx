@@ -41,10 +41,10 @@ export default function TopHeader() {
       {/* Kiri: Logo */}
       <div className="flex items-center gap-2">
         <Image
-          src="/icon-merah-putih.png"
+          src="/icon-pndok.png"
           alt="Logo Koperasi"
-          width={40}
-          height={40}
+          width={64}
+          height={64}
         />
         <div className="leading-tight">
           <p className="text-lg font-bold text-green-800">Marketplace Pondok</p>
