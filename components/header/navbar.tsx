@@ -21,7 +21,7 @@ export default function Navbar() {
   const isLoggedIn = !!session; // True jika sudah login
 
   return (
-    <nav className="w-full bg-green-600 shadow-md">
+    <nav className="w-full bg-green-700 shadow-md">
       <div className="flex flex-wrap items-center justify-end mx-auto px-4 py-2">
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6 text-sm font-semibold">

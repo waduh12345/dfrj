@@ -47,7 +47,7 @@ export default function TopHeader() {
           height={40}
         />
         <div className="leading-tight">
-          <p className="text-lg font-bold text-green">Marketplace Pondok</p>
+          <p className="text-lg font-bold text-green-800">Marketplace Pondok</p>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ export default function TopHeader() {
               "px-4 py-2 text-sm rounded-md transition",
               isWisataPage && !isScrolled
                 ? "bg-white/10 text-white border border-white hover:bg-white/30"
-                : "bg-green-600 text-white hover:bg-green-700"
+                : "bg-green-700 text-white hover:bg-green-700"
             )}
           >
             Search
@@ -73,7 +73,7 @@ export default function TopHeader() {
             size={24}
             className={clsx(
               "cursor-pointer transition",
-              isWisataPage && !isScrolled ? "text-white" : "text-green-600"
+              isWisataPage && !isScrolled ? "text-white" : "text-green-700"
             )}
             onClick={() => {
               window.location.href = "/settings";
@@ -84,7 +84,7 @@ export default function TopHeader() {
               size={24}
               className={clsx(
                 "cursor-pointer transition",
-                isWisataPage && !isScrolled ? "text-white" : "text-green-600"
+                isWisataPage && !isScrolled ? "text-white" : "text-green-700"
               )}
               onClick={openCart}
             />

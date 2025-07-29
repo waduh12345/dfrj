@@ -1,91 +1,82 @@
 "use client";
 import Image from "next/image";
+import { Star } from "lucide-react"; // Import Star icon for the rating
+import TextType from "@/components/test-type";
 
 export default function Hero() {
   return (
-    <div className="relative bg-green-600 overflow-hidden min-h-screen md:min-h-[600px] lg:min-h-[700px] flex items-center">
-      {/* Konten Hero */}
-      <div className="relative z-10 container mx-auto px-6 lg:px-12 flex flex-col md:pt-20 lg:pt-0 lg:flex-row items-center gap-8">
-        {/* Text Section */}
-        <div className="text-center lg:text-left space-y-6 transform md:-translate-y-8 lg:-translate-y-20 transition-all duration-300 flex-1">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight">
-            Koperasi Digital untuk Masa Depan
+    <div className="relative bg-white overflow-hidden min-h-screen w-full flex items-center">
+      {/* Background shape - Dark Green Triangle (emulating the image's bottom-left) */}
+      <div className="absolute bottom-0 left-0 w-0 h-0 border-b-[200px] border-b-green-800 border-r-[200px] border-r-transparent z-10 md:border-b-[300px] md:border-r-[300px] lg:border-b-[400px] lg:border-r-[400px]"></div>
+
+      {/* Overlay Gradasi Hijau */}
+      <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-green-800 to-transparent z-20 pointer-events-none"></div>
+
+      {/* Main Content */}
+      <div className="relative z-20 w-full mx-auto px-6 lg:px-20 flex flex-col lg:flex-row items-center justify-between gap-8 py-16 lg:py-0">
+        {/* Text Section (Left Side) */}
+        <div className="text-center lg:text-left space-y-6 flex-1 lg:max-w-xl -translate-y-8">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight">
+            Produk Berkualitas
+            <span className="text-green-700">
+              <TextType
+                text={["Pondok Pesantren", "Pasar Santri", "Ekonomi Syariah"]} // Example texts for typing effect
+                typingSpeed={75}
+                pauseDuration={1500}
+                showCursor={true}
+                cursorCharacter="|"
+                textColors={["#306c2fff"]}
+              />
+            </span>
           </h1>
-          <p className="text-neutral-100 text-base md:text-lg max-w-xl mx-auto lg:mx-0">
-            Marketplace Pondok hadir untuk memperkuat ekonomi kerakyatan dengan
-            semangat gotong royong, transparansi, dan teknologi. Bersama, kita
-            membangun masa depan yang sejahtera bagi seluruh anggota.
+          <p className="text-gray-700 text-lg md:text-xl max-w-xl mx-auto lg:mx-0">
+            Jelajahi beragam produk sehat dan halal dari Pondok Pesantren
+            pilihan. Dukung ekonomi umat, rasakan keberkahannya.
           </p>
-          <div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
             <button
               type="button"
-              onClick={() => {
-                const target = document.getElementById("join");
-                if (target) {
-                  target.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
-              className="bg-white text-green-600 font-semibold px-6 py-3 rounded-md text-sm hover:bg-green-600 hover:text-white hover:border hover:border-white transition"
+              className="bg-green-700 text-white font-semibold px-8 py-3 rounded-lg text-lg hover:bg-green-800 transition-colors shadow-md"
             >
-              Gabung Sekarang
+              Lihat Produk
+            </button>
+            <button
+              type="button"
+              className="bg-transparent text-green-700 border border-green-700 font-semibold px-8 py-3 rounded-lg text-lg hover:bg-green-700 hover:text-white transition-colors shadow-md"
+            >
+              Gabung Mitra
             </button>
           </div>
         </div>
 
-        {/* Gambar Hero */}
-        <div className="flex justify-center lg:justify-end transform md:-translate-y-6 lg:-translate-y-12 transition-all duration-300 relative flex-1">
+        {/* Hero Image Section (Right Side) */}
+        <div className="flex justify-center lg:justify-end flex-1 relative w-full lg:w-1/2 h-[500px] lg:h-[700px] xl:h-[800px]">
           <Image
-            src="/images/people-char.png"
-            alt="Koperasi"
-            width={600}
-            height={600}
-            className="w-full max-w-md lg:max-w-[700px] object-contain relative z-10"
+            src="https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brnraOVyiFGYbO6ENcezCmHarVMk2LvX7TtZ1j"
+            alt="Santri Chef with Healthy Food"
+            fill
+            className="object-cover rounded-xl z-20"
             priority
           />
 
-          {/* Badge Happy Customer */}
-          <div className="hidden lg:flex absolute bottom-56 right-0 bg-white/60 backdrop-blur-md shadow-md rounded-2xl px-4 py-2 flex-col items-start gap-1 z-20">
-            <span className="text-sm font-semibold text-gray-900">
-              Happy Customer
+          {/* Customer Rating Badge */}
+          <div className="hidden lg:flex absolute bottom-1/2 -right-12 bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl p-4 flex-col items-start gap-2 z-30 border border-gray-100">
+            <span className="text-sm font-semibold text-gray-800">
+              Rating Pelanggan
             </span>
-            <div className="flex items-center gap-1">
-              {[
-                "/avatars/1.jpeg",
-                "/avatars/2.jpeg",
-                "/avatars/3.jpeg",
-                "/avatars/4.jpeg",
-                "/avatars/5.jpeg",
-              ].map((src, idx) => (
-                <Image
-                  key={idx}
-                  src={src}
-                  alt="avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full border-2 border-white -ml-1 first:ml-0"
+            <div className="flex items-center gap-1 text-yellow-500">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  size={18}
+                  className="fill-yellow-500 stroke-yellow-500"
                 />
               ))}
-              <div className="bg-sky-500 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center -ml-1">
-                99+
-              </div>
+              <span className="text-gray-900 font-bold ml-1">5.0</span>
             </div>
+            <p className="text-xs text-gray-600">Berdasarkan 500+ ulasan</p>
           </div>
         </div>
-      </div>
-
-      {/* Wave Transisi */}
-      <div className="absolute bottom-0 w-full z-20 pointer-events-none">
-        <svg
-          className="w-full h-auto block"
-          viewBox="0 0 1440 500"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill="#ffffff"
-            fillOpacity="1"
-            d="M0,400L60,370C120,340,240,280,360,290C480,300,600,370,720,390C840,410,960,370,1080,330C1200,290,1320,250,1380,230L1440,210V500H0Z"
-          />
-        </svg>
       </div>
     </div>
   );

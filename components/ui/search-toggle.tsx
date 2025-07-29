@@ -40,7 +40,7 @@ export default function SearchToggle() {
             "flex items-center gap-2 text-sm cursor-pointer transition-colors duration-300",
             isWisataPage
               ? isScrolled
-                ? "text-green-600 hover:text-[#5b0f0f]"
+                ? "text-green-800 hover:text-[#5b0f0f]"
                 : "text-white hover:text-white/70"
               : "text-gray-800 hover:text-green-600"
           )}
