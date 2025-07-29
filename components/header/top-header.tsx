@@ -47,7 +47,18 @@ export default function TopHeader() {
           height={64}
         />
         <div className="leading-tight">
-          <p className="text-lg font-bold text-green-800">Marketplace Pondok</p>
+          <p
+            className={clsx(
+              "text-lg font-bold transition-colors duration-300",
+              isWisataPage
+                ? isScrolled
+                  ? "text-green-800"
+                  : "text-white"
+                : "text-green-800"
+            )}
+          >
+            Marketplace Pondok
+          </p>
         </div>
       </div>
 
