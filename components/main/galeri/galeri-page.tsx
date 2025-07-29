@@ -25,12 +25,12 @@ export default function GaleriPage() {
 
   return (
     <div className="mx-auto px-4 py-8 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
-      <h1 className="text-3xl font-bold text-center text-[#A80038] dark:text-[#FF6384] mb-2">
-        Galeri Koperasi Merah Putih
+      <h1 className="text-3xl font-bold text-center text-green-600 dark:text-[#FF6384] mb-2">
+        Galeri Marketplace Pondok
       </h1>
       <p className="text-center text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
         Dokumentasi kegiatan, produk, dan wisata bersama yang dilakukan oleh
-        anggota Koperasi Merah Putih.
+        anggota Marketplace Pondok.
       </p>
 
       {/* Filter */}
@@ -42,10 +42,10 @@ export default function GaleriPage() {
             className={`px-4 py-2 rounded border transition-all duration-200
               ${
                 selectedCategory === cat
-                  ? "bg-[#A80038] text-white border-[#A80038] dark:bg-[#FF6384] dark:border-[#FF6384]"
+                  ? "bg-green-600 text-white border-green-600 dark:bg-[#FF6384] dark:border-[#FF6384]"
                   : "border-gray-300 text-gray-700 bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               }
-              hover:bg-[#A80038] hover:text-white hover:border-[#A80038]
+              hover:bg-green-600 hover:text-white hover:border-green-600
               dark:hover:bg-[#FF6384] dark:hover:text-white dark:hover:border-[#FF6384]
             `}
           >

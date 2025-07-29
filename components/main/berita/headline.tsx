@@ -21,7 +21,7 @@ export default function Headline({ berita, onClick }: HeadlineProps) {
         height={600}
         className="rounded-lg w-full object-cover"
       />
-      <h1 className="text-3xl md:text-4xl font-bold mt-4 text-[#A80038]">
+      <h1 className="text-3xl md:text-4xl font-bold mt-4 text-green-600">
         {berita.title}
       </h1>
       <p className="text-gray-600 mt-2 text-sm">{berita.date}</p>

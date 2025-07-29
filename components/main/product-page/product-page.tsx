@@ -83,7 +83,7 @@ export default function ProdukPage() {
   return (
     <section className="min-h-screen py-10 px-6 md:px-12 bg-neutral-50">
       <h2 className="text-3xl md:text-4xl font-bold text-center text-green-600 mb-4">
-        Produk Koperasi
+        Produk Alumni Pondok
       </h2>
       <p className="text-center text-neutral-600 text-base md:text-lg mb-10 max-w-2xl mx-auto">
         Temukan berbagai produk unggulan dari koperasi desa kami, mulai dari

@@ -51,7 +51,7 @@ const tabs = [
     image: "/images/misi.jpeg",
     content: [
       {
-        title: "Misi Koperasi Merah Putih",
+        title: "Misi Marketplace Pondok",
         points: [
           "Memberikan akses layanan simpan pinjam dan usaha produktif.",
           "Mendorong digitalisasi koperasi hingga ke pelosok desa.",
@@ -77,8 +77,8 @@ export default function ValueVillage() {
       <div className="container mx-auto px-6 md:px-12 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
         {/* Text & Tab Section */}
         <div className="space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#A80038] leading-tight text-center md:text-left">
-            Mengenal Koperasi Merah Putih
+          <h2 className="text-3xl md:text-4xl font-bold text-green-600 leading-tight text-center md:text-left">
+            Mengenal Marketplace Pondok
           </h2>
 
           {/* Tabs */}
@@ -90,8 +90,8 @@ export default function ValueVillage() {
                 className={clsx(
                   "px-4 py-2 text-sm rounded-md transition border",
                   activeTab === i
-                    ? "bg-[#A80038] text-white border-[#A80038]"
-                    : "bg-white text-[#A80038] border-neutral-300 hover:bg-[#fce4ec]"
+                    ? "bg-green-600 text-white border-green-600"
+                    : "bg-white text-green-600 border-neutral-300 hover:bg-[#fce4ec]"
                 )}
               >
                 {tab.label}
@@ -103,7 +103,7 @@ export default function ValueVillage() {
           <div className="space-y-6">
             {current.content.map((section, i) => (
               <div key={i}>
-                <h4 className="font-semibold text-[#A80038] text-base md:text-lg mb-1">
+                <h4 className="font-semibold text-green-600 text-base md:text-lg mb-1">
                   ✅ {section.title}
                 </h4>
                 <ul className="list-disc list-inside text-neutral-700 text-sm md:text-base space-y-1 pl-4">

@@ -9,9 +9,9 @@ export default function Footer() {
 
   const faqs = [
     {
-      question: "Apa itu Koperasi Merah Putih?",
+      question: "Apa itu Marketplace Pondok?",
       answer:
-        "Koperasi Merah Putih adalah koperasi digital yang bertujuan membangun ekonomi kerakyatan melalui transparansi dan gotong royong.",
+        "Marketplace Pondok adalah koperasi digital yang bertujuan membangun ekonomi kerakyatan melalui transparansi dan gotong royong.",
     },
     {
       question: "Bagaimana cara menjadi anggota?",
@@ -31,7 +31,7 @@ export default function Footer() {
         {/* Company Info */}
         <div>
           <h3 className="text-white text-xl font-semibold mb-4">
-            Koperasi Merah Putih
+            Marketplace Pondok
           </h3>
           <p className="text-sm leading-relaxed">
             Bersama membangun masa depan ekonomi kerakyatan berbasis digital
@@ -49,7 +49,7 @@ export default function Footer() {
               href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white hover:text-[#A80038] transition"
+              className="text-white hover:text-green-600 transition"
             >
               <FaInstagram size={20} />
             </a>
@@ -57,7 +57,7 @@ export default function Footer() {
               href="https://facebook.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white hover:text-[#A80038] transition"
+              className="text-white hover:text-green-600 transition"
             >
               <FaFacebookF size={20} />
             </a>
@@ -65,7 +65,7 @@ export default function Footer() {
               href="https://youtube.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white hover:text-[#A80038] transition"
+              className="text-white hover:text-green-600 transition"
             >
               <FaYoutube size={20} />
             </a>
@@ -131,7 +131,7 @@ export default function Footer() {
       </div>
 
       <div className="mt-12 text-center text-xs text-neutral-400 border-t border-neutral-700 pt-6">
-        © {new Date().getFullYear()} Koperasi Merah Putih. Semua hak dilindungi.
+        © {new Date().getFullYear()} Marketplace Pondok. Semua hak dilindungi.
       </div>
     </footer>
   );

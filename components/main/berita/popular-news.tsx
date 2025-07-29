@@ -11,7 +11,7 @@ export default function PopularNews({ onClick }: PopularNewsProps) {
 
   return (
     <div className="bg-white p-4 rounded-md shadow-md">
-      <h3 className="text-xl font-bold mb-4 text-[#A80038]">Populer</h3>
+      <h3 className="text-xl font-bold mb-4 text-green-600">Populer</h3>
       <ul className="space-y-3">
         {popular.map((item, i) => (
           <li

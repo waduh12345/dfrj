@@ -12,32 +12,32 @@ import {
 export default function WhyJoinSection() {
   const reasons = [
     {
-      icon: <Users className="w-10 h-10 text-[#A80038]" />,
+      icon: <Users className="w-10 h-10 text-green-600" />,
       title: "Gotong Royong",
       desc: "Koperasi dibangun atas dasar kebersamaan dan saling membantu antar anggota.",
     },
     {
-      icon: <Handshake className="w-10 h-10 text-[#A80038]" />,
+      icon: <Handshake className="w-10 h-10 text-green-600" />,
       title: "Kepemilikan Bersama",
       desc: "Setiap anggota memiliki hak suara dan ikut ambil bagian dalam pengambilan keputusan.",
     },
     {
-      icon: <ShieldCheck className="w-10 h-10 text-[#A80038]" />,
+      icon: <ShieldCheck className="w-10 h-10 text-green-600" />,
       title: "Transparan & Aman",
       desc: "Sistem pengelolaan terbuka, laporan keuangan jelas, dan diawasi oleh anggota.",
     },
     {
-      icon: <Smartphone className="w-10 h-10 text-[#A80038]" />,
+      icon: <Smartphone className="w-10 h-10 text-green-600" />,
       title: "Digital & Modern",
       desc: "Akses layanan koperasi cukup lewat aplikasi, cepat dan efisien.",
     },
     {
-      icon: <TrendingUp className="w-10 h-10 text-[#A80038]" />,
+      icon: <TrendingUp className="w-10 h-10 text-green-600" />,
       title: "Memberikan Keuntungan",
       desc: "Sisa hasil usaha dibagikan secara adil kepada seluruh anggota.",
     },
     {
-      icon: <Globe className="w-10 h-10 text-[#A80038]" />,
+      icon: <Globe className="w-10 h-10 text-green-600" />,
       title: "Dukungan Ekonomi Lokal",
       desc: "Koperasi mendukung UMKM dan pertumbuhan ekonomi di daerah.",
     },
@@ -50,7 +50,7 @@ export default function WhyJoinSection() {
           Kenapa Harus Bergabung?
         </h2>
         <p className="text-neutral-600 max-w-2xl mx-auto mb-12">
-          Bergabung dengan Koperasi Merah Putih bukan sekadar menabung atau
+          Bergabung dengan Marketplace Pondok bukan sekadar menabung atau
           meminjam, tapi menjadi bagian dari gerakan ekonomi kerakyatan berbasis
           teknologi.
         </p>

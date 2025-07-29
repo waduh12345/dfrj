@@ -6,7 +6,7 @@ import { Banknote, ShoppingBag, Smartphone, Leaf } from "lucide-react";
 export default function ProdukKoperasiSection() {
   const produk = [
     {
-      icon: <Banknote className="w-6 h-6 text-[#A80038]" />,
+      icon: <Banknote className="w-6 h-6 text-green-600" />,
       title: "Produk Simpan Pinjam",
       items: [
         "Simpanan Pokok, Wajib & Sukarela",
@@ -15,7 +15,7 @@ export default function ProdukKoperasiSection() {
       ],
     },
     {
-      icon: <ShoppingBag className="w-6 h-6 text-[#A80038]" />,
+      icon: <ShoppingBag className="w-6 h-6 text-green-600" />,
       title: "Produk Konsumsi & Retail",
       items: [
         "Sembako & kebutuhan harian",
@@ -24,7 +24,7 @@ export default function ProdukKoperasiSection() {
       ],
     },
     {
-      icon: <Smartphone className="w-6 h-6 text-[#A80038]" />,
+      icon: <Smartphone className="w-6 h-6 text-green-600" />,
       title: "Layanan & Produk Digital",
       items: [
         "Pembayaran PPOB (listrik, pulsa, dll)",
@@ -33,7 +33,7 @@ export default function ProdukKoperasiSection() {
       ],
     },
     {
-      icon: <Leaf className="w-6 h-6 text-[#A80038]" />,
+      icon: <Leaf className="w-6 h-6 text-green-600" />,
       title: "Produk Berdasarkan Sektor",
       items: [
         "Pupuk & bibit (koperasi tani)",
@@ -49,7 +49,7 @@ export default function ProdukKoperasiSection() {
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/bg-product.jpg"
-          alt="Produk Koperasi"
+          alt="Produk Alumni Pondok"
           layout="fill"
           objectFit="cover"
           className="brightness-50"
@@ -63,7 +63,7 @@ export default function ProdukKoperasiSection() {
           Produk & Layanan Koperasi
         </h2>
         <p className="max-w-2xl mx-auto mb-12 text-neutral-200">
-          Koperasi Merah Putih menyediakan berbagai produk unggulan untuk
+          Marketplace Pondok menyediakan berbagai produk unggulan untuk
           mendukung kesejahteraan anggota dan masyarakat melalui sistem simpan
           pinjam, layanan digital, serta produk konsumsi dan sektor khusus.
         </p>

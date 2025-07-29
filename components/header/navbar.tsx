@@ -83,7 +83,7 @@ export default function Navbar() {
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className="text-gray-800 hover:text-[#A80038] transition-colors"
+              className="text-gray-800 hover:text-green-600 transition-colors"
             >
               {item.label}
             </Link>
@@ -93,14 +93,14 @@ export default function Navbar() {
 
           <Link
             href="/auth/register"
-            className="text-gray-800 hover:text-[#A80038] transition-colors"
+            className="text-gray-800 hover:text-green-600 transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             Sign Up
           </Link>
           <Link
             href="/auth/login"
-            className="bg-[#A80038] text-white px-4 py-2 rounded-md hover:bg-white hover:border hover:border-[#A80038] hover:text-[#A80038] transition-colors"
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-white hover:border hover:border-green-600 hover:text-green-600 transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             Sign In
