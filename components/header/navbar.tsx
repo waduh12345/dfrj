@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { IconMenu2, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
+import { useSession } from "next-auth/react"; // Tambahkan ini
 
 const navItems = [
   { label: "Beranda", href: "/" },
@@ -15,6 +16,9 @@ const navItems = [
 
 export default function Navbar() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const { data: session } = useSession(); // Dapatkan session
+
+  const isLoggedIn = !!session; // True jika sudah login
 
   return (
     <nav className="w-full bg-green-600 shadow-md">
@@ -31,21 +35,25 @@ export default function Navbar() {
             </Link>
           ))}
 
-          <span className="text-white">|</span>
-          <div className="flex items-center gap-3 text-sm font-medium">
-            <Link
-              href="/auth/register"
-              className="text-white text-xs hover:text-green-900 transition-colors"
-            >
-              Sign Up
-            </Link>
-            <Link
-              href="/auth/login"
-              className="bg-white text-green-800 text-xs px-4 py-2 rounded-md hover:bg-green-800 hover:text-white border border-transparent hover:border-white transition-colors"
-            >
-              Sign In
-            </Link>
-          </div>
+          {!isLoggedIn && (
+            <>
+              <span className="text-white">|</span>
+              <div className="flex items-center gap-3 text-sm font-medium">
+                <Link
+                  href="/auth/register"
+                  className="text-white text-xs hover:text-green-900 transition-colors"
+                >
+                  Sign Up
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="bg-white text-green-800 text-xs px-4 py-2 rounded-md hover:bg-green-800 hover:text-white border border-transparent hover:border-white transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -54,7 +62,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Sidebar Overlay (mobile) */}
+      {/* Sidebar Overlay */}
       <div
         className={clsx(
           "fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-opacity",
@@ -89,22 +97,25 @@ export default function Navbar() {
             </Link>
           ))}
 
-          <hr className="my-4" />
-
-          <Link
-            href="/auth/register"
-            className="text-gray-800 hover:text-[#A80038] transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            Sign Up
-          </Link>
-          <Link
-            href="/auth/login"
-            className="bg-[#A80038] text-white px-4 py-2 rounded-md hover:bg-white hover:border hover:border-[#A80038] hover:text-[#A80038] transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            Sign In
-          </Link>
+          {!isLoggedIn && (
+            <>
+              <hr className="my-4" />
+              <Link
+                href="/auth/register"
+                className="text-gray-800 hover:text-[#A80038] transition-colors"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Sign Up
+              </Link>
+              <Link
+                href="/auth/login"
+                className="bg-[#A80038] text-white px-4 py-2 rounded-md hover:bg-white hover:border hover:border-[#A80038] hover:text-[#A80038] transition-colors"
+                onClick={() => setSidebarOpen(false)}
+              >
+                Sign In
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
