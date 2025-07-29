@@ -91,13 +91,12 @@ export default function Navbar() {
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className="text-gray-800 hover:text-green-600 transition-colors"
+              className="text-gray-800 hover:text-[#A80038] transition-colors"
             >
               {item.label}
             </Link>
           ))}
 
-<<<<<<< HEAD
           {!isLoggedIn && (
             <>
               <hr className="my-4" />
@@ -117,24 +116,6 @@ export default function Navbar() {
               </Link>
             </>
           )}
-=======
-          <hr className="my-4" />
-
-          <Link
-            href="/auth/register"
-            className="text-gray-800 hover:text-green-600 transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            Sign Up
-          </Link>
-          <Link
-            href="/auth/login"
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-white hover:border hover:border-green-600 hover:text-green-600 transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            Sign In
-          </Link>
->>>>>>> 52bab6841970d5f2c1443d80e079f6973f7cbe48
         </div>
       </div>
     </nav>
