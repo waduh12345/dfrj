@@ -4,28 +4,34 @@ import Image from "next/image";
 
 const programs = [
   {
-    title: "Simpanan Anggota",
-    image: "/images/program-simpanan.jpeg",
+    title: "Tahfizhul Qur'an",
+    image:
+      "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brUxj6VpBWSPehBoYMr1DQnmd5C42qTFw3NOEk", // Example image for Tahfiz
   },
   {
-    title: "Pinjaman Modal Usaha",
-    image: "/images/program-pinjaman.jpeg",
+    title: "Kajian Kitab Kuning",
+    image:
+      "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brKv0lD014VcdFfpgaC3D2L58U6OKsuJSRx9Yb", // Example image for Kitab Kuning
   },
   {
-    title: "Digitalisasi UMKM",
-    image: "/images/program-umkm.jpeg",
+    title: "Pembelajaran Bahasa Arab & Inggris",
+    image:
+      "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6br7VKAzkhpNrnlqaJbePh1cuk4FvyYmTIfM3Sd", // Example image for Languages
   },
   {
-    title: "Pelatihan Kewirausahaan",
-    image: "/images/program-pelatihan.jpeg",
+    title: "Ekstrakurikuler Santri",
+    image:
+      "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brJiyanFsxXS4VG7LWfm6advRg0CwOth93nzoI", // Example image for Extracurricular
   },
   {
-    title: "Pendampingan Desa",
-    image: "/images/program-desa.jpeg",
+    title: "Pengabdian Masyarakat",
+    image:
+      "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brAxxU1enIir0xdSLwavBoJFRCqeUguODGPX8T", // Example image for Community Service
   },
   {
-    title: "Program Investasi",
-    image: "/images/program-investasi.jpeg",
+    title: "Wirausaha Santri",
+    image:
+      "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brDXrodole9Pq1UKOrEp3SatvGfhVg28HxdYIs", // Example image for Entrepreneurship
   },
 ];
 
@@ -33,14 +39,13 @@ export default function ProgramSection() {
   return (
     <section id="program" className="bg-white py-20 px-6 md:px-12">
       <div className="container mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-green-600 mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-green-700 mb-4">
           Program Unggulan Kami
         </h2>
         <p className="text-center text-neutral-600 text-base md:text-lg mb-12 max-w-3xl mx-auto">
-          Kami menghadirkan berbagai program strategis yang dirancang untuk
-          memperkuat ekonomi anggota, mendukung UMKM, serta meningkatkan
-          kesejahteraan masyarakat melalui pendekatan koperasi yang modern dan
-          berkelanjutan.
+          Kami menyelenggarakan berbagai program pendidikan dan pembinaan yang
+          komprehensif untuk membentuk santri yang berilmu, berakhlak mulia,
+          mandiri, dan siap berbakti kepada umat.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {programs.map((program, index) => (

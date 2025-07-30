@@ -7,68 +7,72 @@ import clsx from "clsx";
 const tabs = [
   {
     label: "Nilai Kami",
-    image: "/images/profile-desa.jpeg",
+    image:
+      "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6breB2JigyoGnIOWsFHm8Cc2aREpdLo36xh9NA7", // Example image for values
     content: [
       {
-        title: "Inovatif, Kreatif, Adaptif",
+        title: "Akhlak Karimah",
         points: [
-          "Mengikuti perkembangan teknologi untuk mendukung operasional koperasi.",
-          "Berpikir kreatif dalam memecahkan tantangan ekonomi desa.",
-          "Fleksibel dalam beradaptasi dengan perubahan zaman dan kebutuhan anggota.",
+          "Membentuk santri yang berakhlak mulia sesuai ajaran Al-Qur'an dan Sunnah.",
+          "Menerapkan nilai-nilai kejujuran, disiplin, dan tanggung jawab.",
+          "Menumbuhkan rasa hormat kepada guru, orang tua, dan sesama.",
         ],
       },
       {
-        title: "Profesionalisme & Keahlian",
+        title: "Ilmu Amaliah",
         points: [
-          "Tim pengurus yang berkompeten dan berpengalaman.",
-          "Memberikan layanan koperasi berkualitas tinggi dan terpercaya.",
+          "Mengutamakan penguasaan ilmu agama dan umum yang seimbang.",
+          "Mendorong santri untuk mengamalkan ilmu yang telah dipelajari dalam kehidupan sehari-hari.",
         ],
       },
       {
-        title: "Empati & Inisiatif",
+        title: "Kemasyarakatan",
         points: [
-          "Mendengarkan kebutuhan masyarakat dengan empati.",
-          "Proaktif dalam mencari solusi untuk kesejahteraan anggota.",
+          "Melatih santri untuk peka terhadap lingkungan sosial dan berkontribusi positif.",
+          "Membekali santri dengan jiwa kepemimpinan dan pengabdian kepada masyarakat.",
         ],
       },
     ],
   },
   {
     label: "Visi Kami",
-    image: "/images/visi.jpeg",
+    image:
+      "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brUxj6VpBWSPehBoYMr1DQnmd5C42qTFw3NOEk",
     content: [
       {
-        title: "Membangun Desa Mandiri dan Berdaya",
+        title: "Mencetak Generasi Qur'ani dan Berdaya Saing Global",
         points: [
-          "Menjadi koperasi digital terpercaya di tingkat nasional.",
-          "Menumbuhkan semangat gotong royong dan solidaritas ekonomi.",
+          "Menjadi lembaga pendidikan Islam unggulan yang melahirkan ulama dan pemimpin masa depan.",
+          "Menyebarkan nilai-nilai Islam rahmatan lil 'alamin.",
         ],
       },
     ],
   },
   {
     label: "Misi Kami",
-    image: "/images/misi.jpeg",
+    image:
+      "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6broH5TwbUTjB3H0KvwO9YpDsMkAhxlSc8uyb24", // Example image for mission
     content: [
       {
-        title: "Misi Marketplace Pondok",
+        title: "Misi Pondok Pesantren",
         points: [
-          "Memberikan akses layanan simpan pinjam dan usaha produktif.",
-          "Mendorong digitalisasi koperasi hingga ke pelosok desa.",
-          "Mengembangkan SDM koperasi melalui pelatihan dan pendampingan.",
+          "Menyelenggarakan pendidikan agama dan umum secara terintegrasi.",
+          "Mengembangkan potensi santri dalam berbagai bidang (akademik, non-akademik, kewirausahaan).",
+          "Menciptakan lingkungan belajar yang kondusif dan islami.",
+          "Membina santri agar memiliki kemandirian dan jiwa dakwah.",
         ],
       },
     ],
   },
 ];
 
-export default function ValueVillage() {
+export default function ValuePondokPesantren() {
   const [activeTab, setActiveTab] = useState(0);
   const current = tabs[activeTab];
 
   return (
     <section
-      id="profile-desa"
+      id="profile-pondok-pesantren" // Changed ID to reflect pondok pesantren
       className="relative bg-white py-20 overflow-hidden"
     >
       {/* Pola Background (opsional) */}
@@ -77,8 +81,8 @@ export default function ValueVillage() {
       <div className="container mx-auto px-6 md:px-12 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
         {/* Text & Tab Section */}
         <div className="space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-green-600 leading-tight text-center md:text-left">
-            Mengenal Marketplace Pondok
+          <h2 className="text-3xl md:text-4xl font-bold text-green-700 leading-tight text-center md:text-left">
+            Mengenal Pondok Pesantren
           </h2>
 
           {/* Tabs */}
@@ -90,8 +94,8 @@ export default function ValueVillage() {
                 className={clsx(
                   "px-4 py-2 text-sm rounded-md transition border",
                   activeTab === i
-                    ? "bg-green-600 text-white border-green-600"
-                    : "bg-white text-green-600 border-neutral-300 hover:bg-[#fce4ec]"
+                    ? "bg-green-700 text-white border-green-700"
+                    : "bg-white text-green-700 border-neutral-300 hover:bg-green-50" // Adjusted hover color
                 )}
               >
                 {tab.label}
@@ -103,7 +107,7 @@ export default function ValueVillage() {
           <div className="space-y-6">
             {current.content.map((section, i) => (
               <div key={i}>
-                <h4 className="font-semibold text-green-600 text-base md:text-lg mb-1">
+                <h4 className="font-semibold text-green-700 text-base md:text-lg mb-1">
                   ✅ {section.title}
                 </h4>
                 <ul className="list-disc list-inside text-neutral-700 text-sm md:text-base space-y-1 pl-4">
