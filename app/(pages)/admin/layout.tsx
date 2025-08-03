@@ -3,6 +3,10 @@ import React, { useState, useEffect } from "react";
 import {
   Database,
   Store,
+  ShoppingCart,
+  User,
+  Users,
+  Package,
 } from "lucide-react";
 import Header from "@/components/admin-components/header";
 import Sidebar from "@/components/admin-components/sidebar";
@@ -32,15 +36,51 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       children: [
         {
           id: "master-product-category",
-          label: "Master Product Category",
+          label: "Kategori Produk",
           href: "/admin/product-category",
         },
         {
           id: "master-product-merk",
-          label: "Master Product Merk",
+          label: "Merk Produk",
           href: "/admin/product-merk",
         },
       ],
+    },
+    {
+      id: "product",
+      label: "Produk",
+      icon: <Package className="h-5 w-5" />,
+      href: "#", 
+      children: [
+        {
+          id: "product-list",
+          label: "Data Produk",
+          href: "/admin/product-list",
+        },
+        {
+          id: "product-varian",
+          label: "Varian Produk",
+          href: "/admin/product-variant",
+        },
+      ],
+    },
+    {
+      id: "transaction",
+      label: "Transaksi",
+      icon: <ShoppingCart className="h-5 w-5" />,
+      href: "/admin/transaction",
+    },
+    {
+      id: "pengguna",
+      label: "Data Pengguna",
+      icon: <Users className="h-5 w-5" />,
+      href: "/admin/pengguna",
+    },
+    {
+      id: "alumni",
+      label: "Data Alumni",
+      icon: <User className="h-5 w-5" />,
+      href: "/admin/alumni",
     },
     {
       id: "shop",
