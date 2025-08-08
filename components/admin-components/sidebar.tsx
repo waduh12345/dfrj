@@ -10,7 +10,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
   const pathname = usePathname();
   const [openMenus, setOpenMenus] = useState<string[]>([]);
 
-  const toggleSubMenu = (id: string) => {
+  const toggleSubMenu = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setOpenMenus((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
@@ -64,36 +66,45 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
 
             return (
               <div key={item.id}>
-                <button
-                  onClick={() =>
-                    hasChildren
-                      ? toggleSubMenu(item.id)
-                      : window.innerWidth < 1024 && onClose()
-                  }
-                  className={`w-full group flex items-center justify-between px-2 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
-                    isActive
-                      ? "bg-gray-200 text-gray-900"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <div className="mr-3 flex-shrink-0 h-5 w-5">
-                      {item.icon}
+                <div className="relative">
+                  <Link
+                    href={item.href}
+                    onClick={() => window.innerWidth < 1024 && onClose()}
+                    className={`w-full group flex items-center justify-between px-2 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
+                      isActive
+                        ? "bg-gray-200 text-gray-900"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div className="mr-3 flex-shrink-0 h-5 w-5">
+                        {item.icon}
+                      </div>
+                      <span>{item.label}</span>
                     </div>
-                    <span>{item.label}</span>
-                  </div>
-                  {hasChildren &&
-                    (isOpen ? (
-                      <ChevronUp className="h-4 w-4 text-gray-500" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
-                    ))}
-                  {item.badge && (
-                    <span className="ml-3 inline-block py-0.5 px-2 text-xs bg-red-600 text-white rounded-full">
-                      {item.badge}
-                    </span>
+                    <div className="flex items-center">
+                      {item.badge && (
+                        <span className="ml-3 inline-block py-0.5 px-2 text-xs bg-red-600 text-white rounded-full">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+
+                  {hasChildren && (
+                    <button
+                      onClick={(e) => toggleSubMenu(item.id, e)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded hover:bg-gray-200 focus:outline-none"
+                      aria-label={`Toggle ${item.label} submenu`}
+                    >
+                      {isOpen ? (
+                        <ChevronUp className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                      )}
+                    </button>
                   )}
-                </button>
+                </div>
 
                 {hasChildren && isOpen && (
                   <div className="ml-6 mt-1 space-y-1">

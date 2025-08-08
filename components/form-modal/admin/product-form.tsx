@@ -6,7 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types/admin/product";
+import { Combobox } from "@/components/ui/combo-box";
+import { useGetProductCategoryListQuery } from "@/services/master/product-category.service";
+import { useGetProductMerkListQuery } from "@/services/master/product-merk.service";
 import Image from "next/image";
+import { formatNumber } from "@/lib/format";
 
 interface FormProductProps {
   form: Partial<Product>;
@@ -34,6 +38,21 @@ export default function FormProduct({
     }
   }, []);
 
+  const { data: categoryResponse, isLoading: categoryLoading } =
+    useGetProductCategoryListQuery({
+      page: 1,
+      paginate: 100,
+    });
+
+  const { data: merkResponse, isLoading: merkLoading } =
+    useGetProductMerkListQuery({
+      page: 1,
+      paginate: 100,
+    });
+
+  const categoryData = categoryResponse?.data ?? [];
+  const merkData = merkResponse?.data ?? [];
+
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
       {/* Header - Fixed */}
@@ -55,32 +74,48 @@ export default function FormProduct({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-y-1">
             <Label>Kategori Produk</Label>
-            <Input
-              type="number"
-              value={form.product_category_id ?? ""}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  product_category_id: e.target.value ? Number(e.target.value) : undefined,
-                })
-              }
-              readOnly={readonly}
-            />
+            {readonly ? (
+              <Input
+                readOnly
+                value={
+                  categoryData.find((c) => c.id === form.product_category_id)
+                    ?.name ?? "-"
+                }
+              />
+            ) : (
+              <Combobox
+                value={form.product_category_id ?? null}
+                onChange={(val) =>
+                  setForm({ ...form, product_category_id: val })
+                }
+                data={categoryData}
+                isLoading={categoryLoading}
+                getOptionLabel={(item) => item.name}
+                placeholder="Pilih Kategori Produk"
+              />
+            )}
           </div>
 
           <div className="flex flex-col gap-y-1">
             <Label>Merk Produk</Label>
-            <Input
-              type="number"
-              value={form.product_merk_id ?? ""}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  product_merk_id: e.target.value ? Number(e.target.value) : undefined,
-                })
-              }
-              readOnly={readonly}
-            />
+            {readonly ? (
+              <Input
+                readOnly
+                value={
+                  merkData.find((m) => m.id === form.product_merk_id)?.name ??
+                  "-"
+                }
+              />
+            ) : (
+              <Combobox
+                value={form.product_merk_id ?? null}
+                onChange={(val) => setForm({ ...form, product_merk_id: val })}
+                data={merkData}
+                isLoading={merkLoading}
+                getOptionLabel={(item) => item.name}
+                placeholder="Pilih Merk Produk"
+              />
+            )}
           </div>
 
           <div className="flex flex-col gap-y-1 col-span-2">
@@ -96,7 +131,9 @@ export default function FormProduct({
             <Label>Deskripsi</Label>
             <Textarea
               value={form.description || ""}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
               readOnly={readonly}
             />
           </div>
@@ -104,14 +141,18 @@ export default function FormProduct({
           <div className="flex flex-col gap-y-1">
             <Label>Harga</Label>
             <Input
-              type="number"
-              value={form.price ?? ""}
-              onChange={(e) =>
+              type="text"
+              inputMode="numeric"
+              value={form.price !== undefined ? formatNumber(form.price) : ""}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/\./g, ""); // hapus titik
+                const numberValue = Number(raw);
+
                 setForm({
                   ...form,
-                  price: e.target.value ? Number(e.target.value) : undefined,
-                })
-              }
+                  price: raw === "" ? undefined : numberValue,
+                });
+              }}
               readOnly={readonly}
             />
           </div>
@@ -130,7 +171,7 @@ export default function FormProduct({
               readOnly={readonly}
             />
           </div>
-          
+
           <div className="flex flex-col gap-y-1">
             <Label>Berat</Label>
             <Input
@@ -160,7 +201,7 @@ export default function FormProduct({
               readOnly={readonly}
             />
           </div>
-          
+
           <div className="flex flex-col gap-y-1">
             <Label>Width</Label>
             <Input

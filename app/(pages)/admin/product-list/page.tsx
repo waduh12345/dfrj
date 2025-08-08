@@ -14,9 +14,11 @@ import {
 import { Product } from "@/types/admin/product";
 import FormProduct from "@/components/form-modal/admin/product-form";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 export default function ProductPage() {
+  const { data: session } = useSession();
+
   const [form, setForm] = useState<Partial<Product>>({
     status: true,
   });
@@ -34,26 +36,63 @@ export default function ProductPage() {
   const categoryList = useMemo(() => data?.data || [], [data]);
   const lastPage = useMemo(() => data?.last_page || 1, [data]);
 
-  const [createProduct, { isLoading: isCreating }] =
-    useCreateProductMutation();
-  const [updateProduct, { isLoading: isUpdating }] =
-    useUpdateProductMutation();
+  const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
+  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
 
   const handleSubmit = async () => {
     try {
       const payload = new FormData();
+
+      // === REQUIRED FIELDS ===
+      // Shop ID dari session
+      if (session?.user.shop?.id) {
+        payload.append("shop_id", `${session.user.shop.id}`);
+      } else {
+        throw new Error("Session shop ID not found");
+      }
+
+      // Pastikan semua data numeric disiapkan dan valid (default ke 0 kalau undefined)
+      payload.append("price", form.price ? `${form.price}` : "0");
+      payload.append("stock", form.stock ? `${form.stock}` : "0");
+      payload.append("weight", form.weight ? `${form.weight}` : "0");
+      payload.append("length", form.length ? `${form.length}` : "0");
+      payload.append("width", form.width ? `${form.width}` : "0");
+      payload.append("height", form.height ? `${form.height}` : "0");
+
+      // === OPTIONAL FIELDS ===
       if (form.name) payload.append("name", form.name);
       if (form.description) payload.append("description", form.description);
-      if (form.product_category_id) payload.append("product_category_id", `${form.product_category_id}`);
-      if (form.product_merk_id) payload.append("product_merk_id", `${form.product_merk_id}`);
+      if (form.product_category_id)
+        payload.append("product_category_id", `${form.product_category_id}`);
+      if (form.product_merk_id)
+        payload.append("product_merk_id", `${form.product_merk_id}`);
       if (typeof form.status === "boolean") {
         payload.append("status", form.status ? "1" : "0");
       }
       if (form.image instanceof File) {
         payload.append("image", form.image);
       }
+      if (form.image_2 instanceof File) {
+        payload.append("image_2", form.image_2);
+      }
+      if (form.image_3 instanceof File) {
+        payload.append("image_3", form.image_3);
+      }
+      if (form.image_4 instanceof File) {
+        payload.append("image_4", form.image_4);
+      }
+      if (form.image_5 instanceof File) {
+        payload.append("image_5", form.image_5);
+      }
+      if (form.image_6 instanceof File) {
+        payload.append("image_6", form.image_6);
+      }
+      if (form.image_7 instanceof File) {
+        payload.append("image_7", form.image_7);
+      }
 
+      // === SUBMIT ===
       if (editingSlug) {
         await updateProduct({ slug: editingSlug, payload }).unwrap();
         Swal.fire("Sukses", "Produk diperbarui", "success");
@@ -74,7 +113,7 @@ export default function ProductPage() {
 
   const handleEdit = (item: Product) => {
     setForm({ ...item, status: item.status === true || item.status === 1 });
-    setEditingSlug(item.id.toString());
+    setEditingSlug(item.slug);
     setReadonly(false);
     openModal();
   };
@@ -125,20 +164,20 @@ export default function ProductPage() {
                 <th className="px-4 py-2">Harga</th>
                 <th className="px-4 py-2">Stok</th>
                 <th className="px-4 py-2">Ratting</th>
-                <th className="px-4 py-2">T. Views</th>
+                <th className="px-4 py-2 whitespace-nowrap">T. Views</th>
                 <th className="px-4 py-2">Status</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="text-center p-4">
+                  <td colSpan={9} className="text-center p-4">
                     Memuat data...
                   </td>
                 </tr>
               ) : categoryList.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="text-center p-4">
+                  <td colSpan={9} className="text-center p-4">
                     Tidak ada data
                   </td>
                 </tr>
@@ -162,14 +201,26 @@ export default function ProductPage() {
                         </Button>
                       </div>
                     </td>
-                    <td className="px-4 py-2">{item.category_name}</td>
-                    <td className="px-4 py-2">{item.merk_name}</td>
-                    <td className="px-4 py-2">{item.name}</td>
-                    <td className="px-4 py-2">{item.price}</td>
-                    <td className="px-4 py-2">{item.stock}</td>
-                    <td className="px-4 py-2">{item.rating}</td>
-                    <td className="px-4 py-2">{item.total_reviews}</td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      {item.category_name}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      {item.merk_name}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap">{item.name}</td>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      {item.price}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      {item.stock}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      {item.rating}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      {item.total_reviews}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap">
                       <Badge variant={item.status ? "success" : "destructive"}>
                         {item.status ? "Aktif" : "Nonaktif"}
                       </Badge>

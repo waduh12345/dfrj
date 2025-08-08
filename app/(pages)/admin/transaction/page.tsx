@@ -58,16 +58,16 @@ export default function TransactionPage() {
           <table className="w-full text-sm">
             <thead className="bg-muted text-left">
               <tr>
-                <th className="px-4 py-2">Aksi</th>
-                <th className="px-4 py-2">ID</th>
-                <th className="px-4 py-2">Customer</th>
-                <th className="px-4 py-2">Harga</th>
-                <th className="px-4 py-2">Diskon</th>
-                <th className="px-4 py-2">Biaya Pengiriman</th>
-                <th className="px-4 py-2">Total harga</th>
-                <th className="px-4 py-2">Payment Link</th>
-                <th className="px-4 py-2">Tanggal</th>
-                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2 whitespace-nowrap">Aksi</th>
+                <th className="px-4 py-2 whitespace-nowrap">ID</th>
+                <th className="px-4 py-2 whitespace-nowrap">Customer</th>
+                <th className="px-4 py-2 whitespace-nowrap">Harga</th>
+                <th className="px-4 py-2 whitespace-nowrap">Diskon</th>
+                <th className="px-4 py-2 whitespace-nowrap">Biaya Pengiriman</th>
+                <th className="px-4 py-2 whitespace-nowrap">Total harga</th>
+                <th className="px-4 py-2 whitespace-nowrap">Payment Link</th>
+                <th className="px-4 py-2 whitespace-nowrap">Tanggal</th>
+                <th className="px-4 py-2 whitespace-nowrap">Status</th>
               </tr>
             </thead>
             <tbody>

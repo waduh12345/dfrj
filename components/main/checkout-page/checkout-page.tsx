@@ -12,44 +12,15 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-
-// Dummy data untuk testing UI
-const DUMMY_CART_ITEMS = [
-  {
-    id: "1",
-    name: "Beras Premium 5kg",
-    price: 65000,
-    image: "/images/beras.jpg",
-    kecamatan: "Cibinong",
-    quantity: 2,
-    description: "Beras premium kualitas terbaik dari petani lokal"
-  },
-  {
-    id: "2", 
-    name: "Minyak Goreng 2L",
-    price: 35000,
-    image: "/images/minyak.jpg",
-    kecamatan: "Sukamakmur",
-    quantity: 1,
-    description: "Minyak goreng berkualitas tinggi"
-  },
-  {
-    id: "3",
-    name: "Gula Pasir 1kg",
-    price: 14000,
-    image: "/images/gula.jpg",
-    kecamatan: "Cibinong",
-    quantity: 3,
-    description: "Gula pasir putih bersih"
-  }
-];
+import useCart from "@/hooks/use-cart"; // Import the cart hook
 
 export default function CheckoutPage() {
   const router = useRouter();
-  
-  // Menggunakan dummy data
-  const [cartItems, setCartItems] = useState(DUMMY_CART_ITEMS);
-  
+
+  // Use the cart hook instead of dummy data
+  const { cartItems, removeItem, increaseItemQuantity, decreaseItemQuantity } =
+    useCart();
+
   const [shippingInfo, setShippingInfo] = useState({
     fullName: "",
     phone: "",
@@ -62,37 +33,50 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [shippingMethod, setShippingMethod] = useState("");
 
-  const shippingCost = shippingMethod === "express" ? 15000 : shippingMethod === "regular" ? 10000 : 0;
-  
-  // Calculate subtotal from dummy data
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shippingCost =
+    shippingMethod === "express"
+      ? 15000
+      : shippingMethod === "regular"
+      ? 10000
+      : 0;
+
+  // Calculate subtotal from cart items
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const total = subtotal + shippingCost;
 
-  // Dummy functions untuk handle cart operations
-  const handleQuantityChange = (id: string, newQuantity: number) => {
-    if (newQuantity === 0) {
-      setCartItems(cartItems.filter(item => item.id !== id));
-    } else {
-      setCartItems(cartItems.map(item => 
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      ));
-    }
-  };
+  // Handle quantity changes using cart hook functions
+  const handleQuantityChange = (id: number, newQuantity: number) => {
+    const currentItem = cartItems.find((item) => item.id === id);
+    if (!currentItem) return;
 
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+    if (newQuantity === 0) {
+      removeItem(id);
+    } else if (newQuantity > currentItem.quantity) {
+      increaseItemQuantity(id);
+    } else if (newQuantity < currentItem.quantity) {
+      decreaseItemQuantity(id);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setShippingInfo(prev => ({ ...prev, [field]: value }));
+    setShippingInfo((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleCheckout = () => {
-    if (!paymentMethod || !shippingMethod || !shippingInfo.fullName || !shippingInfo.address || !shippingInfo.kecamatan) {
+    if (
+      !paymentMethod ||
+      !shippingMethod ||
+      !shippingInfo.fullName ||
+      !shippingInfo.address ||
+      !shippingInfo.kecamatan
+    ) {
       alert("Harap lengkapi semua informasi yang diperlukan");
       return;
     }
-    
+
     // Log order data untuk testing
     const orderData = {
       items: cartItems,
@@ -104,12 +88,11 @@ export default function CheckoutPage() {
       total: total,
       orderDate: new Date().toISOString(),
     };
-    
+
     console.log("Order Data:", orderData);
-    
+
     alert("Pesanan berhasil dibuat! Terima kasih atas pembelian Anda.");
-    
-    // Redirect to home after checkout
+
     router.push("/");
   };
 
@@ -117,11 +100,15 @@ export default function CheckoutPage() {
     return (
       <section className="min-h-screen py-10 px-6 md:px-12 bg-neutral-50">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-green-600 mb-4">Keranjang Kosong</h2>
-          <p className="text-neutral-600 mb-8">Belum ada produk di keranjang Anda</p>
-          <Button 
+          <h2 className="text-3xl font-bold text-green-600 mb-4">
+            Keranjang Kosong
+          </h2>
+          <p className="text-neutral-600 mb-8">
+            Belum ada produk di keranjang Anda
+          </p>
+          <Button
             className="bg-green-600 hover:bg-green-700"
-            onClick={() => router.push("/produk")}
+            onClick={() => router.push("/product")}
           >
             Lanjutkan Belanja
           </Button>
@@ -149,26 +136,39 @@ export default function CheckoutPage() {
                 <Truck className="w-5 h-5 text-green-600" />
                 Produk Pesanan ({cartItems.length} item)
               </h3>
-              
+
               <div className="space-y-4">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg hover:shadow-md transition-shadow">
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-4 p-4 border rounded-lg hover:shadow-md transition-shadow"
+                  >
                     <div className="relative w-20 h-20 bg-gray-100 rounded-md overflow-hidden">
                       <Image
-                        src={item.image || "/placeholder.png"}
+                        src={
+                          typeof item.image === "string"
+                            ? item.image
+                            : item.image instanceof File
+                            ? URL.createObjectURL(item.image)
+                            : "/placeholder.png"
+                        }
                         alt={item.name}
                         width={80}
-                        height={80}
-                        className="object-cover"
+                        height={100}
+                        className="object-contain w-full h-full"
                         onError={(e) => {
                           e.currentTarget.src = "/placeholder.png";
                         }}
                       />
                     </div>
-                    
+
                     <div className="flex-1">
-                      <h4 className="font-semibold text-[#1D1D1D]">{item.name}</h4>
-                      <p className="text-sm text-neutral-500">{item.kecamatan}</p>
+                      <h4 className="font-semibold text-[#1D1D1D]">
+                        {item.name}
+                      </h4>
+                      <p className="text-sm text-neutral-500">
+                        {item.merk_name}
+                      </p>
                       <p className="text-green-600 font-bold">
                         Rp {item.price.toLocaleString("id-ID")}
                       </p>
@@ -178,17 +178,19 @@ export default function CheckoutPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                        onClick={() => decreaseItemQuantity(item.id)}
                         className="w-8 h-8 p-0"
                         disabled={item.quantity <= 1}
                       >
                         <Minus className="w-4 h-4" />
                       </Button>
-                      <span className="w-12 text-center font-medium">{item.quantity}</span>
+                      <span className="w-12 text-center font-medium">
+                        {item.quantity}
+                      </span>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                        onClick={() => increaseItemQuantity(item.id)}
                         className="w-8 h-8 p-0"
                       >
                         <Plus className="w-4 h-4" />
@@ -198,7 +200,8 @@ export default function CheckoutPage() {
                     <div className="text-right">
                       <p className="text-sm text-neutral-500">Subtotal</p>
                       <p className="font-semibold">
-                        Rp {(item.price * item.quantity).toLocaleString("id-ID")}
+                        Rp{" "}
+                        {(item.price * item.quantity).toLocaleString("id-ID")}
                       </p>
                     </div>
 
@@ -221,7 +224,7 @@ export default function CheckoutPage() {
                 <MapPin className="w-5 h-5 text-green-600" />
                 Informasi Pengiriman
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
@@ -230,7 +233,9 @@ export default function CheckoutPage() {
                   <input
                     type="text"
                     value={shippingInfo.fullName}
-                    onChange={(e) => handleInputChange("fullName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("fullName", e.target.value)
+                    }
                     className="w-full border border-neutral-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Masukkan nama lengkap"
                     required
@@ -257,7 +262,9 @@ export default function CheckoutPage() {
                   </label>
                   <textarea
                     value={shippingInfo.address}
-                    onChange={(e) => handleInputChange("address", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("address", e.target.value)
+                    }
                     className="w-full border border-neutral-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     rows={3}
                     placeholder="Masukkan alamat lengkap (Nama jalan, RT/RW, Kelurahan)"
@@ -269,7 +276,7 @@ export default function CheckoutPage() {
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Kecamatan *
                   </label>
-                  <Select 
+                  <Select
                     value={shippingInfo.kecamatan}
                     onValueChange={(val) => handleInputChange("kecamatan", val)}
                   >
@@ -293,7 +300,9 @@ export default function CheckoutPage() {
                   <input
                     type="text"
                     value={shippingInfo.postalCode}
-                    onChange={(e) => handleInputChange("postalCode", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("postalCode", e.target.value)
+                    }
                     className="w-full border border-neutral-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="16911"
                   />
@@ -307,7 +316,7 @@ export default function CheckoutPage() {
             {/* Shipping Method */}
             <div className="bg-white rounded-xl p-6 shadow-md">
               <h3 className="text-lg font-semibold mb-4">Metode Pengiriman</h3>
-              
+
               <div className="space-y-3">
                 <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-neutral-50 transition-colors">
                   <input
@@ -362,15 +371,20 @@ export default function CheckoutPage() {
                 <CreditCard className="w-5 h-5 text-green-600" />
                 Metode Pembayaran
               </h3>
-              
-              <Select value={paymentMethod} onValueChange={(val) => setPaymentMethod(val)}>
+
+              <Select
+                value={paymentMethod}
+                onValueChange={(val) => setPaymentMethod(val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih Metode Pembayaran" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="cod">Bayar di Tempat (COD)</SelectItem>
                   <SelectItem value="transfer">Transfer Bank</SelectItem>
-                  <SelectItem value="ewallet">E-Wallet (GoPay/OVO/Dana)</SelectItem>
+                  <SelectItem value="ewallet">
+                    E-Wallet (GoPay/OVO/Dana)
+                  </SelectItem>
                   <SelectItem value="qris">QRIS</SelectItem>
                 </SelectContent>
               </Select>
@@ -379,35 +393,39 @@ export default function CheckoutPage() {
             {/* Order Summary */}
             <div className="bg-white rounded-xl p-6 shadow-md">
               <h3 className="text-lg font-semibold mb-4">Ringkasan Pesanan</h3>
-              
+
               <div className="space-y-3">
                 {/* Item details */}
                 <div className="space-y-2 pb-3 border-b">
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex justify-between text-sm">
-                      <span className="text-neutral-600">{item.name} ({item.quantity}x)</span>
-                      <span>Rp {(item.price * item.quantity).toLocaleString("id-ID")}</span>
+                      <span className="text-neutral-600">
+                        {item.name} ({item.quantity}x)
+                      </span>
+                      <span>
+                        Rp{" "}
+                        {(item.price * item.quantity).toLocaleString("id-ID")}
+                      </span>
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span>Rp {subtotal.toLocaleString("id-ID")}</span>
                 </div>
-                
+
                 <div className="flex justify-between">
                   <span>Ongkos Kirim</span>
                   <span>
-                    {shippingCost > 0 
-                      ? `Rp ${shippingCost.toLocaleString("id-ID")}` 
-                      : "Gratis"
-                    }
+                    {shippingCost > 0
+                      ? `Rp ${shippingCost.toLocaleString("id-ID")}`
+                      : "Gratis"}
                   </span>
                 </div>
-                
+
                 <hr className="my-3" />
-                
+
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
                   <span className="text-green-600">
@@ -420,12 +438,22 @@ export default function CheckoutPage() {
                 onClick={handleCheckout}
                 className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white py-3"
                 size="lg"
-                disabled={!paymentMethod || !shippingMethod || !shippingInfo.fullName || !shippingInfo.address || !shippingInfo.kecamatan}
+                disabled={
+                  !paymentMethod ||
+                  !shippingMethod ||
+                  !shippingInfo.fullName ||
+                  !shippingInfo.address ||
+                  !shippingInfo.kecamatan
+                }
               >
                 Buat Pesanan
               </Button>
-              
-              {(!paymentMethod || !shippingMethod || !shippingInfo.fullName || !shippingInfo.address || !shippingInfo.kecamatan) && (
+
+              {(!paymentMethod ||
+                !shippingMethod ||
+                !shippingInfo.fullName ||
+                !shippingInfo.address ||
+                !shippingInfo.kecamatan) && (
                 <p className="text-xs text-red-500 mt-2 text-center">
                   * Harap lengkapi semua informasi yang diperlukan
                 </p>
@@ -434,10 +462,14 @@ export default function CheckoutPage() {
 
             {/* Additional Info */}
             <div className="bg-blue-50 rounded-lg p-4 text-sm">
-              <h4 className="font-semibold text-blue-900 mb-2">Informasi Penting:</h4>
+              <h4 className="font-semibold text-blue-900 mb-2">
+                Informasi Penting:
+              </h4>
               <ul className="space-y-1 text-blue-700">
                 <li>• Pesanan akan diproses setelah pembayaran dikonfirmasi</li>
-                <li>• Estimasi waktu pengiriman dihitung dari tanggal pemrosesan</li>
+                <li>
+                  • Estimasi waktu pengiriman dihitung dari tanggal pemrosesan
+                </li>
                 <li>• Hubungi kami jika ada pertanyaan: 0812-3456-7890</li>
               </ul>
             </div>

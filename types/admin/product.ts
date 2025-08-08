@@ -1,14 +1,18 @@
 export interface Product {
   id: number;
   shop_id: number | string | null;
-  product_category_id: number | string;
-  product_merk_id: number | string;
+  product_category_id: number | null;
+  product_merk_id: number | null;
   category_name: string;
+  category_slug: string;
   merk_name: string;
+  merk_slug: string;
   name: string;
+  slug: string;
+  quantity: number;
   description: string;
   price: number;
-  rating: number;
+  rating: number | string;
   total_reviews: number;
   stock: number;
   weight: number;
@@ -17,11 +21,15 @@ export interface Product {
   height: number;
   diameter: number;
   status: boolean | number;
-  image: File | string;
-  image_2: File | string;
-  image_3: File | string;
-  image_4: File | string;
-  image_5: File | string;
-  image_6: File | string;
-  image_7: File | string;
+  image: File | string | null;
+  image_2: File | string | null;
+  image_3: File | string | null;
+  image_4: File | string | null;
+  image_5: File | string | null;
+  image_6: File | string | null;
+  image_7: File | string | null;
+
+  kecamatan?: string;
+  terlaris?: boolean;
+  terbaru?: boolean;
 }

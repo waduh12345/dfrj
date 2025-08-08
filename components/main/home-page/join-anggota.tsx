@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 export default function JoinAnggotaPage() {
   return (
     <section
-      id="join"
       className="max-h-[700px] bg-green-800 py-10 md:py-0 lg:pt-16"
     >
       <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-12 md:items-end lg:items-center -translate-y-44">

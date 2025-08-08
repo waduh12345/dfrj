@@ -11,7 +11,7 @@ export default function Home() {
       <PondokPesantrenOverview/>
       <ProdukPondokPesantrenSection/>
       <WhyJoinPesantrenSection />
-      <div className="mt-10">
+      <div className="mt-10" id="join">
         <JoinAnggotaPage />
       </div>
     </div>

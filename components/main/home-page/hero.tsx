@@ -2,8 +2,10 @@
 import Image from "next/image";
 import { Star } from "lucide-react"; // Import Star icon for the rating
 import TextType from "@/components/test-type";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
+  const router = useRouter();
   return (
     <div className="relative bg-white overflow-hidden min-h-screen w-full flex items-center">
       {/* Background shape - Dark Green Triangle (emulating the image's bottom-left) */}
@@ -36,12 +38,19 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
             <button
               type="button"
+              onClick={() => router.push("/product")}
               className="bg-green-700 text-white font-semibold px-8 py-3 rounded-lg text-lg hover:bg-green-800 transition-colors shadow-md"
             >
               Lihat Produk
             </button>
             <button
               type="button"
+              onClick={() => {
+                const el = document.getElementById("join");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
               className="bg-transparent text-green-700 border border-green-700 font-semibold px-8 py-3 rounded-lg text-lg hover:bg-green-700 hover:text-white transition-colors shadow-md"
             >
               Gabung Mitra

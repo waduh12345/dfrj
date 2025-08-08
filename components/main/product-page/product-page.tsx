@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Heart, ShoppingCart, ReceiptText } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -11,15 +11,16 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Product } from "@/types/product";
+import { Product } from "@/types/admin/product";
 import useModal from "@/hooks/use-modal";
 import ProductDetailModal from "./detail-product";
 import useCart from "@/hooks/use-cart";
+import { useGetProductListQuery } from "@/services/admin/product.service";
+import DotdLoader from "@/components/loader/3dot";
 
 const ITEMS_PER_PAGE = 9;
 
 export default function ProdukPage() {
-  const [products, setProducts] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState({
@@ -30,18 +31,21 @@ export default function ProdukPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { isOpen, openModal, closeModal } = useModal();
 
-  const { addItem, open: openCart } = useCart(); // ambil fungsi dari zustand
+  const { addItem, open: openCart } = useCart();
 
-  useEffect(() => {
-    fetch("/data/products.json")
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.error("Failed to fetch products", err));
-  }, []);
+  const { data, isLoading, isError } = useGetProductListQuery({
+    page: currentPage,
+    paginate: ITEMS_PER_PAGE,
+  });
 
+  const products = data?.data || [];
+  const totalPages = data?.last_page || 1;
+
+  // Filter di sisi klien tetap dipertahankan
   const filteredProducts = products.filter((product) => {
     const matchKategori =
-      filter.kategori === "all" || product.kategori === filter.kategori;
+      filter.kategori === "all" || product.category_name === filter.kategori;
+    // Asumsi 'kecamatan', 'terlaris', dan 'terbaru' ditambahkan ke interface Product
     const matchKecamatan =
       filter.kecamatan === "all" || product.kecamatan === filter.kecamatan;
     const matchSort =
@@ -57,12 +61,6 @@ export default function ProdukPage() {
     return matchKategori && matchKecamatan && matchSort && matchSearch;
   });
 
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const paginatedProducts = filteredProducts.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
@@ -71,14 +69,32 @@ export default function ProdukPage() {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filter, searchTerm]);
-
   const handleAddToCart = (product: Product) => {
-    addItem(product); // simpan ke store
-    openCart(); // buka cart sidebar
+    addItem(product);
+    openCart();
   };
+
+  // Mengirim seluruh objek produk ke modal
+  const handleOpenDetailModal = (product: Product) => {
+    setSelectedProduct(product);
+    openModal();
+  };
+
+  if (isLoading) {
+    return (
+      <section className="w-full flex items-center justify-center min-h-[80vh] py-10 px-6 md:px-12 bg-neutral-50 text-center">
+        <DotdLoader/>
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <section className="min-h-screen py-10 px-6 md:px-12 bg-neutral-50 text-center text-red-500">
+        <p>Error fetching products. Please try again later.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="min-h-screen py-10 px-6 md:px-12 bg-neutral-50">
@@ -86,9 +102,9 @@ export default function ProdukPage() {
         Produk Alumni Pondok
       </h2>
       <p className="text-center text-neutral-600 text-base md:text-lg mb-10 max-w-2xl mx-auto">
-        Temukan berbagai produk unggulan dari koperasi desa kami, mulai dari
-        sembako, pakaian, hingga kebutuhan sehari-hari. Dukung perekonomian
-        lokal dengan belanja produk berkualitas dan harga terjangkau.
+        Temukan berbagai produk unggulan dari pondok kami, mulai dari sembako,
+        pakaian, hingga kebutuhan sehari-hari. Dukung perekonomian lokal dengan
+        belanja produk berkualitas dan harga terjangkau.
       </p>
 
       {/* Filter + Search */}
@@ -145,14 +161,14 @@ export default function ProdukPage() {
 
       {/* Grid Produk */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {paginatedProducts.map((product) => (
+        {filteredProducts.map((product) => (
           <div
             key={product.id}
             className="bg-white rounded-xl shadow-md overflow-hidden group hover:shadow-xl hover:-translate-y-2 transition relative"
           >
             <div className="relative">
               <Image
-                src={product.image}
+                src={product.image as string}
                 alt={product.name}
                 width={400}
                 height={300}
@@ -167,18 +183,15 @@ export default function ProdukPage() {
                 {product.name}
               </h3>
               <p className="text-green-600 font-bold text-sm">
-                Rp {product.price.toLocaleString()}
+                Rp {product.price.toLocaleString("id-ID")}
               </p>
               <div className="flex justify-between items-center pt-2">
-                <p className="text-xs text-neutral-500">{product.kecamatan}</p>
+                <p className="text-xs text-neutral-500">{product.merk_name}</p>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant="default"
-                    onClick={() => {
-                      setSelectedProduct(product);
-                      openModal();
-                    }}
+                    onClick={() => handleOpenDetailModal(product)} // Kirim objek produk
                     className="text-sm bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
                   >
                     <ReceiptText className="w-4 h-4" />
@@ -227,7 +240,8 @@ export default function ProdukPage() {
         <ProductDetailModal
           isOpen={isOpen}
           onClose={closeModal}
-          product={selectedProduct}
+          addCart={handleAddToCart}
+          product={selectedProduct} // Kirim objek produk ke modal
         />
       )}
     </section>

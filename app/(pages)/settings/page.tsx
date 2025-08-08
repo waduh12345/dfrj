@@ -16,10 +16,19 @@ const CreateShopForm = dynamic(() => import("@/components/create-shop-form"), {
 
 export default function SettingsPage() {
   const { data: session } = useSession();
+  const userRole = session?.user?.roles?.[0]?.name;
+  const userShop = session?.user?.shop;
+
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const router = useRouter();
+
+  // Function to check if user should see Admin Settings button
+  const shouldShowAdminSettings = () => {
+    // Show if user is superadmin OR if user has a shop
+    return userRole === "superadmin" || userShop;
+  };
 
   const handleLogout = async () => {
     const result = await Swal.fire({
@@ -76,18 +85,23 @@ export default function SettingsPage() {
             </div>
           </div>
           <div className="my-4 flex flex-wrap gap-2">
-            <Button
-              onClick={() => router.push("/admin/product-category")}
-              variant="outline"
-            >
-              Admin Settings
-            </Button>
-            <Button
-              variant="default"
-              onClick={() => setShowCreateForm(!showCreateForm)}
-            >
-              {showCreateForm ? "Tutup Form" : "Tambah Toko"}
-            </Button>
+            {/* Conditional Admin Settings Button */}
+            {shouldShowAdminSettings() && (
+              <Button
+                onClick={() => router.push("/admin/product-category")}
+                variant="outline"
+              >
+                Admin Settings
+              </Button>
+            )}
+            {session && (
+              <Button
+                variant="default"
+                onClick={() => setShowCreateForm(!showCreateForm)}
+              >
+                {showCreateForm ? "Tutup Form" : "Tambah Toko"}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -111,34 +125,38 @@ export default function SettingsPage() {
             <Input value={session?.user?.email || ""} disabled />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center mb-6">
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">
-              New Password
-            </label>
-            <Input
-              type="password"
-              placeholder="Masukkan password baru"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
+        {session && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center mb-6">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                New Password
+              </label>
+              <Input
+                type="password"
+                placeholder="Masukkan password baru"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+            <div className="mt-6">
+              <Button onClick={handleUpdatePassword} disabled={loading}>
+                {loading ? "Updating..." : "Change Password"}
+              </Button>
+            </div>
           </div>
-          <div className="mt-6">
-            <Button onClick={handleUpdatePassword} disabled={loading}>
-              {loading ? "Updating..." : "Change Password"}
-            </Button>
-          </div>
-        </div>
+        )}
 
         {/* Logout */}
-        <div className="border-t pt-6 mt-6 flex justify-between items-center">
-          <p className="text-sm text-muted-foreground">
-            Log out of your account
-          </p>
-          <Button variant="destructive" onClick={handleLogout}>
-            Logout
-          </Button>
-        </div>
+        {session && (
+          <div className="border-t pt-6 mt-6 flex justify-between items-center">
+            <p className="text-sm text-muted-foreground">
+              Log out of your account
+            </p>
+            <Button variant="destructive" onClick={handleLogout}>
+              Logout
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Bagian Kanan: Create Shop Form */}

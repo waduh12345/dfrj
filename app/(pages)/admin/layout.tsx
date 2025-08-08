@@ -7,6 +7,7 @@ import {
   User,
   Users,
   Package,
+  Tag,
 } from "lucide-react";
 import Header from "@/components/admin-components/header";
 import Sidebar from "@/components/admin-components/sidebar";
@@ -51,6 +52,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       label: "Produk",
       icon: <Package className="h-5 w-5" />,
       href: "/admin/product-list", 
+    },
+    {
+      id: "voucher",
+      label: "Voucher",
+      icon: <Tag className="h-5 w-5" />,
+      href: "/admin/voucher", 
     },
     {
       id: "transaction",
