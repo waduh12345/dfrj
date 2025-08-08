@@ -50,19 +50,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       id: "product",
       label: "Produk",
       icon: <Package className="h-5 w-5" />,
-      href: "#", 
-      children: [
-        {
-          id: "product-list",
-          label: "Data Produk",
-          href: "/admin/product-list",
-        },
-        {
-          id: "product-varian",
-          label: "Varian Produk",
-          href: "/admin/product-variant",
-        },
-      ],
+      href: "/admin/product-list", 
     },
     {
       id: "transaction",

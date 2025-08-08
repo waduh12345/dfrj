@@ -29,7 +29,7 @@ export default function JoinAnggotaPage() {
         <div className="md:py-10">
           <div className="bg-neutral-50 p-8 rounded-xl shadow-lg w-full">
             <h2 className="text-2xl md:text-3xl font-bold text-green-600 mb-6 text-center">
-              Formulir Pendaftaran Anggota
+              Formulir Pendaftaran Alumni
             </h2>
             <form className="space-y-4">
               <div>
