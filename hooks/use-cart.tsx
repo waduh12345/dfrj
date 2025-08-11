@@ -17,23 +17,29 @@ type CartStore = {
   removeItem: (id: number) => void;
   increaseItemQuantity: (id: number) => void; // Fungsi baru untuk menambah kuantitas
   decreaseItemQuantity: (id: number) => void; // Fungsi baru untuk mengurangi kuantitas
+  clearCart: () => void; // Fungsi baru untuk menghapus semua item dan clear cache
+  getTotalItems: () => number; // Fungsi tambahan untuk mendapatkan total item
+  getTotalPrice: () => number; // Fungsi tambahan untuk mendapatkan total harga
 };
 
 const useCart = create<CartStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       isOpen: false,
       cartItems: [],
+      
       open: () => set({ isOpen: true }),
+      
       close: () => set({ isOpen: false }),
+      
       toggle: () => set((state) => ({ isOpen: !state.isOpen })),
-
+      
       addItem: (product) => {
         set((state) => {
           const existingItem = state.cartItems.find(
             (item) => item.id === product.id
           );
-
+          
           if (existingItem) {
             // Jika produk sudah ada, tambahkan kuantitasnya
             const updatedCartItems = state.cartItems.map((item) =>
@@ -50,27 +56,32 @@ const useCart = create<CartStore>()(
           }
         });
       },
-
+      
       removeItem: (id) =>
         set((state) => ({
           cartItems: state.cartItems.filter((item) => item.id !== id),
         })),
-
+      
       increaseItemQuantity: (id) => {
         set((state) => ({
           cartItems: state.cartItems.map((item) =>
-            item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+            item.id === id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
           ),
         }));
       },
-
+      
       decreaseItemQuantity: (id) => {
         set((state) => {
           const itemToDecrease = state.cartItems.find((item) => item.id === id);
+          
           if (itemToDecrease && itemToDecrease.quantity > 1) {
             return {
               cartItems: state.cartItems.map((item) =>
-                item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+                item.id === id
+                  ? { ...item, quantity: item.quantity - 1 }
+                  : item
               ),
             };
           } else {
@@ -81,6 +92,24 @@ const useCart = create<CartStore>()(
           }
         });
       },
+      
+      // Fungsi untuk menghapus semua item dari keranjang
+      clearCart: () => set({ cartItems: [] }),
+      
+      // Fungsi tambahan untuk mendapatkan total jumlah item
+      getTotalItems: () => {
+        const state = get();
+        return state.cartItems.reduce((total, item) => total + item.quantity, 0);
+      },
+      
+      // Fungsi tambahan untuk mendapatkan total harga (asumsi ada properti price di Product)
+      getTotalPrice: () => {
+        const state = get();
+        return state.cartItems.reduce(
+          (total, item) => total + (item.price || 0) * item.quantity,
+          0
+        );
+      },
     }),
     {
       name: "cart-storage",
@@ -88,5 +117,6 @@ const useCart = create<CartStore>()(
     }
   )
 );
+
 
 export default useCart;

@@ -1,5 +1,9 @@
 import { apiSlice } from "../base-query";
-import { Transaction } from "@/types/admin/transaction"; 
+import { 
+  Transaction, 
+  CreateTransactionRequest, 
+  CreateTransactionResponse 
+} from "@/types/admin/transaction";
 
 export const transactionApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -12,14 +16,15 @@ export const transactionApi = apiSlice.injectEndpoints({
         total: number;
         per_page: number;
       },
-      { page: number; paginate: number }
+      { page: number; paginate: number; user_id?: number }
     >({
-      query: ({ page, paginate }) => ({
+      query: ({ page, paginate, user_id }) => ({
         url: `/transaction`,
         method: "GET",
         params: {
           page,
           paginate,
+          user_id
         },
       }),
       transformResponse: (response: {
@@ -54,8 +59,32 @@ export const transactionApi = apiSlice.injectEndpoints({
       }) => response.data,
     }),
 
-    // ➕ Create Transaction Category
-    createTransaction: builder.mutation<Transaction, FormData>({
+    // ➕ Create Transaction (Updated for checkout payload)
+    createTransaction: builder.mutation<
+      CreateTransactionResponse,
+      CreateTransactionRequest
+    >({
+      query: (payload) => ({
+        url: `/transaction`,
+        method: "POST",
+        body: payload, // Send JSON object instead of FormData
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+      transformResponse: (response: {
+        code: number;
+        message: string;
+        data: Transaction | Transaction[];
+      }): CreateTransactionResponse => ({
+        success: response.code === 200 || response.code === 201,
+        message: response.message,
+        data: response.data,
+      }),
+    }),
+
+    // ➕ Create Transaction with FormData (for admin panel if needed)
+    createTransactionFormData: builder.mutation<Transaction, FormData>({
       query: (payload) => ({
         url: `/transaction`,
         method: "POST",
@@ -77,6 +106,25 @@ export const transactionApi = apiSlice.injectEndpoints({
         url: `/transaction/${slug}?_method=PUT`,
         method: "POST",
         body: payload,
+      }),
+      transformResponse: (response: {
+        code: number;
+        message: string;
+        data: Transaction;
+      }) => response.data,
+    }),
+
+    // 🔄 Update Transaction Status by ID
+    updateTransactionStatus: builder.mutation<
+      Transaction,
+      { id: string; status: number }
+    >({
+      query: ({ id, status }) => ({
+        url: `/transaction/${id}`,
+        method: "PUT",
+        body: {
+          status,
+        },
       }),
       transformResponse: (response: {
         code: number;
@@ -108,6 +156,8 @@ export const {
   useGetTransactionListQuery,
   useGetTransactionBySlugQuery,
   useCreateTransactionMutation,
+  useCreateTransactionFormDataMutation, // New export for FormData version
   useUpdateTransactionMutation,
+  useUpdateTransactionStatusMutation,
   useDeleteTransactionMutation,
 } = transactionApi;

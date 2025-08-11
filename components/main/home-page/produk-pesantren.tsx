@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Banknote, ShoppingBag, Smartphone, Leaf, Check } from "lucide-react"; // Added Check icon if needed
+import { Banknote, ShoppingBag, Smartphone, Leaf } from "lucide-react"; // Added Check icon if needed
 
 export default function ProdukPondokPesantrenSection() {
   const produk = [

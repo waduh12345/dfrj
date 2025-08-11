@@ -36,7 +36,7 @@ export default function FormProduct({
         status: true,
       });
     }
-  }, []);
+  }, [form, setForm]);
 
   const { data: categoryResponse, isLoading: categoryLoading } =
     useGetProductCategoryListQuery({

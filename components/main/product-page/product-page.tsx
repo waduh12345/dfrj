@@ -15,7 +15,7 @@ import { Product } from "@/types/admin/product";
 import useModal from "@/hooks/use-modal";
 import ProductDetailModal from "./detail-product";
 import useCart from "@/hooks/use-cart";
-import { useGetProductListQuery } from "@/services/admin/product.service";
+import { useGetProductListQuery } from "@/services/product.service";
 import DotdLoader from "@/components/loader/3dot";
 
 const ITEMS_PER_PAGE = 9;

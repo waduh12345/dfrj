@@ -1,5 +1,4 @@
 "use client";
-
 import { usePathname } from "next/navigation";
 import Footer from "@/components/footer/footer";
 import Navbar from "@/components/header/navbar";
@@ -29,16 +28,18 @@ export default function PagesLayout({
         <Navbar />
         <TopHeader />
       </header>
-
+      
       {/* Padding-top untuk menghindari content ketutupan header saat fixed */}
-      <main className={clsx({ "": isWisataPage })}>{children}</main>
-
+      <main className={clsx({ "pt-20": isWisataPage })}>{children}</main>
+      
+      {/* Pass all necessary props to CartSidebar */}
       <CartSidebar
         isOpen={isOpen}
         onClose={close}
-        cartItems={cartItems}
+        items={cartItems} // Changed from 'cartItems' to 'items'
         onRemove={removeItem}
       />
+      
       <ScrollToTopButton />
       <Footer />
     </div>

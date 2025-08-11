@@ -6,62 +6,63 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import useModal from "@/hooks/use-modal";
 import {
-  useGetProductListQuery,
-  useCreateProductMutation,
-  useUpdateProductMutation,
-  useDeleteProductMutation,
-} from "@/services/admin/product.service";
-import { Product } from "@/types/admin/product";
-import FormProduct from "@/components/form-modal/admin/product-form";
-import { Badge } from "@/components/ui/badge";
+  useGetTutorialListQuery,
+  useCreateTutorialMutation,
+  useUpdateTutorialMutation,
+  useDeleteTutorialMutation,
+} from "@/services/admin/tutorial.service";
+import { Tutorial } from "@/types/admin/tutorial";
+import FormTutorial from "@/components/form-modal/admin/tutorial-form";
+import Image from "next/image";
 
-export default function ProductPage() {
-  const [form, setForm] = useState<Partial<Product>>({
-    status: true,
-  });
+export default function TutorialPage() {
+  const [form, setForm] = useState<Partial<Tutorial>>();
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [readonly, setReadonly] = useState(false);
   const { isOpen, openModal, closeModal } = useModal();
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, isLoading, refetch } = useGetProductListQuery({
+  const { data, isLoading, refetch } = useGetTutorialListQuery({
     page: currentPage,
     paginate: itemsPerPage,
   });
 
-  const categoryList = useMemo(() => data?.data || [], [data]);
+  const tutorialList = useMemo(() => data?.data || [], [data]);
   const lastPage = useMemo(() => data?.last_page || 1, [data]);
 
-  const [createProduct, { isLoading: isCreating }] =
-    useCreateProductMutation();
-  const [updateProduct, { isLoading: isUpdating }] =
-    useUpdateProductMutation();
-  const [deleteProduct] = useDeleteProductMutation();
+  const [createTutorial, { isLoading: isCreating }] =
+    useCreateTutorialMutation();
+  const [updateTutorial, { isLoading: isUpdating }] =
+    useUpdateTutorialMutation();
+  const [deleteTutorial] = useDeleteTutorialMutation();
 
   const handleSubmit = async () => {
     try {
-      const payload = new FormData();
-      if (form.name) payload.append("name", form.name);
-      if (form.description) payload.append("description", form.description);
-      if (form.product_category_id) payload.append("product_category_id", `${form.product_category_id}`);
-      if (form.product_merk_id) payload.append("product_merk_id", `${form.product_merk_id}`);
-      if (typeof form.status === "boolean") {
-        payload.append("status", form.status ? "1" : "0");
+      if (!form) {
+        Swal.fire("Gagal", "Form tidak boleh kosong", "error");
+        return;
       }
+      const payload = new FormData();
+      if (form.order) payload.append("order", form.order.toString());
+      if (form.title) payload.append("title", form.title);
+      if (form.slug) payload.append("slug", form.slug);
+      if (form.content) payload.append("content", form.content);
+      if (form.link_youtube) payload.append("link_youtube", form.link_youtube);
+      if (form.published_at) payload.append("published_at", form.published_at);
       if (form.image instanceof File) {
         payload.append("image", form.image);
       }
 
       if (editingSlug) {
-        await updateProduct({ slug: editingSlug, payload }).unwrap();
-        Swal.fire("Sukses", "Varian Produk diperbarui", "success");
+        await updateTutorial({ slug: editingSlug, payload }).unwrap();
+        Swal.fire("Sukses", "Tutorial diperbarui", "success");
       } else {
-        await createProduct(payload).unwrap();
-        Swal.fire("Sukses", "Varian Produk ditambahkan", "success");
+        await createTutorial(payload).unwrap();
+        Swal.fire("Sukses", "Tutorial ditambahkan", "success");
       }
 
-      setForm({ status: true });
+      setForm(undefined);
       setEditingSlug(null);
       await refetch();
       closeModal();
@@ -71,23 +72,31 @@ export default function ProductPage() {
     }
   };
 
-  const handleEdit = (item: Product) => {
-    setForm({ ...item, status: item.status === true || item.status === 1 });
-    setEditingSlug(item.id.toString());
+  const handleEdit = (item: Tutorial) => {
+    setForm(item); // Fix: Added missing parameter
+    setEditingSlug(item.slug.toString());
     setReadonly(false);
     openModal();
   };
 
-  const handleDetail = (item: Product) => {
+  const handleDetail = (item: Tutorial) => {
     setForm(item);
     setReadonly(true);
     openModal();
   };
 
-  const handleDelete = async (item: Product) => {
+  const handleLink = (link: string) => {
+    if (link) {
+      window.open(link, "_blank");
+    } else {
+      Swal.fire("Info", "Link tidak tersedia", "info");
+    }
+  };
+
+  const handleDelete = async (item: Tutorial) => {
     const confirm = await Swal.fire({
-      title: "Yakin hapus kategori?",
-      text: item.name,
+      title: "Yakin hapus Tutorial?",
+      text: item.title,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Hapus",
@@ -95,21 +104,28 @@ export default function ProductPage() {
 
     if (confirm.isConfirmed) {
       try {
-        await deleteProduct(item.id.toString()).unwrap();
+        await deleteTutorial(item.id.toString()).unwrap();
         await refetch();
-        Swal.fire("Berhasil", "Varian Produk dihapus", "success");
+        Swal.fire("Berhasil", "Tutorial dihapus", "success");
       } catch (error) {
-        Swal.fire("Gagal", "Gagal menghapus kategori", "error");
+        Swal.fire("Gagal", "Gagal menghapus Tutorial", "error");
         console.error(error);
       }
     }
   };
 
+  const handleAddNew = () => {
+    setForm(undefined); // Reset form for new tutorial
+    setEditingSlug(null);
+    setReadonly(false);
+    openModal();
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Data Varian Produk</h1>
-        <Button onClick={() => openModal()}>Tambah Varian Produk</Button>
+        <h1 className="text-xl font-bold">Tutorial</h1>
+        <Button onClick={handleAddNew}>Tambah Tutorial</Button>
       </div>
 
       <Card>
@@ -118,31 +134,28 @@ export default function ProductPage() {
             <thead className="bg-muted text-left">
               <tr>
                 <th className="px-4 py-2">Aksi</th>
-                <th className="px-4 py-2">Kategori</th>
-                <th className="px-4 py-2">Merk</th>
-                <th className="px-4 py-2">Produk</th>
-                <th className="px-4 py-2">Harga</th>
-                <th className="px-4 py-2">Stok</th>
-                <th className="px-4 py-2">Ratting</th>
-                <th className="px-4 py-2">T. Views</th>
-                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">No</th>
+                <th className="px-4 py-2">Nama</th>
+                <th className="px-4 py-2">Deskripsi</th>
+                <th className="px-4 py-2">Link Youtube</th>
+                <th className="px-4 py-2">Gambar</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="text-center p-4">
+                  <td colSpan={7} className="text-center p-4">
                     Memuat data...
                   </td>
                 </tr>
-              ) : categoryList.length === 0 ? (
+              ) : tutorialList.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="text-center p-4">
+                  <td colSpan={7} className="text-center p-4">
                     Tidak ada data
                   </td>
                 </tr>
               ) : (
-                categoryList.map((item) => (
+                tutorialList.map((item) => (
                   <tr key={item.id} className="border-t">
                     <td className="px-4 py-2">
                       <div className="flex gap-2">
@@ -161,17 +174,32 @@ export default function ProductPage() {
                         </Button>
                       </div>
                     </td>
-                    <td className="px-4 py-2">{item.category_name}</td>
-                    <td className="px-4 py-2">{item.merk_name}</td>
-                    <td className="px-4 py-2">{item.name}</td>
-                    <td className="px-4 py-2">{item.price}</td>
-                    <td className="px-4 py-2">{item.stock}</td>
-                    <td className="px-4 py-2">{item.rating}</td>
-                    <td className="px-4 py-2">{item.total_reviews}</td>
+                    <td className="px-4 py-2">{item.order}</td>
+                    <td className="px-4 py-2">{item.title}</td>
+                    <td className="px-4 py-2">{item.content}</td>
                     <td className="px-4 py-2">
-                      <Badge variant={item.status ? "success" : "destructive"}>
-                        {item.status ? "Aktif" : "Nonaktif"}
-                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleLink(item.link_youtube)}
+                      >
+                        [🎬] Tonton
+                      </Button>
+                    </td>
+                    <td className="px-4 py-2">
+                      {typeof item.image === "string" && item.image !== "" ? (
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          className="h-12 w-12 object-cover rounded"
+                          width={48}
+                          height={48}
+                        />
+                      ) : (
+                        <span className="text-gray-400 text-xs">
+                          Tidak ada gambar
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -206,11 +234,11 @@ export default function ProductPage() {
 
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <FormProduct
+          <FormTutorial
             form={form}
             setForm={setForm}
             onCancel={() => {
-              setForm({ status: true });
+              setForm(undefined); // Fix: Reset form properly
               setEditingSlug(null);
               setReadonly(false);
               closeModal();

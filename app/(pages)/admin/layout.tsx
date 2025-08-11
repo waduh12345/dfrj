@@ -5,9 +5,11 @@ import {
   Store,
   ShoppingCart,
   User,
+  Video,
   Users,
   Package,
   Tag,
+  BookDashed,
 } from "lucide-react";
 import Header from "@/components/admin-components/header";
 import Sidebar from "@/components/admin-components/sidebar";
@@ -29,6 +31,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   }, []);
 
   const menuItems: MenuItem[] = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: <BookDashed className="h-5 w-5" />,
+      href: "/admin/dashboard",
+    },
     {
       id: "master",
       label: "Master",
@@ -69,7 +77,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       id: "pengguna",
       label: "Data Pengguna",
       icon: <Users className="h-5 w-5" />,
-      href: "/admin/pengguna",
+      href: "/admin/customer",
     },
     {
       id: "alumni",
@@ -78,10 +86,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       href: "/admin/alumni",
     },
     {
-      id: "shop",
+      id: "tutorial",
+      label: "Data Tutorial",
+      icon: <Video className="h-5 w-5" />,
+      href: "/admin/tutorial",
+    },
+    {
+      id: "toko",
       label: "Manajemen Toko",
       icon: <Store className="h-5 w-5" />,
-      href: "/admin/shop",
+      href: "/admin/toko",
     },
   ];
 

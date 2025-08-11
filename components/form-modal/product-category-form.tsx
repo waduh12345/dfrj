@@ -26,14 +26,14 @@ export default function FormProductCategory({
   isLoading = false,
 }: FormProductCategoryProps) {
   useEffect(() => {
-    if (!form.id) {
+    if (!form.id && (form.status === undefined || form.parent_id === undefined)) {
       setForm({
         ...form,
-        status: true,
-        parent_id: null,
+        status: form.status ?? true,
+        parent_id: form.parent_id ?? null,
       });
     }
-  }, []);
+  });
 
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 w-full max-w-2xl space-y-4">

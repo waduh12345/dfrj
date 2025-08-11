@@ -5,6 +5,7 @@ import { Trash2, Plus, Minus, CreditCard, Truck, MapPin } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combo-box";
 import {
   Select,
   SelectTrigger,
@@ -12,13 +13,23 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+
+import {
+  useGetProvincesQuery,
+  useGetCitiesQuery,
+  useGetDistrictsQuery,
+} from "@/services/shop/open-shop/open-shop.service";
+import {
+  useCreateTransactionMutation,
+} from "@/services/admin/transaction.service";
+
 import useCart from "@/hooks/use-cart"; // Import the cart hook
 
 export default function CheckoutPage() {
   const router = useRouter();
 
   // Use the cart hook instead of dummy data
-  const { cartItems, removeItem, increaseItemQuantity, decreaseItemQuantity } =
+  const { cartItems, removeItem, increaseItemQuantity, decreaseItemQuantity, clearCart } =
     useCart();
 
   const [shippingInfo, setShippingInfo] = useState({
@@ -28,10 +39,27 @@ export default function CheckoutPage() {
     city: "",
     postalCode: "",
     kecamatan: "",
+    rajaongkir_province_id: 0,
+    rajaongkir_city_id: 0,
+    rajaongkir_district_id: 0,
   });
+
+  const { data: provinces = [], isLoading: loadingProvince } =
+    useGetProvincesQuery();
+  const { data: cities = [], isLoading: loadingCity } = useGetCitiesQuery(
+    shippingInfo.rajaongkir_province_id,
+    {
+      skip: !shippingInfo.rajaongkir_province_id,
+    }
+  );
+  const { data: districts = [], isLoading: loadingDistrict } =
+    useGetDistrictsQuery(shippingInfo.rajaongkir_city_id, {
+      skip: !shippingInfo.rajaongkir_city_id,
+    });
 
   const [paymentMethod, setPaymentMethod] = useState("");
   const [shippingMethod, setShippingMethod] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const shippingCost =
     shippingMethod === "express"
@@ -47,53 +75,189 @@ export default function CheckoutPage() {
   );
   const total = subtotal + shippingCost;
 
-  // Handle quantity changes using cart hook functions
-  const handleQuantityChange = (id: number, newQuantity: number) => {
-    const currentItem = cartItems.find((item) => item.id === id);
-    if (!currentItem) return;
-
-    if (newQuantity === 0) {
-      removeItem(id);
-    } else if (newQuantity > currentItem.quantity) {
-      increaseItemQuantity(id);
-    } else if (newQuantity < currentItem.quantity) {
-      decreaseItemQuantity(id);
-    }
-  };
-
   const handleInputChange = (field: string, value: string) => {
     setShippingInfo((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleCheckout = () => {
+  // Map shipping methods to courier codes
+  const getCourierInfo = () => {
+    switch (shippingMethod) {
+      case "express":
+        return {
+          courier: "jne",
+          parameter: JSON.stringify({
+            destination: "486",
+            weight: 1000,
+            height: 0,
+            length: 0,
+            width: 0,
+            diameter: 0,
+            courier: "jne"
+          }),
+          shipment_detail: JSON.stringify({
+            name: "Jalur Nugraha Ekakurir (JNE)",
+            code: "jne",
+            service: "YES",
+            description: "JNE Yakin Esok Sampai",
+            cost: 15000,
+            etd: "1 day"
+          })
+        };
+      case "regular":
+        return {
+          courier: "jne",
+          parameter: JSON.stringify({
+            destination: "486",
+            weight: 1000,
+            height: 0,
+            length: 0,
+            width: 0,
+            diameter: 0,
+            courier: "jne"
+          }),
+          shipment_detail: JSON.stringify({
+            name: "Jalur Nugraha Ekakurir (JNE)",
+            code: "jne",
+            service: "CTC",
+            description: "JNE City Courier",
+            cost: 10000,
+            etd: "2-3 days"
+          })
+        };
+      case "pickup":
+        return {
+          courier: "pickup",
+          parameter: JSON.stringify({
+            destination: "0",
+            weight: 0,
+            height: 0,
+            length: 0,
+            width: 0,
+            diameter: 0,
+            courier: "pickup"
+          }),
+          shipment_detail: JSON.stringify({
+            name: "Ambil di Tempat",
+            code: "pickup",
+            service: "PICKUP",
+            description: "Ambil langsung di toko",
+            cost: 0,
+            etd: "0 day"
+          })
+        };
+      default:
+        return null;
+    }
+  };
+
+  const [createTransaction] = useCreateTransactionMutation();
+  const handleCheckout = async () => {
     if (
       !paymentMethod ||
       !shippingMethod ||
       !shippingInfo.fullName ||
-      !shippingInfo.address ||
-      !shippingInfo.kecamatan
+      !shippingInfo.address
     ) {
       alert("Harap lengkapi semua informasi yang diperlukan");
       return;
     }
 
-    // Log order data untuk testing
-    const orderData = {
-      items: cartItems,
-      shippingInfo: shippingInfo,
-      paymentMethod: paymentMethod,
-      shippingMethod: shippingMethod,
-      subtotal: subtotal,
-      shippingCost: shippingCost,
-      total: total,
-      orderDate: new Date().toISOString(),
-    };
+    setIsLoading(true);
 
-    console.log("Order Data:", orderData);
+    try {
+      const courierInfo = getCourierInfo();
+      
+      if (!courierInfo) {
+        alert("Metode pengiriman tidak valid");
+        setIsLoading(false);
+        return;
+      }
 
-    alert("Pesanan berhasil dibuat! Terima kasih atas pembelian Anda.");
+      // Prepare API payload
+      const payload = {
+        data: [
+          {
+            shop_id: 1, // You may want to make this dynamic
+            details: cartItems.map(item => ({
+              product_id: item.id,
+              quantity: item.quantity
+            })),
+            shipment: {
+              parameter: courierInfo.parameter,
+              shipment_detail: courierInfo.shipment_detail,
+              courier: courierInfo.courier,
+              cost: shippingCost
+            }
+          }
+        ]
+        // voucher: [] // Add if needed
+      };
 
-    router.push("/");
+      console.log("Sending payload:", payload);
+
+      // Use the RTK Query mutation instead of direct fetch
+      const result = await createTransaction(payload).unwrap();
+      
+      console.log("Transaction created successfully:", result);
+
+      // Check if the response has the expected structure
+      if (
+        result &&
+        result.data &&
+        typeof result.data === "object" &&
+        "payment_link" in result.data
+      ) {
+        // Show success message
+        alert(
+          `Pesanan berhasil dibuat! Reference: ${
+            (result.data as { reference?: string }).reference || "N/A"
+          }`
+        );
+
+        // Open payment link in new tab
+        window.open(
+          (result.data as { payment_link: string }).payment_link,
+          "_blank"
+        );
+
+        // Optional: Clear cart after successful order
+        // You might want to add a clearCart function to your cart hook
+        clearCart();
+
+        // Optional: Redirect to order history or home page after a delay
+        setTimeout(() => {
+          router.push("/settings");
+        }, 2000);
+      } else {
+        // Handle unexpected response format
+        console.warn("Unexpected response format:", result);
+        alert(
+          "Pesanan berhasil dibuat, tetapi tidak dapat membuka link pembayaran."
+        );
+      }
+
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+      
+      // Handle RTK Query error format
+      if (error && typeof error === 'object' && 'data' in error) {
+        // RTK Query error with server response
+        console.error('Server error:', error.data);
+        const serverMessage =
+          error.data && typeof error.data === "object" && "message" in error.data
+            ? (error.data as { message?: string }).message
+            : undefined;
+        alert(`Terjadi kesalahan: ${serverMessage || 'Silakan coba lagi'}`);
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        // RTK Query error with message
+        alert(`Terjadi kesalahan: ${error.message}`);
+      } else {
+        // Generic error
+        alert("Terjadi kesalahan saat membuat pesanan. Silakan coba lagi.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (cartItems.length === 0) {
@@ -271,26 +435,56 @@ export default function CheckoutPage() {
                     required
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    Kecamatan *
+                    Provinsi
                   </label>
-                  <Select
-                    value={shippingInfo.kecamatan}
-                    onValueChange={(val) => handleInputChange("kecamatan", val)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih Kecamatan" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Cibinong">Cibinong</SelectItem>
-                      <SelectItem value="Sukamakmur">Sukamakmur</SelectItem>
-                      <SelectItem value="Gunung Putri">Gunung Putri</SelectItem>
-                      <SelectItem value="Citeureup">Citeureup</SelectItem>
-                      <SelectItem value="Bojong Gede">Bojong Gede</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Combobox
+                    value={shippingInfo.rajaongkir_province_id}
+                    onChange={(id) => {
+                      setShippingInfo({
+                        ...shippingInfo,
+                        rajaongkir_province_id: id,
+                        rajaongkir_city_id: 0,
+                        rajaongkir_district_id: 0,
+                      });
+                    }}
+                    data={provinces}
+                    isLoading={loadingProvince}
+                    getOptionLabel={(item) => item.name}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Kota
+                  </label>
+                  <Combobox
+                    value={shippingInfo.rajaongkir_city_id}
+                    onChange={(id) =>
+                      setShippingInfo({
+                        ...shippingInfo,
+                        rajaongkir_city_id: id,
+                        rajaongkir_district_id: 0,
+                      })
+                    }
+                    data={cities}
+                    isLoading={loadingCity}
+                    getOptionLabel={(item) => item.name}
+                    disabled={!shippingInfo.rajaongkir_province_id}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Kecamatan
+                  </label>
+                  <Combobox
+                    value={shippingInfo.rajaongkir_district_id}
+                    onChange={(id) => setShippingInfo({ ...shippingInfo, rajaongkir_district_id: id })}
+                    data={districts}
+                    isLoading={loadingDistrict}
+                    getOptionLabel={(item) => item.name}
+                    disabled={!shippingInfo.rajaongkir_city_id}
+                  />
                 </div>
 
                 <div>
@@ -439,14 +633,14 @@ export default function CheckoutPage() {
                 className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white py-3"
                 size="lg"
                 disabled={
+                  isLoading ||
                   !paymentMethod ||
                   !shippingMethod ||
                   !shippingInfo.fullName ||
-                  !shippingInfo.address ||
-                  !shippingInfo.kecamatan
+                  !shippingInfo.address
                 }
               >
-                Buat Pesanan
+                {isLoading ? "Memproses..." : "Buat Pesanan"}
               </Button>
 
               {(!paymentMethod ||

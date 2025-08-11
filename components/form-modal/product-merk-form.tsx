@@ -26,13 +26,13 @@ export default function FormProductMerk({
   isLoading = false,
 }: FormProductMerkProps) {
   useEffect(() => {
-    if (!form.id) {
+    if (!form.id && form.status === undefined) {
       setForm({
         ...form,
         status: true,
       });
     }
-  }, []);
+  }); // Only depend on specific properties
 
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 w-full max-w-2xl space-y-4">
