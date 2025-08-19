@@ -10,6 +10,7 @@ import {
   Package,
   Tag,
   BookDashed,
+  Wallet,
 } from "lucide-react";
 import Header from "@/components/admin-components/header";
 import Sidebar from "@/components/admin-components/sidebar";
@@ -36,6 +37,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       label: "Dashboard",
       icon: <BookDashed className="h-5 w-5" />,
       href: "/admin/dashboard",
+    },
+    {
+      id: "profile-toko",
+      label: "Profile Toko",
+      icon: <Store className="h-5 w-5" />,
+      href: "/admin/profile-toko",
     },
     {
       id: "master",
@@ -66,6 +73,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       label: "Voucher",
       icon: <Tag className="h-5 w-5" />,
       href: "/admin/voucher", 
+    },
+    {
+      id: "saldo",
+      label: "Saldo",
+      icon: <Wallet className="h-5 w-5" />,
+      href: "/admin/saldo", 
     },
     {
       id: "transaction",

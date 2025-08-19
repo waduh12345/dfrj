@@ -7,8 +7,13 @@ import useCart from "@/hooks/use-cart";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function TopHeader() {
+  const { data: session } = useSession();
+
+  const isLoggedIn = !session;
   const pathname = usePathname();
   const isWisataPage = pathname === "/wisata" || pathname === "/profile";
 
@@ -40,12 +45,15 @@ export default function TopHeader() {
     >
       {/* Kiri: Logo */}
       <div className="flex items-center gap-2">
-        <Image
-          src="/icon-pndok.png"
-          alt="Logo Koperasi"
-          width={64}
-          height={64}
-        />
+        <Link href="/" passHref>
+          <Image
+            src="/icon-pndok.png"
+            alt="Logo Koperasi"
+            width={64}
+            height={64}
+            className="cursor-pointer"
+          />
+        </Link>
         <div className="leading-tight">
           <p
             className={clsx(
@@ -80,16 +88,18 @@ export default function TopHeader() {
 
         {/* Kanan: User + Cart */}
         <div className="flex items-center gap-4">
-          <IconUser
-            size={24}
-            className={clsx(
-              "cursor-pointer transition",
-              isWisataPage && !isScrolled ? "text-white" : "text-green-700"
-            )}
-            onClick={() => {
-              window.location.href = "/settings";
-            }}
-          />
+          {!isLoggedIn && (
+            <IconUser
+              size={24}
+              className={clsx(
+                "cursor-pointer transition",
+                isWisataPage && !isScrolled ? "text-white" : "text-green-700"
+              )}
+              onClick={() => {
+                window.location.href = "/settings";
+              }}
+            />
+          )}
           <div className="relative">
             <IconShoppingCart
               size={24}

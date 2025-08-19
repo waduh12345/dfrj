@@ -1,11 +1,15 @@
 import React from "react";
-import { Menu, Bell, Search } from "lucide-react";
+import { Menu, Bell } from "lucide-react";
 import { HeaderProps } from "@/types";
+import { useSession } from "next-auth/react";
 
-const Header: React.FC<HeaderProps> = ({
-  onMenuClick,
-  title = "Admin Panel",
-}) => {
+const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+  const { data: session } = useSession();
+
+  // Ambil data shop
+  const user = session?.user;
+  const userName = user?.name || "Superadmin";
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 h-16 flex items-center justify-between px-4 lg:px-6 relative z-10">
       {/* Left Section */}
@@ -17,23 +21,6 @@ const Header: React.FC<HeaderProps> = ({
         >
           <Menu className="h-6 w-6" />
         </button>
-        <h1 className="text-xl font-semibold text-gray-900 hidden sm:block">
-          {title}
-        </h1>
-      </div>
-
-      {/* Center Section - Search (hidden on mobile) */}
-      <div className="hidden md:flex flex-1 max-w-md mx-8">
-        <div className="relative w-full">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Search..."
-          />
-        </div>
       </div>
 
       {/* Right Section */}
@@ -43,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({
         </button>
         <div className="flex items-center space-x-2">
           <span className="hidden sm:block text-sm font-medium text-gray-700">
-            Superadmin
+           {userName}
           </span>
         </div>
       </div>

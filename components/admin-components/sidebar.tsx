@@ -5,8 +5,16 @@ import { X, ChevronDown, ChevronUp } from "lucide-react";
 import { SidebarProps } from "@/types";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
+  const { data: session } = useSession();
+
+  // Ambil data shop
+  const shop = session?.user?.shop;
+  const shopName = shop?.name || "Superadmin";
+  const shopLogo =
+    shop?.logo && shop.logo.trim() !== "" ? shop.logo : "/icon-superadmin.png";
   const pathname = usePathname();
   const [openMenus, setOpenMenus] = useState<string[]>([]);
 
@@ -36,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Image
-                src="/icon-superadmin.png"
+                src={shopLogo}
                 alt="Logo"
                 width={32}
                 height={32}
@@ -45,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
             </div>
             <div className="ml-3">
               <h2 className="text-gray-900 text-lg font-bold font-italic">
-                Superadmin
+                {shopName}
               </h2>
             </div>
           </div>
