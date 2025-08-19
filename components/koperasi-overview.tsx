@@ -10,12 +10,12 @@ export default function KoperasiOverview() {
             Menyediakan Solusi Ekonomi untuk Anggota
           </h2>
           <p className="text-neutral-700 text-base md:text-lg">
-            Marketplace Pondok berkomitmen untuk memberdayakan masyarakat
-            melalui layanan simpan pinjam yang adil, transparan, dan berbasis
-            teknologi. Kami percaya bahwa setiap anggota berhak mendapatkan
-            akses terhadap peluang ekonomi yang setara dan berkelanjutan.
-            Didukung oleh tim profesional dan sistem digital modern, kami siap
-            melayani kebutuhan finansial masyarakat dengan sepenuh hati.
+            PPM Shop berkomitmen untuk memberdayakan masyarakat melalui layanan
+            simpan pinjam yang adil, transparan, dan berbasis teknologi. Kami
+            percaya bahwa setiap anggota berhak mendapatkan akses terhadap
+            peluang ekonomi yang setara dan berkelanjutan. Didukung oleh tim
+            profesional dan sistem digital modern, kami siap melayani kebutuhan
+            finansial masyarakat dengan sepenuh hati.
           </p>
         </div>
 

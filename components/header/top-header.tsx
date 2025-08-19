@@ -57,7 +57,7 @@ export default function TopHeader() {
                 : "text-green-800"
             )}
           >
-            Marketplace Pondok
+            PPM Shop
           </p>
         </div>
       </div>

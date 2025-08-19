@@ -26,11 +26,11 @@ export default function GaleriPage() {
   return (
     <div className="mx-auto px-4 py-8 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
       <h1 className="text-3xl font-bold text-center text-green-600 dark:text-[#FF6384] mb-2">
-        Galeri Marketplace Pondok
+        Galeri PPM Shop
       </h1>
       <p className="text-center text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
         Dokumentasi kegiatan, produk, dan wisata bersama yang dilakukan oleh
-        anggota Marketplace Pondok.
+        anggota PPM Shop.
       </p>
 
       {/* Filter */}

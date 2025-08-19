@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Marketplace Pondok",
-  description: "Website Marketplace Pondok",
+  title: "PPM Shop",
+  description: "Website PPM Shop",
   icons: {
     icon: "/icon-merah-putih.png",
   },

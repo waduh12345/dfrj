@@ -9,9 +9,9 @@ export default function Footer() {
 
   const faqs = [
     {
-      question: "Apa itu Marketplace Pondok?",
+      question: "Apa itu PPM Shop?",
       answer:
-        "Marketplace Pondok adalah koperasi digital yang bertujuan membangun ekonomi kerakyatan melalui transparansi dan gotong royong.",
+        "PPM Shop adalah koperasi digital yang bertujuan membangun ekonomi kerakyatan melalui transparansi dan gotong royong.",
     },
     {
       question: "Bagaimana cara menjadi anggota?",
@@ -30,9 +30,7 @@ export default function Footer() {
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
         {/* Company Info */}
         <div>
-          <h3 className="text-white text-xl font-semibold mb-4">
-            Marketplace Pondok
-          </h3>
+          <h3 className="text-white text-xl font-semibold mb-4">PPM Shop</h3>
           <p className="text-sm leading-relaxed">
             Bersama membangun masa depan ekonomi kerakyatan berbasis digital
             yang modern, adil, dan terpercaya.
@@ -131,7 +129,7 @@ export default function Footer() {
       </div>
 
       <div className="mt-12 text-center text-xs text-neutral-400 border-t border-neutral-700 pt-6">
-        © {new Date().getFullYear()} Marketplace Pondok. Semua hak dilindungi.
+        © {new Date().getFullYear()} PPM Shop. Semua hak dilindungi.
       </div>
     </footer>
   );

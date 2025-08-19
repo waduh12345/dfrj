@@ -65,9 +65,9 @@ export default function ProdukPondokPesantrenSection() {
           Produk & Layanan Unggulan Pondok Pesantren
         </h2>
         <p className="max-w-2xl mx-auto mb-12 text-neutral-200">
-          Marketplace Pondok menyediakan berbagai produk unggulan dan layanan
-          syariah untuk mendukung kesejahteraan santri, alumni, dan masyarakat
-          luas melalui ekosistem ekonomi pesantren.
+          PPM Shop menyediakan berbagai produk unggulan dan layanan syariah
+          untuk mendukung kesejahteraan santri, alumni, dan masyarakat luas
+          melalui ekosistem ekonomi pesantren.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
