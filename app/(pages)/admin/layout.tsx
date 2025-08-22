@@ -92,24 +92,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       icon: <Users className="h-5 w-5" />,
       href: "/admin/customer",
     },
-    {
-      id: "alumni",
-      label: "Data Alumni",
-      icon: <User className="h-5 w-5" />,
-      href: "/admin/alumni",
-    },
-    {
-      id: "tutorial",
-      label: "Data Tutorial",
-      icon: <Video className="h-5 w-5" />,
-      href: "/admin/tutorial",
-    },
-    {
-      id: "toko",
-      label: "Manajemen Toko",
-      icon: <Store className="h-5 w-5" />,
-      href: "/admin/toko",
-    },
   ];
 
   return (

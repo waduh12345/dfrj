@@ -59,7 +59,7 @@ export default function Header() {
   const menuItems = [
     { name: t.home, href: "/" },
     { name: t.about, href: "/about" },
-    { name: t.products, href: "/products" },
+    { name: t.products, href: "/product" },
     { name: t.gallery, href: "/gallery" },
     { name: t.news, href: "/news" },
     { name: t.howToOrder, href: "/how-to-order" },
@@ -139,7 +139,7 @@ export default function Header() {
   };
 
   const handleCartClick = () => {
-    // Dispatch custom event to open cart or navigate to cart page
+    window.location.assign("/cart");
     window.dispatchEvent(new CustomEvent("openCart"));
   };
 
@@ -224,7 +224,7 @@ export default function Header() {
               {/* Cart */}
               <button 
                 onClick={handleCartClick}
-                className="relative p-3 rounded-xl hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 group shadow-sm hover:shadow-md"
+                className="relative p-3 cursor-pointer rounded-xl hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 group shadow-sm hover:shadow-md"
               >
                 <ShoppingCart className="w-5 h-5 text-gray-700 group-hover:text-emerald-600 transition-colors" />
                 {cartCount > 0 && (

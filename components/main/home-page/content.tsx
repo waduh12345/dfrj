@@ -221,7 +221,7 @@ export default function HomePage() {
                       alt={category.title}
                       width={200}
                       height={200}
-                      className="object-cover opacity-80 group-hover:opacity-100 transition-opacity group-hover:scale-110 transform duration-500"
+                      className="rounded-lg object-cover opacity-80 group-hover:opacity-100 transition-opacity group-hover:transition-all group-hover:scale-110 transform duration-500"
                     />
                   </div>
                   <div className="p-6 bg-white">
