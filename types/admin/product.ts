@@ -1,8 +1,13 @@
+import { ProductCategory } from "../master/product-category";
+import { ProductMerk } from "../master/product-merk";
+
 export interface Product {
   id: number;
   shop_id: number | string | null;
   product_category_id: number | null;
+  product_category: ProductCategory;
   product_merk_id: number | null;
+  product_merk: ProductMerk;
   category_name: string;
   category_slug: string;
   merk_name: string;

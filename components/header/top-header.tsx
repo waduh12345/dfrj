@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { Menu, X, ShoppingCart, User, Heart, Globe } from "lucide-react";
-import Image from "next/image";
+import { useState, useEffect, useMemo } from "react";
+import { Menu, X, ShoppingCart, User, Globe } from "lucide-react";
 import { usePathname } from "next/navigation";
+import useCart from "@/hooks/use-cart"; // ← pakai zustand store
 
 interface TranslationContent {
   home: string;
@@ -26,11 +26,16 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [language, setLanguage] = useState<"id" | "en">("id");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-  
+
   const pathname = usePathname();
 
-  // Konfigurasi teks untuk setiap bahasa
+  // ===== ambil keranjang langsung dari zustand (persisted ke localStorage)
+  const cartItems = useCart((s) => s.cartItems);
+  const cartCount = useMemo(
+    () => cartItems.reduce((t, item) => t + item.quantity, 0),
+    [cartItems]
+  );
+
   const translations: Translations = {
     id: {
       home: "Beranda",
@@ -40,7 +45,7 @@ export default function Header() {
       news: "Berita",
       howToOrder: "Cara Pemesanan",
       tagline: "Art & Crafts Ramah Lingkungan untuk Anak",
-      switchLanguage: "Ganti ke English"
+      switchLanguage: "Ganti ke English",
     },
     en: {
       home: "Home",
@@ -50,7 +55,7 @@ export default function Header() {
       news: "News",
       howToOrder: "How to Order",
       tagline: "Eco-Friendly Art & Crafts for Kids",
-      switchLanguage: "Switch to Bahasa"
+      switchLanguage: "Switch to Bahasa",
     },
   };
 
@@ -65,30 +70,12 @@ export default function Header() {
     { name: t.howToOrder, href: "/how-to-order" },
   ];
 
-  // Handle scroll effect
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Handle mobile menu body scroll
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMobileMenuOpen]);
-
-  // Load language preference
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedLanguage = localStorage.getItem("colore-language");
@@ -98,43 +85,16 @@ export default function Header() {
     }
   }, []);
 
-  // Get cart count from localStorage (simple implementation)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const updateCartCount = () => {
-        const cart = localStorage.getItem("colore-cart");
-        if (cart) {
-          try {
-            const cartItems = JSON.parse(cart);
-            setCartCount(Array.isArray(cartItems) ? cartItems.length : 0);
-          } catch {
-            setCartCount(0);
-          }
-        }
-      };
-
-      updateCartCount();
-      window.addEventListener("storage", updateCartCount);
-      window.addEventListener("cartUpdated", updateCartCount);
-
-      return () => {
-        window.removeEventListener("storage", updateCartCount);
-        window.removeEventListener("cartUpdated", updateCartCount);
-      };
-    }
-  }, []);
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const toggleMobileMenu = () => setIsMobileMenuOpen((v) => !v);
 
   const toggleLanguage = () => {
     const newLang = language === "id" ? "en" : "id";
     setLanguage(newLang);
-
     if (typeof window !== "undefined") {
       localStorage.setItem("colore-language", newLang);
-      window.dispatchEvent(new CustomEvent("languageChanged", { detail: newLang }));
+      window.dispatchEvent(
+        new CustomEvent("languageChanged", { detail: newLang })
+      );
     }
   };
 
@@ -144,18 +104,16 @@ export default function Header() {
   };
 
   const isActiveLink = (href: string) => {
-    if (href === "/") {
-      return pathname === "/";
-    }
+    if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
   };
 
   return (
     <>
-      <nav 
+      <nav
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-          isScrolled 
-            ? "bg-white/95 backdrop-blur-lg shadow-2xl border-b border-emerald-100" 
+          isScrolled
+            ? "bg-white/95 backdrop-blur-lg shadow-2xl border-b border-emerald-100"
             : "bg-white/90 backdrop-blur-sm shadow-lg"
         }`}
       >
@@ -191,10 +149,10 @@ export default function Header() {
                   }`}
                 >
                   {item.name}
-                  <span 
+                  <span
                     className={`absolute bottom-1 left-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full transition-all duration-300 ${
-                      isActiveLink(item.href) 
-                        ? "w-full" 
+                      isActiveLink(item.href)
+                        ? "w-full"
                         : "w-0 group-hover:w-full"
                     }`}
                   />
@@ -222,7 +180,7 @@ export default function Header() {
               </button>
 
               {/* Cart */}
-              <button 
+              <button
                 onClick={handleCartClick}
                 className="relative p-3 cursor-pointer rounded-xl hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 group shadow-sm hover:shadow-md"
               >
@@ -272,7 +230,9 @@ export default function Header() {
                   <span className="text-white font-bold">C</span>
                 </div>
                 <div>
-                  <h2 className="font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">COLORE</h2>
+                  <h2 className="font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    COLORE
+                  </h2>
                   <p className="text-xs text-gray-600">{t.tagline}</p>
                 </div>
               </div>
@@ -297,14 +257,20 @@ export default function Header() {
                     ? "bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-600 border-2 border-emerald-200 shadow-md"
                     : "text-gray-700 hover:text-emerald-600 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:shadow-sm"
                 }`}
-                style={{ 
+                style={{
                   animationDelay: `${index * 50}ms`,
-                  animation: isMobileMenuOpen ? "slideInRight 0.3s ease-out forwards" : "none"
+                  animation: isMobileMenuOpen
+                    ? "slideInRight 0.3s ease-out forwards"
+                    : "none",
                 }}
               >
-                <div className={`w-3 h-3 rounded-full transition-all duration-300 shadow-sm ${
-                  isActiveLink(item.href) ? "bg-gradient-to-r from-emerald-600 to-teal-600" : "bg-gray-300 group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-teal-600"
-                }`} />
+                <div
+                  className={`w-3 h-3 rounded-full transition-all duration-300 shadow-sm ${
+                    isActiveLink(item.href)
+                      ? "bg-gradient-to-r from-emerald-600 to-teal-600"
+                      : "bg-gray-300 group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-teal-600"
+                  }`}
+                />
                 <span className="flex-1">{item.name}</span>
                 {isActiveLink(item.href) && (
                   <div className="w-1 h-6 bg-gradient-to-b from-emerald-600 to-teal-600 rounded-full shadow-sm" />
