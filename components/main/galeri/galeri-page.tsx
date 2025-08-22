@@ -2,16 +2,161 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { galeriList, GaleriItem } from "./galeri-list";
-import useModal from "@/hooks/use-modal";
-import GaleriModal from "./galeri-modal";
+import { 
+  Palette, 
+  Scissors, 
+  Users, 
+  Award,
+  Sparkles,
+  Camera,
+  Play,
+  Heart,
+  Share2,
+  Filter
+} from "lucide-react";
 
-const categories = ["Semua", "Kegiatan", "Produk", "Wisata"];
+interface GaleriItem {
+  id: number;
+  title: string;
+  image: string;
+  category: string;
+  description?: string;
+  date?: string;
+}
+
+// Mock data - replace with your actual galeriList
+const galeriList: GaleriItem[] = [
+  {
+    id: 1,
+    title: "Workshop Painting Anak",
+    image: "/api/placeholder/400/300",
+    category: "Workshop",
+    description: "Anak-anak belajar melukis dengan cat ramah lingkungan",
+    date: "2024-01-15"
+  },
+  {
+    id: 2,
+    title: "Eco Paint Set Collection",
+    image: "/api/placeholder/400/300", 
+    category: "Produk",
+    description: "Koleksi set cat ramah lingkungan untuk anak",
+    date: "2024-01-20"
+  },
+  {
+    id: 3,
+    title: "Creative Kids Art Class",
+    image: "/api/placeholder/400/300",
+    category: "Kegiatan",
+    description: "Kelas seni kreatif untuk mengembangkan imajinasi anak",
+    date: "2024-02-01"
+  },
+  {
+    id: 4,
+    title: "Clay Modeling Workshop",
+    image: "/api/placeholder/400/300",
+    category: "Workshop", 
+    description: "Workshop membentuk clay untuk anak usia 4-8 tahun",
+    date: "2024-02-10"
+  },
+  {
+    id: 5,
+    title: "Nature Craft Kit",
+    image: "/api/placeholder/400/300",
+    category: "Produk",
+    description: "Kit kerajinan dari bahan-bahan alami",
+    date: "2024-02-15"
+  },
+  {
+    id: 6,
+    title: "Art Exhibition Kids",
+    image: "/api/placeholder/400/300",
+    category: "Event",
+    description: "Pameran karya seni anak-anak COLORE",
+    date: "2024-03-01"
+  },
+  {
+    id: 7,
+    title: "Origami Masterclass",
+    image: "/api/placeholder/400/300",
+    category: "Workshop",
+    description: "Kelas origami untuk melatih motorik halus anak",
+    date: "2024-03-10"
+  },
+  {
+    id: 8,
+    title: "Eco Crayon Making",
+    image: "/api/placeholder/400/300",
+    category: "Kegiatan",
+    description: "Membuat crayon ramah lingkungan bersama anak",
+    date: "2024-03-15"
+  }
+];
+
+const categories = [
+  { name: "Semua", icon: <Camera className="w-4 h-4" />, color: "bg-gray-100" },
+  { name: "Workshop", icon: <Users className="w-4 h-4" />, color: "bg-[#A3B18A]/10" },
+  { name: "Produk", icon: <Palette className="w-4 h-4" />, color: "bg-[#DFF19D]/20" },
+  { name: "Kegiatan", icon: <Scissors className="w-4 h-4" />, color: "bg-[#F6CCD0]/20" },
+  { name: "Event", icon: <Award className="w-4 h-4" />, color: "bg-[#BFF0F5]/20" }
+];
+
+interface GaleriModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  item: GaleriItem | null;
+}
+
+function GaleriModal({ isOpen, onClose, item }: GaleriModalProps) {
+  if (!isOpen || !item) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <div className="relative h-96">
+          <Image
+            src={item.image}
+            alt={item.title}
+            fill
+            className="object-cover"
+          />
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors"
+          >
+            ✕
+          </button>
+          <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-2xl p-3">
+            <span className="text-xs text-[#A3B18A] font-medium">{item.category}</span>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">{item.title}</h2>
+          <p className="text-gray-600 mb-4">{item.description}</p>
+          
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-500">{item.date}</span>
+            <div className="flex gap-3">
+              <button className="flex items-center gap-2 px-4 py-2 bg-[#A3B18A]/10 text-[#A3B18A] rounded-xl hover:bg-[#A3B18A]/20 transition-colors">
+                <Heart className="w-4 h-4" />
+                Suka
+              </button>
+              <button className="flex items-center gap-2 px-4 py-2 bg-[#F6CCD0]/20 text-gray-700 rounded-xl hover:bg-[#F6CCD0]/30 transition-colors">
+                <Share2 className="w-4 h-4" />
+                Bagikan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function GaleriPage() {
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [selectedItem, setSelectedItem] = useState<GaleriItem | null>(null);
-  const { isOpen, openModal, closeModal } = useModal();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredList =
     selectedCategory === "Semua"
@@ -20,79 +165,234 @@ export default function GaleriPage() {
 
   const handleClick = (item: GaleriItem) => {
     setSelectedItem(item);
-    openModal();
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
   };
 
   return (
-    <div className="mx-auto px-4 py-8 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
-      <h1 className="text-3xl font-bold text-center text-green-600 dark:text-[#FF6384] mb-2">
-        Galeri PPM Shop
-      </h1>
-      <p className="text-center text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
-        Dokumentasi kegiatan, produk, dan wisata bersama yang dilakukan oleh
-        anggota PPM Shop.
-      </p>
+    <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10">
+      {/* Header Section */}
+      <section className="pt-24 pb-12 px-6 lg:px-12">
+        <div className="container mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-6">
+            <Sparkles className="w-4 h-4 text-[#A3B18A]" />
+            <span className="text-sm font-medium text-[#A3B18A]">Galeri COLORE</span>
+          </div>
+          
+          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+            Momen Kreatif
+            <span className="block text-[#A3B18A]">Bersama COLORE</span>
+          </h1>
+          
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            Dokumentasi kegiatan seru, workshop edukatif, dan produk-produk ramah lingkungan 
+            yang telah mengembangkan kreativitas ribuan anak Indonesia.
+          </p>
 
-      {/* Filter */}
-      <div className="flex md:justify-center items-center gap-4 mb-6 flex-wrap mb-8">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-2 rounded border transition-all duration-200
-              ${
-                selectedCategory === cat
-                  ? "bg-green-600 text-white border-green-600 dark:bg-[#FF6384] dark:border-[#FF6384]"
-                  : "border-gray-300 text-gray-700 bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-              }
-              hover:bg-green-600 hover:text-white hover:border-green-600
-              dark:hover:bg-[#FF6384] dark:hover:text-white dark:hover:border-[#FF6384]
-            `}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Galeri Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 auto-rows-[150px] gap-4">
-        {filteredList.map((item, index) => {
-          const patternIndex = index % 6;
-          let className = "col-span-2 row-span-1";
-
-          if (patternIndex === 3) {
-            className = "col-span-3 row-span-2";
-          } else if (patternIndex === 4) {
-            className = "col-span-3 row-span-2";
-          }
-
-          return (
-            <div
-              key={item.id}
-              onClick={() => handleClick(item)}
-              className={`relative overflow-hidden rounded-lg cursor-pointer group ${className}`}
-            >
-              <Image
-                src={item.image}
-                alt={item.title}
-                fill
-                className="object-cover rounded-lg group-hover:scale-105 transition-all duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <h3 className="text-white text-center text-sm font-semibold">
-                  {item.title}
-                </h3>
-              </div>
-              <h3 className="mt-2 text-center font-medium text-gray-800 dark:text-gray-100 p-2 block md:hidden">
-                {item.title}
-              </h3>
+          <div className="flex flex-wrap justify-center gap-4 text-sm">
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+              <div className="w-3 h-3 bg-[#A3B18A] rounded-full"></div>
+              <span className="text-gray-700">Workshop Kreatif</span>
             </div>
-          );
-        })}
-      </div>
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+              <div className="w-3 h-3 bg-[#F6CCD0] rounded-full"></div>
+              <span className="text-gray-700">Produk Ramah Lingkungan</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+              <div className="w-3 h-3 bg-[#BFF0F5] rounded-full"></div>
+              <span className="text-gray-700">Event Edukatif</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Filter Section */}
+      <section className="px-6 lg:px-12 mb-12">
+        <div className="container mx-auto">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border border-[#A3B18A]/10">
+            <div className="flex items-center gap-3 mb-4">
+              <Filter className="w-5 h-5 text-[#A3B18A]" />
+              <h3 className="text-lg font-semibold text-gray-900">Filter Kategori</h3>
+            </div>
+            
+            <div className="flex flex-wrap gap-3">
+              {categories.map((category) => (
+                <button
+                  key={category.name}
+                  onClick={() => setSelectedCategory(category.name)}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 ${
+                    selectedCategory === category.name
+                      ? "bg-[#A3B18A] text-white shadow-lg"
+                      : `${category.color} text-gray-700 hover:bg-[#A3B18A] hover:text-white border border-gray-200`
+                  }`}
+                >
+                  {category.icon}
+                  {category.name}
+                  {selectedCategory === category.name && (
+                    <span className="bg-white/20 px-2 py-1 rounded-full text-xs">
+                      {filteredList.length}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery Grid */}
+      <section className="px-6 lg:px-12 mb-12">
+        <div className="container mx-auto">
+          <div className="mb-6 flex items-center justify-between">
+            <p className="text-gray-600">
+              Menampilkan <span className="font-semibold text-[#A3B18A]">{filteredList.length}</span> foto
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredList.map((item, index) => {
+              // Create dynamic grid patterns
+              const patterns = [
+                "aspect-square",
+                "aspect-[4/3]", 
+                "aspect-[3/4]",
+                "aspect-square"
+              ];
+              const aspectClass = patterns[index % patterns.length];
+
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => handleClick(item)}
+                  className={`relative overflow-hidden rounded-3xl cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white ${
+                    index % 6 === 0 || index % 6 === 3 ? "sm:col-span-2" : ""
+                  }`}
+                >
+                  <div className={`relative ${aspectClass} overflow-hidden`}>
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    
+                    {/* Category Badge */}
+                    <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="bg-white/90 backdrop-blur-sm text-[#A3B18A] px-3 py-1 rounded-full text-xs font-semibold">
+                        {item.category}
+                      </span>
+                    </div>
+
+                    {/* Play Icon for Workshop/Events */}
+                    {(item.category === "Workshop" || item.category === "Event") && (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
+                          <Play className="w-6 h-6 text-[#A3B18A] ml-1" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Content Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <h3 className="font-bold text-lg mb-2 line-clamp-2">{item.title}</h3>
+                      {item.description && (
+                        <p className="text-sm text-white/90 line-clamp-2">{item.description}</p>
+                      )}
+                      {item.date && (
+                        <p className="text-xs text-white/70 mt-2">{item.date}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Mobile Title */}
+                  <div className="p-4 sm:hidden">
+                    <h3 className="font-semibold text-gray-900 text-center">{item.title}</h3>
+                    <p className="text-sm text-gray-600 text-center mt-1">{item.category}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Empty State */}
+          {filteredList.length === 0 && (
+            <div className="text-center py-20">
+              <div className="w-24 h-24 bg-[#A3B18A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Camera className="w-12 h-12 text-[#A3B18A]" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Belum ada foto</h3>
+              <p className="text-gray-600 mb-6">Foto untuk kategori ini belum tersedia.</p>
+              <button
+                onClick={() => setSelectedCategory("Semua")}
+                className="bg-[#A3B18A] text-white px-6 py-3 rounded-2xl hover:bg-[#A3B18A]/90 transition-colors"
+              >
+                Lihat Semua Foto
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="px-6 lg:px-12 mb-12">
+        <div className="container mx-auto">
+          <div className="bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80 rounded-3xl p-8 text-white text-center">
+            <h3 className="text-3xl font-bold mb-6">Kreativitas Tanpa Batas</h3>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <div>
+                <div className="text-4xl font-bold mb-2">500+</div>
+                <div className="text-white/90">Workshop</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-2">50+</div>
+                <div className="text-white/90">Produk</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-2">1000+</div>
+                <div className="text-white/90">Anak Bahagia</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-2">100%</div>
+                <div className="text-white/90">Ramah Lingkungan</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-6 lg:px-12 mb-12">
+        <div className="container mx-auto">
+          <div className="bg-white rounded-3xl p-8 text-center shadow-lg border border-[#A3B18A]/10">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">
+              Bergabung dengan Komunitas Kreatif
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              Daftarkan anak Anda untuk workshop berikutnya dan saksikan kreativitas mereka berkembang 
+              dengan produk-produk ramah lingkungan dari COLORE.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="bg-[#A3B18A] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2">
+                <Users className="w-5 h-5" />
+                Daftar Workshop
+              </button>
+              <button className="border border-[#A3B18A] text-[#A3B18A] px-8 py-4 rounded-2xl font-semibold hover:bg-[#A3B18A] hover:text-white transition-colors">
+                Lihat Produk
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Modal */}
-      <GaleriModal isOpen={isOpen} onClose={closeModal} item={selectedItem} />
+      <GaleriModal isOpen={isModalOpen} onClose={closeModal} item={selectedItem} />
     </div>
   );
 }

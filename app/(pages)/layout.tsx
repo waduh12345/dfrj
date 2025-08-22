@@ -19,13 +19,7 @@ export default function PagesLayout({
 
   return (
     <div className="w-full bg-white">
-      <header
-        className={clsx(
-          "z-50",
-          isWisataPage ? "fixed w-full" : "sticky top-0"
-        )}
-      >
-        <Navbar />
+      <header className="sticky top-0 z-50">
         <TopHeader />
       </header>
       
