@@ -68,13 +68,13 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-gradient-to-br from-gray-900 to-gray-800 text-gray-300 relative overflow-hidden">
+    <footer className="bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 text-gray-300 relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-[#A3B18A] rounded-full"></div>
-        <div className="absolute bottom-20 right-20 w-24 h-24 bg-[#F6CCD0] rounded-full"></div>
-        <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-[#BFF0F5] rounded-full"></div>
-        <div className="absolute bottom-10 left-1/4 w-20 h-20 bg-[#DFF19D] rounded-full"></div>
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full shadow-2xl"></div>
+        <div className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full shadow-2xl"></div>
+        <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full shadow-xl"></div>
+        <div className="absolute bottom-10 left-1/4 w-20 h-20 bg-gradient-to-br from-lime-500 to-green-500 rounded-full shadow-xl"></div>
       </div>
 
       <div className="relative z-10">
@@ -85,11 +85,11 @@ export default function Footer() {
               {/* Company Info */}
               <div className="lg:col-span-1">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#A3B18A] to-[#DFF19D] rounded-2xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl">
                     <span className="text-white font-bold text-xl">C</span>
                   </div>
                   <div>
-                    <h3 className="text-white text-2xl font-bold">COLORE</h3>
+                    <h3 className="text-white text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">COLORE</h3>
                     <p className="text-sm text-gray-400">Art & Crafts</p>
                   </div>
                 </div>
@@ -102,15 +102,15 @@ export default function Footer() {
                 {/* Values */}
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center gap-2 text-sm">
-                    <Leaf className="w-4 h-4 text-[#A3B18A]" />
+                    <Leaf className="w-4 h-4 text-emerald-400" />
                     <span>100% Ramah Lingkungan</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <Shield className="w-4 h-4 text-[#A3B18A]" />
+                    <Shield className="w-4 h-4 text-cyan-400" />
                     <span>Aman untuk Anak</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <Award className="w-4 h-4 text-[#A3B18A]" />
+                    <Award className="w-4 h-4 text-amber-400" />
                     <span>Tersertifikasi Internasional</span>
                   </div>
                 </div>
@@ -118,15 +118,15 @@ export default function Footer() {
                 {/* Contact Info */}
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center gap-3">
-                    <MapPin className="w-4 h-4 text-[#A3B18A] flex-shrink-0" />
+                    <MapPin className="w-4 h-4 text-pink-400 flex-shrink-0" />
                     <span>Jl. Kreativitas No. 123, Jakarta Selatan, Indonesia</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Phone className="w-4 h-4 text-[#A3B18A] flex-shrink-0" />
+                    <Phone className="w-4 h-4 text-lime-400 flex-shrink-0" />
                     <span>+62 21 7890 1234</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-[#A3B18A] flex-shrink-0" />
+                    <Mail className="w-4 h-4 text-teal-400 flex-shrink-0" />
                     <span>hello@colore.co.id</span>
                   </div>
                 </div>
@@ -134,15 +134,15 @@ export default function Footer() {
 
               {/* Quick Links */}
               <div>
-                <h4 className="text-white text-lg font-semibold mb-6">Menu Utama</h4>
+                <h4 className="text-white text-lg font-semibold mb-6 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Menu Utama</h4>
                 <ul className="space-y-3">
                   {quickLinks.map((link, index) => (
                     <li key={index}>
                       <a 
                         href={link.href} 
-                        className="text-gray-400 hover:text-[#A3B18A] transition-colors duration-300 flex items-center group"
+                        className="text-gray-400 hover:text-emerald-400 transition-colors duration-300 flex items-center group"
                       >
-                        <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-400" />
                         <span className="group-hover:translate-x-1 transition-transform duration-300">
                           {link.name}
                         </span>

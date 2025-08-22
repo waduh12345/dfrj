@@ -59,7 +59,7 @@ export default function Header() {
   const menuItems = [
     { name: t.home, href: "/" },
     { name: t.about, href: "/about" },
-    { name: t.products, href: "/product" },
+    { name: t.products, href: "/products" },
     { name: t.gallery, href: "/gallery" },
     { name: t.news, href: "/news" },
     { name: t.howToOrder, href: "/how-to-order" },
@@ -155,8 +155,8 @@ export default function Header() {
       <nav 
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${
           isScrolled 
-            ? "bg-white/95 backdrop-blur-lg shadow-lg" 
-            : "bg-white/90 backdrop-blur-sm"
+            ? "bg-white/95 backdrop-blur-lg shadow-2xl border-b border-emerald-100" 
+            : "bg-white/90 backdrop-blur-sm shadow-lg"
         }`}
       >
         <div className="container mx-auto px-4 lg:px-6">
@@ -164,12 +164,12 @@ export default function Header() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#A3B18A] to-[#DFF19D] rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110">
                   <span className="text-white font-bold text-xl">C</span>
                 </div>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-2xl font-bold text-[#A3B18A] group-hover:text-[#A3B18A]/80 transition-colors">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent group-hover:from-emerald-700 group-hover:to-teal-700 transition-all duration-300">
                   COLORE
                 </h1>
                 <p className="text-xs text-gray-600 font-medium leading-tight">
@@ -184,15 +184,15 @@ export default function Header() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`relative font-medium transition-all duration-300 py-2 px-1 group ${
+                  className={`relative font-semibold transition-all duration-300 py-2 px-3 group rounded-xl ${
                     isActiveLink(item.href)
-                      ? "text-[#A3B18A]"
-                      : "text-gray-700 hover:text-[#A3B18A]"
+                      ? "text-emerald-600 bg-gradient-to-r from-emerald-50 to-teal-50"
+                      : "text-gray-700 hover:text-emerald-600 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50"
                   }`}
                 >
                   {item.name}
                   <span 
-                    className={`absolute bottom-0 left-0 h-0.5 bg-[#A3B18A] transition-all duration-300 ${
+                    className={`absolute bottom-1 left-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full transition-all duration-300 ${
                       isActiveLink(item.href) 
                         ? "w-full" 
                         : "w-0 group-hover:w-full"
@@ -207,28 +207,28 @@ export default function Header() {
               {/* Language Toggle - Desktop */}
               <button
                 onClick={toggleLanguage}
-                className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl bg-[#A3B18A]/10 hover:bg-[#A3B18A]/20 transition-all duration-300 group"
+                className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-100 to-teal-100 hover:from-emerald-200 hover:to-teal-200 transition-all duration-300 group shadow-md hover:shadow-lg"
                 title={t.switchLanguage}
               >
-                <Globe className="w-4 h-4 text-[#A3B18A] group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-medium text-[#A3B18A]">
+                <Globe className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-bold text-emerald-600">
                   {language.toUpperCase()}
                 </span>
               </button>
 
               {/* User Icon */}
-              <button className="p-2 rounded-xl hover:bg-[#A3B18A]/10 transition-all duration-300 group">
-                <User className="w-5 h-5 text-gray-700 group-hover:text-[#A3B18A] transition-colors" />
+              <button className="p-3 rounded-xl hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 group shadow-sm hover:shadow-md">
+                <User className="w-5 h-5 text-gray-700 group-hover:text-emerald-600 transition-colors" />
               </button>
 
               {/* Cart */}
               <button 
                 onClick={handleCartClick}
-                className="relative p-2 rounded-xl hover:bg-[#A3B18A]/10 transition-all duration-300 group"
+                className="relative p-3 rounded-xl hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 group shadow-sm hover:shadow-md"
               >
-                <ShoppingCart className="w-5 h-5 text-gray-700 group-hover:text-[#A3B18A] transition-colors" />
+                <ShoppingCart className="w-5 h-5 text-gray-700 group-hover:text-emerald-600 transition-colors" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#F6CCD0] text-[#A3B18A] text-xs font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white">
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold min-w-[20px] h-[20px] rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-pulse">
                     {cartCount > 99 ? "99+" : cartCount}
                   </span>
                 )}
@@ -237,13 +237,13 @@ export default function Header() {
               {/* Mobile Menu Button */}
               <button
                 onClick={toggleMobileMenu}
-                className="lg:hidden p-2 rounded-xl border border-[#A3B18A]/20 hover:bg-[#A3B18A]/10 transition-all duration-300"
+                className="lg:hidden p-3 rounded-xl border-2 border-emerald-600/30 hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 shadow-md hover:shadow-lg"
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-5 h-5 text-[#A3B18A]" />
+                  <X className="w-5 h-5 text-emerald-600" />
                 ) : (
-                  <Menu className="w-5 h-5 text-[#A3B18A]" />
+                  <Menu className="w-5 h-5 text-emerald-600" />
                 )}
               </button>
             </div>
@@ -265,22 +265,22 @@ export default function Header() {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Mobile Header */}
-          <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-[#DFF19D]/20 to-[#BFF0F5]/20">
+          <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-emerald-400/30 to-cyan-400/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#A3B18A] to-[#DFF19D] rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold">C</span>
                 </div>
                 <div>
-                  <h2 className="font-bold text-[#A3B18A]">COLORE</h2>
+                  <h2 className="font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">COLORE</h2>
                   <p className="text-xs text-gray-600">{t.tagline}</p>
                 </div>
               </div>
               <button
                 onClick={toggleMobileMenu}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg hover:bg-white/50 transition-colors"
               >
-                <X className="w-5 h-5 text-gray-600" />
+                <X className="w-5 h-5 text-emerald-600" />
               </button>
             </div>
           </div>
@@ -292,22 +292,22 @@ export default function Header() {
                 key={item.name}
                 href={item.href}
                 onClick={toggleMobileMenu}
-                className={`flex items-center gap-4 p-4 rounded-2xl font-medium transition-all duration-300 group ${
+                className={`flex items-center gap-4 p-4 rounded-2xl font-semibold transition-all duration-300 group ${
                   isActiveLink(item.href)
-                    ? "bg-[#A3B18A]/10 text-[#A3B18A] border border-[#A3B18A]/20"
-                    : "text-gray-700 hover:text-[#A3B18A] hover:bg-[#A3B18A]/5"
+                    ? "bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-600 border-2 border-emerald-200 shadow-md"
+                    : "text-gray-700 hover:text-emerald-600 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:shadow-sm"
                 }`}
                 style={{ 
                   animationDelay: `${index * 50}ms`,
                   animation: isMobileMenuOpen ? "slideInRight 0.3s ease-out forwards" : "none"
                 }}
               >
-                <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  isActiveLink(item.href) ? "bg-[#A3B18A]" : "bg-gray-300 group-hover:bg-[#A3B18A]"
+                <div className={`w-3 h-3 rounded-full transition-all duration-300 shadow-sm ${
+                  isActiveLink(item.href) ? "bg-gradient-to-r from-emerald-600 to-teal-600" : "bg-gray-300 group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-teal-600"
                 }`} />
                 <span className="flex-1">{item.name}</span>
                 {isActiveLink(item.href) && (
-                  <div className="w-1 h-6 bg-[#A3B18A] rounded-full" />
+                  <div className="w-1 h-6 bg-gradient-to-b from-emerald-600 to-teal-600 rounded-full shadow-sm" />
                 )}
               </Link>
             ))}
@@ -315,20 +315,20 @@ export default function Header() {
             {/* Language Toggle - Mobile */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-4 p-4 w-full rounded-2xl text-gray-700 hover:text-[#A3B18A] hover:bg-[#A3B18A]/5 font-medium transition-all duration-300 mt-6 border border-gray-200"
+              className="flex items-center gap-4 p-4 w-full rounded-2xl text-gray-700 hover:text-emerald-600 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 font-semibold transition-all duration-300 mt-6 border-2 border-emerald-200 bg-gradient-to-r from-emerald-100 to-teal-100"
             >
-              <Globe className="w-5 h-5 text-[#A3B18A]" />
+              <Globe className="w-5 h-5 text-emerald-600" />
               <span className="flex-1 text-left">{t.switchLanguage}</span>
-              <span className="text-sm font-bold text-[#A3B18A] bg-[#A3B18A]/10 px-2 py-1 rounded-lg">
+              <span className="text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1 rounded-lg shadow-md">
                 {language === "id" ? "EN" : "ID"}
               </span>
             </button>
           </div>
 
           {/* Mobile Footer */}
-          <div className="p-6 border-t border-gray-100 bg-gray-50">
+          <div className="p-6 border-t border-gray-200 bg-gradient-to-r from-emerald-50 to-teal-50">
             <div className="flex items-center justify-center gap-4">
-              <button className="flex-1 bg-[#A3B18A] text-white py-3 rounded-xl font-medium hover:bg-[#A3B18A]/90 transition-colors">
+              <button className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4 rounded-2xl font-bold hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                 Belanja Sekarang
               </button>
             </div>
