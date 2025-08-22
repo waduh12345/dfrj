@@ -23,6 +23,7 @@ import {
   useGetGalleryListQuery,
   // useGetGalleryBySlugQuery, // tersedia bila nanti butuh detail per slug
 } from "@/services/gallery.service";
+import DotdLoader from "@/components/loader/3dot";
 
 // Kategori untuk filter (UI)
 const categories = [
@@ -265,7 +266,7 @@ export default function GaleriPage() {
         <div className="container mx-auto">
           <div className="mb-6 flex items-center justify-between">
             {isLoading ? (
-              <p className="text-gray-600">Memuat foto…</p>
+              <div className="w-full flex justify-center items-center"><DotdLoader/></div>
             ) : isError ? (
               <div className="flex items-center gap-3">
                 <p className="text-red-600">Gagal memuat galeri.</p>

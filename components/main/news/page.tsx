@@ -20,6 +20,7 @@ import {
   useGetNewsListQuery,
   useGetNewsBySlugQuery,
 } from "@/services/public-news.service";
+import DotdLoader from "@/components/loader/3dot";
 
 // ==== Utils ====
 const getImageUrl = (img: File | string) =>
@@ -489,7 +490,7 @@ export default function NewsPage() {
             </div>
           )}
           {isLoading && (
-            <div className="text-gray-600 mb-6">Memuat berita…</div>
+            <div className="w-full flex justify-center items-center mb-6"><DotdLoader/></div>
           )}
         </div>
       </section>

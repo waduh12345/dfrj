@@ -6,31 +6,31 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { News } from "@/types/admin/news";
+import { GaleriItem } from "@/types/gallery";
 import { toDatetimeLocalInput } from "@/lib/format";
 
-interface FormNewsProps {
-  form: Partial<News> | undefined;
-  setForm: (data: Partial<News>) => void;
+interface FormGalleryProps {
+  form: Partial<GaleriItem> | undefined;
+  setForm: (data: Partial<GaleriItem>) => void;
   onCancel: () => void;
   onSubmit: () => void;
   readonly?: boolean;
   isLoading?: boolean;
 }
 
-export default function FormNews({
+export default function FormGallery({
   form,
   setForm,
   onCancel,
   onSubmit,
   readonly = false,
   isLoading = false,
-}: FormNewsProps) {
+}: FormGalleryProps) {
   useEffect(() => {
     if (!form) {
       setForm({
         title: "",
-        content: "",
+        description: "",
         published_at: "",
       });
     }
@@ -42,7 +42,11 @@ export default function FormNews({
     <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 w-full max-w-2xl space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">
-          {readonly ? "Detail News" : form.id ? "Edit News" : "Tambah News"}
+          {readonly
+            ? "Detail Galeri"
+            : form.id
+            ? "Edit Galeri"
+            : "Tambah Galeri"}
         </h2>
         <Button variant="ghost" onClick={onCancel}>
           ✕
@@ -56,17 +60,17 @@ export default function FormNews({
             value={form.title || ""}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             readOnly={readonly}
-            placeholder="Masukkan judul news"
+            placeholder="Masukkan judul galeri"
           />
         </div>
 
         <div className="flex flex-col gap-y-1 col-span-2">
-          <Label>Konten</Label>
+          <Label>Deskripsi</Label>
           <Textarea
-            value={form.content || ""}
-            onChange={(e) => setForm({ ...form, content: e.target.value })}
+            value={form.description || ""}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
             readOnly={readonly}
-            placeholder="Masukkan konten/isi news"
+            placeholder="Masukkan deskripsi galeri"
             rows={6}
           />
         </div>

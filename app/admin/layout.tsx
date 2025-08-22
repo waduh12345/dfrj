@@ -4,8 +4,6 @@ import {
   Database,
   Store,
   ShoppingCart,
-  User,
-  Video,
   Users,
   Package,
   Tag,
@@ -15,6 +13,7 @@ import {
 import Header from "@/components/admin-components/header";
 import Sidebar from "@/components/admin-components/sidebar";
 import { AdminLayoutProps, MenuItem } from "@/types";
+import { IconLibraryPhoto, IconNews } from "@tabler/icons-react";
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -67,6 +66,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       label: "Produk",
       icon: <Package className="h-5 w-5" />,
       href: "/admin/product-list", 
+    },
+    {
+      id: "gallery",
+      label: "Galeri",
+      icon: <IconLibraryPhoto className="h-5 w-5" />,
+      href: "/admin/gallery", 
+    },
+    {
+      id: "news",
+      label: "Berita",
+      icon: <IconNews className="h-5 w-5" />,
+      href: "/admin/news", 
     },
     {
       id: "voucher",
