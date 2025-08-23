@@ -31,15 +31,18 @@ export function CarouselAuth() {
   const items = [
     {
       title: "Capturing Moments,\nCreating Memories",
-      image: "/images/carousel/carousel1.png",
+      image:
+        "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brhe61N04SkjECzBn3WpFPuOw92XJ1obUvc5IV",
     },
     {
       title: "Document Every Journey,\nShare the Stories",
-      image: "/images/carousel/carousel2.png",
+      image:
+        "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brslFOLgKSq0bSQpfe8wyTGY4E9Wi75tl6xUFO",
     },
     {
       title: "Photography is the Beauty\nof Life Captured",
-      image: "/images/carousel/carousel3.png",
+      image:
+        "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brsFa05wSq0bSQpfe8wyTGY4E9Wi75tl6xUFOV",
     },
   ];
 

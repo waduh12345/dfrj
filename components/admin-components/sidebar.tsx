@@ -1,11 +1,15 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { X, ChevronDown, ChevronUp } from "lucide-react";
+import { X, ChevronDown, ChevronUp, LogOut } from "lucide-react";
 import { SidebarProps } from "@/types";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { Button } from "../ui/button";
+
+// ⬇️ Import service logout
+import { useLogoutMutation } from "@/services/auth.service";
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
   const { data: session } = useSession();
@@ -18,12 +22,36 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
   const pathname = usePathname();
   const [openMenus, setOpenMenus] = useState<string[]>([]);
 
+  // ⬇️ Hook mutate logout
+  const [logoutApi, { isLoading: isLoggingOut }] = useLogoutMutation();
+
   const toggleSubMenu = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setOpenMenus((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
+  };
+
+  // ⬇️ Handler logout gabungan (API + next-auth)
+  const handleLogout = async () => {
+    try {
+      // panggil API backend untuk invalidate token/session
+      await logoutApi().unwrap();
+    } catch {
+      // abaikan error API agar user tetap bisa keluar
+    } finally {
+      try {
+        // opsional: bersihkan keranjang
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("cart-storage");
+        }
+      } catch {}
+      // tutup sidebar di mobile
+      onClose?.();
+      // next-auth signOut + redirect
+      await signOut({ callbackUrl: "/auth/login", redirect: true });
+    }
   };
 
   return (
@@ -142,7 +170,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
 
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <div className="bg-gray-100 rounded-lg p-3">
-            <p className="text-xs text-gray-600">Admin Panel v1.0</p>
+            <Button
+              variant="destructive"
+              className="w-full flex items-center justify-center gap-2"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+            >
+              {isLoggingOut ? "Logging out..." : "Logout"}
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </div>

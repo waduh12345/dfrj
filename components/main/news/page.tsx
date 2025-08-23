@@ -490,7 +490,9 @@ export default function NewsPage() {
             </div>
           )}
           {isLoading && (
-            <div className="w-full flex justify-center items-center mb-6"><DotdLoader/></div>
+            <div className="w-full flex justify-center items-center mb-6">
+              <DotdLoader />
+            </div>
           )}
         </div>
       </section>

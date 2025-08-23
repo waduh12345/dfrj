@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { Menu, X, ShoppingCart, User, Globe } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import useCart from "@/hooks/use-cart"; // ← pakai zustand store
 
 interface TranslationContent {
@@ -28,6 +29,8 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, status } = useSession();
 
   // ===== ambil keranjang langsung dari zustand (persisted ke localStorage)
   const cartItems = useCart((s) => s.cartItems);
@@ -103,6 +106,15 @@ export default function Header() {
     window.dispatchEvent(new CustomEvent("openCart"));
   };
 
+  const handleUserClick = () => {
+    if (status === "loading") return;
+    if (session?.user) {
+      router.push("/me");
+    } else {
+      router.push("/login"); // ganti ke "/auth/login" jika halaman login Anda di sana
+    }
+  };
+
   const isActiveLink = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
@@ -175,7 +187,11 @@ export default function Header() {
               </button>
 
               {/* User Icon */}
-              <button className="p-3 rounded-xl hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 group shadow-sm hover:shadow-md">
+              <button
+                onClick={handleUserClick}
+                className="p-3 rounded-xl hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 group shadow-sm hover:shadow-md"
+                aria-label="User"
+              >
                 <User className="w-5 h-5 text-gray-700 group-hover:text-emerald-600 transition-colors" />
               </button>
 
@@ -183,6 +199,7 @@ export default function Header() {
               <button
                 onClick={handleCartClick}
                 className="relative p-3 cursor-pointer rounded-xl hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 group shadow-sm hover:shadow-md"
+                aria-label="Cart"
               >
                 <ShoppingCart className="w-5 h-5 text-gray-700 group-hover:text-emerald-600 transition-colors" />
                 {cartCount > 0 && (
@@ -239,6 +256,7 @@ export default function Header() {
               <button
                 onClick={toggleMobileMenu}
                 className="p-2 rounded-lg hover:bg-white/50 transition-colors"
+                aria-label="Close mobile menu"
               >
                 <X className="w-5 h-5 text-emerald-600" />
               </button>

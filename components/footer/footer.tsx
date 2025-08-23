@@ -46,17 +46,17 @@ export default function Footer() {
   const quickLinks = [
     { name: "Beranda", href: "/" },
     { name: "Tentang Kami", href: "/about" },
-    { name: "Produk", href: "/products" },
+    { name: "Produk", href: "/product" },
     { name: "Galeri", href: "/gallery" },
     { name: "Berita", href: "/news" },
     { name: "Cara Pemesanan", href: "/how-to-order" }
   ];
 
   const productCategories = [
-    { name: "Art Supplies", href: "/products?category=art-supplies" },
-    { name: "Craft Kits", href: "/products?category=craft-kits" },
-    { name: "Educational Toys", href: "/products?category=educational-toys" },
-    { name: "Workshop Kits", href: "/products?category=workshop-kits" }
+    { name: "Art Supplies", href: "/product?category=art-supplies" },
+    { name: "Craft Kits", href: "/product?category=craft-kits" },
+    { name: "Educational Toys", href: "/product?category=educational-toys" },
+    { name: "Workshop Kits", href: "/product?category=workshop-kits" }
   ];
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {

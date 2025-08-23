@@ -55,7 +55,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         });
 
         if (signInRes?.ok) {
-          router.push("/");
+          router.push("/admin/dashboard");
         } else {
           setError("Gagal masuk. Email atau password salah.");
         }
@@ -229,7 +229,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             </p>
           </form>
 
-          <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+          {/* <div className="text-center text-sm text-gray-600 dark:text-gray-400">
             {isLogin ? "Belum punya akun?" : "Sudah punya akun?"}{" "}
             <a
               href={isLogin ? "/auth/register" : "/auth/login"}
@@ -237,7 +237,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             >
               {isLogin ? "Daftar sekarang" : "Masuk"}
             </a>
-          </div>
+          </div> */}
         </div>
       </div>
 

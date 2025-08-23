@@ -253,11 +253,11 @@ export default function CartPage() {
                 <div className="text-red-600">Gagal memuat rekomendasi.</div>
               )}
               {!isRelLoading && !isRelError && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-80">
                   {relatedProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                      className="min-w-80 bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
                     >
                       <div className="relative h-48">
                         <Image
