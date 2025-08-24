@@ -18,7 +18,6 @@ import {
   Phone,
   Mail,
   CheckCircle,
-  Gift,
   Camera,
   CreditCard,
   Truck,

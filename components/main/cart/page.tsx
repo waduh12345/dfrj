@@ -247,7 +247,7 @@ export default function CartPage() {
                 Produk Rekomendasi
               </h2>
               {isRelLoading && (
-                <div className="text-gray-600"><DotdLoader/></div>
+                <div className="text-gray-600 w-full flex items-center justify-center min-h-96"><DotdLoader/></div>
               )}
               {isRelError && (
                 <div className="text-red-600">Gagal memuat rekomendasi.</div>

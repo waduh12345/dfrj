@@ -188,38 +188,39 @@ export default function GaleriPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10">
       {/* Header Section */}
-      <section className="pt-24 pb-12 px-6 lg:px-12">
-        <div className="container mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-6">
-            <Sparkles className="w-4 h-4 text-[#A3B18A]" />
-            <span className="text-sm font-medium text-[#A3B18A]">
-              Galeri COLORE
-            </span>
+      <section className="pt-24 pb-12 px-6 lg:px-12 bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80">
+        <div className="container mx-auto text-center text-white">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-6">
+            <Sparkles className="w-4 h-4 text-white" />
+            <span className="text-sm font-medium">Galeri COLORE</span>
           </div>
 
-          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+          {/* Title */}
+          <h1 className="text-4xl lg:text-6xl font-bold mb-6">
             Momen Kreatif
-            <span className="block text-[#A3B18A]">Bersama COLORE</span>
+            <span className="block">Bersama COLORE</span>
           </h1>
 
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Dokumentasi kegiatan seru, workshop edukatif, dan produk-produk
-            ramah lingkungan yang telah mengembangkan kreativitas ribuan anak
-            Indonesia.
+          {/* Subtitle */}
+          <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
+            Dokumentasi kegiatan seru, workshop edukatif, dan produk ramah
+            lingkungan yang mengembangkan kreativitas ribuan anak Indonesia.
           </p>
 
+          {/* Tags */}
           <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
-              <div className="w-3 h-3 bg-[#A3B18A] rounded-full"></div>
-              <span className="text-gray-700">Workshop Kreatif</span>
+            <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full shadow-sm">
+              <div className="w-3 h-3 rounded-full bg-[#DFF19D]"></div>
+              <span>Workshop Kreatif</span>
             </div>
-            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
-              <div className="w-3 h-3 bg-[#F6CCD0] rounded-full"></div>
-              <span className="text-gray-700">Produk Ramah Lingkungan</span>
+            <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full shadow-sm">
+              <div className="w-3 h-3 rounded-full bg-[#F6CCD0]"></div>
+              <span>Produk Ramah Lingkungan</span>
             </div>
-            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
-              <div className="w-3 h-3 bg-[#BFF0F5] rounded-full"></div>
-              <span className="text-gray-700">Event Edukatif</span>
+            <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full shadow-sm">
+              <div className="w-3 h-3 rounded-full bg-[#BFF0F5]"></div>
+              <span>Event Edukatif</span>
             </div>
           </div>
         </div>
@@ -266,7 +267,9 @@ export default function GaleriPage() {
         <div className="container mx-auto">
           <div className="mb-6 flex items-center justify-between">
             {isLoading ? (
-              <div className="w-full flex justify-center items-center"><DotdLoader/></div>
+              <div className="w-full flex justify-center items-center">
+                <DotdLoader />
+              </div>
             ) : isError ? (
               <div className="flex items-center gap-3">
                 <p className="text-red-600">Gagal memuat galeri.</p>

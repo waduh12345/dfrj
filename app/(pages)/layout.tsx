@@ -1,7 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
 import Footer from "@/components/footer/footer";
-import Navbar from "@/components/header/navbar";
 import TopHeader from "@/components/header/top-header";
 import CartSidebar from "@/components/main/product-page/cart-sidebar";
 import ScrollToTopButton from "@/components/ui/scroll-top-button";

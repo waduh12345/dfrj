@@ -203,7 +203,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 via-sky-400/30 to-pink-400/30"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 via-sky-400/30 to-[#DFF19D]"></div>
 
         <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full opacity-80 animate-pulse shadow-lg"></div>
         <div className="absolute bottom-32 right-16 w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full opacity-80 animate-pulse delay-1000 shadow-lg"></div>
@@ -311,7 +311,7 @@ export default function HomePage() {
       </section>
 
       {/* ===================== Categories Section (Dynamic via Service) ===================== */}
-      <section className="py-20 bg-gradient-to-r from-emerald-400/20 to-cyan-400/20">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mb-10">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
@@ -432,6 +432,45 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ===================== Why Choose COLORE (Features) ===================== */}
+      <section className="py-20 bg-[#DFF19D]">
+        <div className="container mx-auto px-6 lg:px-12">
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900">
+              Mengapa Pilih{" "}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                COLORE?
+              </span>
+            </h2>
+            <p className="mt-4 text-gray-700">
+              Kami berkomitmen memberikan yang terbaik untuk anak-anak dengan
+              produk berkualitas tinggi yang aman dan ramah lingkungan.
+            </p>
+          </div>
+
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((f, i) => (
+              <div
+                key={i}
+                className="group bg-white/70 backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-md transition-all"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center shadow-sm mx-auto">
+                  {/* icon dari array features */}
+                  <div className="scale-110">{f.icon}</div>
+                </div>
+
+                <h3 className="mt-5 text-center text-base font-semibold text-gray-900">
+                  {f.title}
+                </h3>
+                <p className="mt-2 text-center text-sm text-gray-600">
+                  {f.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ===================== Modal Detail Kategori ===================== */}
       <Dialog open={openDetail} onOpenChange={setOpenDetail}>
         <DialogContent className="sm:max-w-2xl">
@@ -523,7 +562,7 @@ export default function HomePage() {
       </Dialog>
 
       {/* ===================== Featured Products (Dynamic via Service, max 3) ===================== */}
-      <section className="py-20 bg-gradient-to-r from-pink-400/20 to-cyan-400/20">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
@@ -646,7 +685,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-r from-emerald-600 via-teal-600 to-[#DFF19D] text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full"></div>
           <div className="absolute bottom-20 right-20 w-24 h-24 bg-white rounded-full"></div>

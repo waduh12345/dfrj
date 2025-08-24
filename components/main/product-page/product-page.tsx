@@ -175,28 +175,35 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10">
-      {/* Header Section */}
-      <section className="pt-24 pb-12 px-6 lg:px-12">
-        <div className="container mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-6">
-            <Sparkles className="w-4 h-4 text-[#A3B18A]" />
-            <span className="text-sm font-medium text-[#A3B18A]">
+      {/* ===================== Header / Hero (Tema #DFF19D + blend) ===================== */}
+      <section className="relative pt-24 pb-12 px-6 lg:px-12 overflow-hidden">
+        {/* layer blend background */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 -left-24 w-[40rem] h-[40rem] rounded-full bg-[#DFF19D] blur-3xl opacity-80" />
+          <div className="absolute -top-10 right-[-10%] w-[28rem] h-[28rem] rounded-full bg-[#F6CCD0] blur-3xl opacity-40" />
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full bg-[#BFF0F5] blur-3xl opacity-40" />
+        </div>
+
+        <div className="container mx-auto text-center relative z-10">
+          <div className="inline-flex items-center gap-2 bg-[#DFF19D]/20 px-4 py-2 rounded-full mb-6">
+            <Sparkles className="w-4 h-4 text-[#DFF19D]" />
+            <span className="text-sm font-medium text-emerald-900">
               Produk Ramah Lingkungan
             </span>
           </div>
 
           <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
             Koleksi Produk
-            <span className="block text-[#A3B18A]">COLORE</span>
+            <span className="block text-emerald-800">COLORE</span>
           </h1>
 
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+          <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
             Jelajahi koleksi lengkap produk seni dan kerajinan ramah lingkungan…
           </p>
 
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-700">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-[#A3B18A] rounded-full" />
+              <div className="w-3 h-3 bg-[#DFF19D] rounded-full" />
               <span>100% Ramah Lingkungan</span>
             </div>
             <div className="flex items-center gap-2">
@@ -211,10 +218,10 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {/* Filters & Search */}
+      {/* ===================== Filters & Search (aksen #DFF19D) ===================== */}
       <section className="px-6 lg:px-12 mb-8">
         <div className="container mx-auto">
-          <div className="bg-white rounded-3xl p-6 shadow-lg border border-[#A3B18A]/10">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border border-[#DFF19D]/40">
             <div className="flex flex-wrap lg:flex-nowrap items-center gap-4">
               {/* Search */}
               <div className="relative flex-1 min-w-[300px]">
@@ -224,7 +231,7 @@ export default function ProductsPage() {
                   placeholder="Cari produk favorit anak..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] focus:border-transparent"
                 />
               </div>
 
@@ -235,7 +242,7 @@ export default function ProductsPage() {
                   onChange={(e) =>
                     setFilter({ ...filter, category: e.target.value })
                   }
-                  className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] bg-white"
+                  className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
                 >
                   <option value="all">Semua Kategori</option>
                   {Array.from(
@@ -252,9 +259,8 @@ export default function ProductsPage() {
                   onChange={(e) =>
                     setFilter({ ...filter, ageGroup: e.target.value })
                   }
-                  className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] bg-white"
+                  className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
                 >
-                  {/* Tidak terpakai di filter logika; dipertahankan untuk UI */}
                   <option value="all">Semua Usia</option>
                 </select>
 
@@ -263,7 +269,7 @@ export default function ProductsPage() {
                   onChange={(e) =>
                     setFilter({ ...filter, priceRange: e.target.value })
                   }
-                  className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] bg-white"
+                  className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
                 >
                   <option value="all">Semua Harga</option>
                   <option value="under-100k">Di bawah 100k</option>
@@ -276,7 +282,7 @@ export default function ProductsPage() {
                   onChange={(e) =>
                     setFilter({ ...filter, sort: e.target.value })
                   }
-                  className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] bg-white"
+                  className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
                 >
                   <option value="featured">Unggulan</option>
                   <option value="newest">Terbaru</option>
@@ -292,8 +298,8 @@ export default function ProductsPage() {
                   onClick={() => setViewMode("grid")}
                   className={`p-2 rounded-xl transition-colors ${
                     viewMode === "grid"
-                      ? "bg-white shadow-sm text-[#A3B18A]"
-                      : "text-gray-500 hover:text-[#A3B18A]"
+                      ? "bg-white shadow-sm text-emerald-700"
+                      : "text-gray-500 hover:text-emerald-700"
                   }`}
                 >
                   <Grid3X3 className="w-5 h-5" />
@@ -302,8 +308,8 @@ export default function ProductsPage() {
                   onClick={() => setViewMode("list")}
                   className={`p-2 rounded-xl transition-colors ${
                     viewMode === "list"
-                      ? "bg-white shadow-sm text-[#A3B18A]"
-                      : "text-gray-500 hover:text-[#A3B18A]"
+                      ? "bg-white shadow-sm text-emerald-700"
+                      : "text-gray-500 hover:text-emerald-700"
                   }`}
                 >
                   <List className="w-5 h-5" />

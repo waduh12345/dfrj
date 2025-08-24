@@ -42,22 +42,22 @@ export default function Header() {
   const translations: Translations = {
     id: {
       home: "Beranda",
-      about: "Tentang Kami",
-      products: "Produk",
-      gallery: "Galeri",
-      news: "Berita",
+      products: "Belanja",
       howToOrder: "Cara Pemesanan",
-      tagline: "Art & Crafts Ramah Lingkungan untuk Anak",
+      about: "Tentang Kami",
+      news: "Cerita",
+      gallery: "Galeri",
+      tagline: "Plant based Colorant",
       switchLanguage: "Ganti ke English",
     },
     en: {
       home: "Home",
-      about: "About Us",
-      products: "Products",
-      gallery: "Gallery",
-      news: "News",
+      products: "Shop",
       howToOrder: "How to Order",
-      tagline: "Eco-Friendly Art & Crafts for Kids",
+      about: "About Us",
+      news: "Story",
+      gallery: "Gallery",
+      tagline: "Plant based Colorant",
       switchLanguage: "Switch to Bahasa",
     },
   };
@@ -66,11 +66,11 @@ export default function Header() {
 
   const menuItems = [
     { name: t.home, href: "/" },
-    { name: t.about, href: "/about" },
     { name: t.products, href: "/product" },
-    { name: t.gallery, href: "/gallery" },
-    { name: t.news, href: "/news" },
     { name: t.howToOrder, href: "/how-to-order" },
+    { name: t.about, href: "/about" },
+    { name: t.news, href: "/news" },
+    { name: t.gallery, href: "/gallery" },
   ];
 
   useEffect(() => {
