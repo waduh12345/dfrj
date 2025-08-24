@@ -23,6 +23,25 @@ import { Product } from "@/types/admin/product";
 import { useGetProductListQuery } from "@/services/product.service";
 import DotdLoader from "@/components/loader/3dot";
 
+// === Tambahan import logic checkout (tidak mengubah warna UI) ===
+import { Combobox } from "@/components/ui/combo-box";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  useGetProvincesQuery,
+  useGetCitiesQuery,
+  useGetDistrictsQuery,
+} from "@/services/shop/open-shop/open-shop.service";
+import { useCreateTransactionMutation } from "@/services/admin/transaction.service";
+import { useRouter } from "next/navigation";
+// SweetAlert
+import Swal from "sweetalert2";
+
 const STORAGE_KEY = "cart-storage";
 
 type StoredCartItem = Product & { quantity: number };
@@ -47,7 +66,6 @@ interface RelatedProductView {
   image: string;
   rating: number;
   category: string;
-  // simpan produk asli untuk add-to-cart
   __raw: Product;
 }
 
@@ -66,7 +84,6 @@ function parseStorage(): StoredCartItem[] {
 
 function writeStorage(nextItems: StoredCartItem[]) {
   if (typeof window === "undefined") return;
-  // pertahankan struktur persist: { state: { cartItems, ... }, version }
   const raw = localStorage.getItem(STORAGE_KEY);
   let base = {
     state: { cartItems: [] as StoredCartItem[] },
@@ -74,9 +91,7 @@ function writeStorage(nextItems: StoredCartItem[]) {
   };
   try {
     base = raw ? JSON.parse(raw) : base;
-  } catch {
-    // ignore, use base
-  }
+  } catch {}
   base.state = { ...(base.state || {}), cartItems: nextItems };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(base));
   window.dispatchEvent(new CustomEvent("cartUpdated"));
@@ -96,22 +111,62 @@ function mapStoredToView(items: StoredCartItem[]): CartItemView[] {
     id: it.id,
     name: it.name,
     price: it.price,
-    originalPrice: undefined, // tidak ada di Product API
+    originalPrice: undefined,
     image: getImageUrlFromProduct(it),
     quantity: it.quantity ?? 1,
     category: it.category_name,
-    ageGroup: "Semua usia", // data tidak tersedia di API
-    isEcoFriendly: false, // data tidak tersedia di API
+    ageGroup: "Semua usia",
+    isEcoFriendly: false,
     inStock: (it.stock ?? 0) > 0,
   }));
 }
 
+type ErrorBag = Record<string, string[] | string>;
+
 export default function CartPage() {
+  const router = useRouter();
+
   // ===== Cart from localStorage (sinkron)
   const [cartItems, setCartItems] = useState<CartItemView[]>([]);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  // === STATE Tambahan untuk logic checkout ===
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [shippingMethod, setShippingMethod] = useState("");
+  const [isCheckingOut, setIsCheckingOut] = useState(false); // spinner tombol
+  const [isSubmitting, setIsSubmitting] = useState(false); // status request API
+
+  const [shippingInfo, setShippingInfo] = useState({
+    fullName: "",
+    phone: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    kecamatan: "",
+    rajaongkir_province_id: 0,
+    rajaongkir_city_id: 0,
+    rajaongkir_district_id: 0,
+  });
+
+  const handleInputChange = (field: string, value: string) => {
+    setShippingInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // === Data wilayah (provinsi/kota/kecamatan) ===
+  const { data: provinces = [], isLoading: loadingProvince } =
+    useGetProvincesQuery();
+  const { data: cities = [], isLoading: loadingCity } = useGetCitiesQuery(
+    shippingInfo.rajaongkir_province_id,
+    { skip: !shippingInfo.rajaongkir_province_id }
+  );
+  const { data: districts = [], isLoading: loadingDistrict } =
+    useGetDistrictsQuery(shippingInfo.rajaongkir_city_id, {
+      skip: !shippingInfo.rajaongkir_city_id,
+    });
+
+  // === Mutation transaksi ===
+  const [createTransaction] = useCreateTransactionMutation();
 
   // initial load + listen to changes from other tabs/pages
   useEffect(() => {
@@ -149,6 +204,11 @@ export default function CartPage() {
     updateStorageAndState((items) => items.filter((it) => it.id !== id));
   };
 
+  const clearCart = () => {
+    writeStorage([]);
+    setCartItems([]);
+  };
+
   const applyCoupon = () => {
     if (couponCode.trim().toLowerCase() === "colore10") {
       setAppliedCoupon("COLORE10");
@@ -158,14 +218,6 @@ export default function CartPage() {
 
   const removeCoupon = () => setAppliedCoupon(null);
 
-  const handleCheckout = () => {
-    setIsCheckingOut(true);
-    setTimeout(() => {
-      setIsCheckingOut(false);
-      // redirect di sini jika diperlukan
-    }, 1500);
-  };
-
   // ===== Related products via service
   const {
     data: relatedResp,
@@ -173,7 +225,7 @@ export default function CartPage() {
     isError: isRelError,
   } = useGetProductListQuery({
     page: 1,
-    paginate: 6, // ambil beberapa untuk rekomendasi
+    paginate: 6,
   });
 
   const relatedProducts: RelatedProductView[] = useMemo(() => {
@@ -201,7 +253,6 @@ export default function CartPage() {
           it.id === p.id ? { ...it, quantity: (it.quantity ?? 1) + 1 } : it
         );
       }
-      // tambahkan produk baru dengan quantity=1 (simpan full Product agar konsisten dengan useCart)
       const fresh: StoredCartItem = { ...p, quantity: 1 };
       return [...items, fresh];
     });
@@ -214,8 +265,216 @@ export default function CartPage() {
   );
   const discount =
     appliedCoupon === "COLORE10" ? Math.round(subtotal * 0.1) : 0;
-  const shipping = subtotal >= 250_000 ? 0 : 15_000;
-  const total = subtotal - discount + shipping;
+
+  // === Shipping cost now mengikuti pilihan metode (sesuai contoh) ===
+  const shippingCost =
+    shippingMethod === "express"
+      ? 15000
+      : shippingMethod === "regular"
+      ? 10000
+      : shippingMethod === "pickup"
+      ? 0
+      : 0;
+
+  const total = subtotal - discount + shippingCost;
+
+  // === Mapping courier info (mengikuti contoh: lowercase "jne" | "pickup") ===
+  const getCourierInfo = () => {
+    switch (shippingMethod) {
+      case "express":
+        return {
+          courier: "jne",
+          parameter: JSON.stringify({
+            destination: String(shippingInfo.rajaongkir_district_id || "486"),
+            weight: 1000,
+            height: 0,
+            length: 0,
+            width: 0,
+            diameter: 0,
+            courier: "jne",
+          }),
+          shipment_detail: JSON.stringify({
+            name: "Jalur Nugraha Ekakurir (JNE)",
+            code: "jne",
+            service: "YES",
+            description: "JNE Yakin Esok Sampai",
+            cost: 15000,
+            etd: "1 day",
+          }),
+        };
+      case "regular":
+        return {
+          courier: "jne",
+          parameter: JSON.stringify({
+            destination: String(shippingInfo.rajaongkir_district_id || "486"),
+            weight: 1000,
+            height: 0,
+            length: 0,
+            width: 0,
+            diameter: 0,
+            courier: "jne",
+          }),
+          shipment_detail: JSON.stringify({
+            name: "Jalur Nugraha Ekakurir (JNE)",
+            code: "jne",
+            service: "CTC",
+            description: "JNE City Courier",
+            cost: 10000,
+            etd: "2-3 days",
+          }),
+        };
+      case "pickup":
+        return {
+          courier: "pickup",
+          parameter: JSON.stringify({
+            destination: "0",
+            weight: 0,
+            height: 0,
+            length: 0,
+            width: 0,
+            diameter: 0,
+            courier: "pickup",
+          }),
+          shipment_detail: JSON.stringify({
+            name: "Ambil di Tempat",
+            code: "pickup",
+            service: "PICKUP",
+            description: "Ambil langsung di toko",
+            cost: 0,
+            etd: "0 day",
+          }),
+        };
+      default:
+        return null;
+    }
+  };
+
+  const handleCheckout = async () => {
+    setIsCheckingOut(true);
+
+    if (
+      !paymentMethod ||
+      !shippingMethod ||
+      !shippingInfo.fullName ||
+      !shippingInfo.address
+    ) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Lengkapi Data",
+        text: "Harap lengkapi semua informasi yang diperlukan",
+      });
+      setIsCheckingOut(false);
+      return;
+    }
+
+    const courierInfo = getCourierInfo();
+    if (!courierInfo) {
+      await Swal.fire({
+        icon: "error",
+        title: "Metode Pengiriman",
+        text: "Metode pengiriman tidak valid",
+      });
+      setIsCheckingOut(false);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const stored = parseStorage();
+      const payload = {
+        data: [
+          {
+            shop_id: 1, // TODO: buat dinamis jika diperlukan
+            details: stored.map((item) => ({
+              product_id: item.id,
+              quantity: item.quantity ?? 1,
+            })),
+            shipment: {
+              parameter: courierInfo.parameter,
+              shipment_detail: courierInfo.shipment_detail,
+              courier: courierInfo.courier, // "jne" | "pickup"
+              cost: shippingCost,
+            },
+          },
+        ],
+      };
+
+      const result = await createTransaction(payload).unwrap();
+
+      if (
+        result &&
+        result.data &&
+        typeof result.data === "object" &&
+        "payment_link" in result.data
+      ) {
+        await Swal.fire({
+          icon: "success",
+          title: "Pesanan Berhasil Dibuat",
+          text: `Reference: ${
+            (result.data as { reference?: string }).reference || "N/A"
+          }`,
+          confirmButtonText: "Lanjut ke Pembayaran",
+        });
+        window.open(
+          (result.data as { payment_link: string }).payment_link,
+          "_blank"
+        );
+        clearCart();
+        setTimeout(() => {
+          router.push("/me");
+        }, 2000);
+      } else {
+        console.warn("Unexpected response format:", result);
+        await Swal.fire({
+          icon: "info",
+          title: "Pesanan Dibuat",
+          text: "Pesanan berhasil dibuat, tetapi tidak dapat membuka link pembayaran.",
+        });
+      }
+    } catch (err: unknown) {
+      console.error("Error creating transaction:", err);
+
+      let serverMessage =
+        "Terjadi kesalahan saat membuat pesanan. Silakan coba lagi.";
+      let fieldErrors = "";
+
+      if (typeof err === "object" && err !== null) {
+        const apiErr = err as {
+          data?: { message?: string; errors?: ErrorBag };
+        };
+        const genericErr = err as { message?: string };
+
+        if (apiErr.data?.message) {
+          serverMessage = apiErr.data.message;
+        } else if (genericErr.message) {
+          serverMessage = genericErr.message;
+        }
+
+        const rawErrors: ErrorBag | undefined = apiErr.data?.errors;
+        if (rawErrors) {
+          fieldErrors = Object.entries(rawErrors)
+            .map(([field, msgs]) => {
+              const list = Array.isArray(msgs) ? msgs : [msgs];
+              return `${field}: ${list.join(", ")}`;
+            })
+            .join("\n");
+        }
+      }
+
+      await Swal.fire({
+        icon: "error",
+        title: "Gagal Membuat Pesanan",
+        html:
+          `<p style="text-align:left">${serverMessage}</p>` +
+          (fieldErrors
+            ? `<pre style="text-align:left;white-space:pre-wrap;background:#f8f9fa;padding:12px;border-radius:8px;margin-top:8px">${fieldErrors}</pre>`
+            : ""),
+      });
+    } finally {
+      setIsSubmitting(false);
+      setIsCheckingOut(false);
+    }
+  };
 
   // ===== Empty cart
   if (cartItems.length === 0) {
@@ -247,7 +506,9 @@ export default function CartPage() {
                 Produk Rekomendasi
               </h2>
               {isRelLoading && (
-                <div className="text-gray-600 w-full flex items-center justify-center min-h-96"><DotdLoader/></div>
+                <div className="text-gray-600 w-full flex items-center justify-center min-h-96">
+                  <DotdLoader />
+                </div>
               )}
               {isRelError && (
                 <div className="text-red-600">Gagal memuat rekomendasi.</div>
@@ -478,11 +739,189 @@ export default function CartPage() {
                 </div>
               </div>
             ))}
+
+            {/* Informasi Pengiriman (baru, warna tetap konsisten) */}
+            <div className="bg-white rounded-3xl p-6 shadow-lg">
+              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Truck className="w-5 h-5 text-[#A3B18A]" />
+                Informasi Pengiriman
+              </h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nama Lengkap *
+                  </label>
+                  <input
+                    type="text"
+                    value={shippingInfo.fullName}
+                    onChange={(e) =>
+                      handleInputChange("fullName", e.target.value)
+                    }
+                    placeholder="Masukkan nama lengkap"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nomor Telepon *
+                  </label>
+                  <input
+                    type="tel"
+                    value={shippingInfo.phone}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    placeholder="08xxxxxxxxxx"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Alamat Lengkap *
+                  </label>
+                  <textarea
+                    value={shippingInfo.address}
+                    onChange={(e) =>
+                      handleInputChange("address", e.target.value)
+                    }
+                    rows={3}
+                    placeholder="Nama jalan, RT/RW, Kelurahan"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Provinsi
+                  </label>
+                  <Combobox
+                    value={shippingInfo.rajaongkir_province_id}
+                    onChange={(id) => {
+                      setShippingInfo((prev) => ({
+                        ...prev,
+                        rajaongkir_province_id: id,
+                        rajaongkir_city_id: 0,
+                        rajaongkir_district_id: 0,
+                      }));
+                    }}
+                    data={provinces}
+                    isLoading={loadingProvince}
+                    getOptionLabel={(item) => item.name}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Kota / Kabupaten
+                  </label>
+                  <Combobox
+                    value={shippingInfo.rajaongkir_city_id}
+                    onChange={(id) =>
+                      setShippingInfo((prev) => ({
+                        ...prev,
+                        rajaongkir_city_id: id,
+                        rajaongkir_district_id: 0,
+                      }))
+                    }
+                    data={cities}
+                    isLoading={loadingCity}
+                    getOptionLabel={(item) => item.name}
+                    disabled={!shippingInfo.rajaongkir_province_id}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Kecamatan
+                  </label>
+                  <Combobox
+                    value={shippingInfo.rajaongkir_district_id}
+                    onChange={(id) =>
+                      setShippingInfo((prev) => ({
+                        ...prev,
+                        rajaongkir_district_id: id,
+                      }))
+                    }
+                    data={districts}
+                    isLoading={loadingDistrict}
+                    getOptionLabel={(item) => item.name}
+                    disabled={!shippingInfo.rajaongkir_city_id}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Kode Pos
+                  </label>
+                  <input
+                    type="text"
+                    value={shippingInfo.postalCode}
+                    onChange={(e) =>
+                      handleInputChange("postalCode", e.target.value)
+                    }
+                    placeholder="16911"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Order Summary */}
+          {/* Right Column */}
           <div className="space-y-6">
-            {/* Coupon */}
+            {/* Metode Pengiriman (radio) */}
+            <div className="bg-white rounded-3xl p-6 shadow-lg">
+              <h3 className="font-bold text-gray-900 mb-4">
+                Metode Pengiriman
+              </h3>
+
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-neutral-50 transition-colors">
+                  <input
+                    type="radio"
+                    name="shipping"
+                    value="regular"
+                    checked={shippingMethod === "regular"}
+                    onChange={(e) => setShippingMethod(e.target.value)}
+                  />
+                  <div className="flex-1">
+                    <p className="font-medium">Reguler (2-3 hari)</p>
+                    <p className="text-sm text-neutral-500">Rp 10.000</p>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-neutral-50 transition-colors">
+                  <input
+                    type="radio"
+                    name="shipping"
+                    value="express"
+                    checked={shippingMethod === "express"}
+                    onChange={(e) => setShippingMethod(e.target.value)}
+                  />
+                  <div className="flex-1">
+                    <p className="font-medium">Express (1 hari)</p>
+                    <p className="text-sm text-neutral-500">Rp 15.000</p>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-neutral-50 transition-colors">
+                  <input
+                    type="radio"
+                    name="shipping"
+                    value="pickup"
+                    checked={shippingMethod === "pickup"}
+                    onChange={(e) => setShippingMethod(e.target.value)}
+                  />
+                  <div className="flex-1">
+                    <p className="font-medium">Ambil di Tempat</p>
+                    <p className="text-sm text-neutral-500">Gratis</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Kode Promo */}
             <div className="bg-white rounded-3xl p-6 shadow-lg">
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <Tag className="w-5 h-5 text-[#A3B18A]" />
@@ -530,7 +969,31 @@ export default function CartPage() {
               </div>
             </div>
 
-            {/* Summary */}
+            {/* Metode Pembayaran */}
+            <div className="bg-white rounded-3xl p-6 shadow-lg">
+              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-[#A3B18A]" />
+                Metode Pembayaran
+              </h3>
+              <Select
+                value={paymentMethod}
+                onValueChange={(val) => setPaymentMethod(val)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Metode Pembayaran" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cod">Bayar di Tempat (COD)</SelectItem>
+                  <SelectItem value="transfer">Transfer Bank</SelectItem>
+                  <SelectItem value="ewallet">
+                    E-Wallet (GoPay/OVO/Dana)
+                  </SelectItem>
+                  <SelectItem value="qris">QRIS</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Ringkasan Pesanan */}
             <div className="bg-white rounded-3xl p-6 shadow-lg">
               <h3 className="font-bold text-gray-900 mb-4">
                 Ringkasan Pesanan
@@ -557,12 +1020,12 @@ export default function CartPage() {
                   <span className="text-gray-600">Ongkos Kirim</span>
                   <span
                     className={`font-semibold ${
-                      shipping === 0 ? "text-green-600" : ""
+                      shippingCost === 0 ? "text-green-600" : ""
                     }`}
                   >
-                    {shipping === 0
+                    {shippingCost === 0
                       ? "GRATIS"
-                      : `Rp ${shipping.toLocaleString("id-ID")}`}
+                      : `Rp ${shippingCost.toLocaleString("id-ID")}`}
                   </span>
                 </div>
 
@@ -594,10 +1057,18 @@ export default function CartPage() {
 
               <button
                 onClick={handleCheckout}
-                disabled={isCheckingOut || cartItems.some((it) => !it.inStock)}
+                disabled={
+                  isCheckingOut ||
+                  isSubmitting ||
+                  cartItems.some((it) => !it.inStock) ||
+                  !paymentMethod ||
+                  !shippingMethod ||
+                  !shippingInfo.fullName ||
+                  !shippingInfo.address
+                }
                 className="w-full bg-[#A3B18A] text-white py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isCheckingOut ? (
+                {isCheckingOut || isSubmitting ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     Memproses...
@@ -610,6 +1081,15 @@ export default function CartPage() {
                 )}
               </button>
 
+              {(!paymentMethod ||
+                !shippingMethod ||
+                !shippingInfo.fullName ||
+                !shippingInfo.address) && (
+                <p className="text-red-500 text-sm text-center mt-3">
+                  * Harap lengkapi semua informasi yang diperlukan
+                </p>
+              )}
+
               {cartItems.some((it) => !it.inStock) && (
                 <p className="text-red-500 text-sm text-center mt-3">
                   Beberapa produk tidak tersedia. Hapus untuk melanjutkan.
@@ -619,7 +1099,7 @@ export default function CartPage() {
           </div>
         </div>
 
-        {/* Related Products */}
+        {/* Related Products (TIDAK DIUBAH tampilannya) */}
         <div className="mt-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -631,7 +1111,9 @@ export default function CartPage() {
           </div>
 
           {isRelLoading && (
-            <div className="text-center text-gray-600"><DotdLoader/></div>
+            <div className="text-center text-gray-600">
+              <DotdLoader />
+            </div>
           )}
           {isRelError && (
             <div className="text-center text-red-600">

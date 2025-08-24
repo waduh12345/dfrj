@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useLogoutMutation } from "@/services/auth.service"; // pastikan path sesuai
+import { useGetTransactionListQuery } from "@/services/admin/transaction.service";
 import Swal from "sweetalert2";
 
 interface UserProfile {
@@ -52,21 +53,85 @@ interface Address {
   isDefault: boolean;
 }
 
+interface OrderItem {
+  id: string;
+  name: string;
+  image: string;
+  quantity: number;
+  price: number;
+}
+
+type OrderStatus =
+  | "pending"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
 interface Order {
   id: string;
   orderNumber: string;
   date: string;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  status: OrderStatus;
   total: number;
-  items: {
-    id: string;
-    name: string;
-    image: string;
-    quantity: number;
-    price: number;
-  }[];
+  items: OrderItem[];
   trackingNumber?: string;
 }
+
+/** ====== TIPE DATA MINIMAL DARI API TRANSAKSI (meniru contoh logic) ====== */
+interface ApiTransactionDetail {
+  id?: number | string;
+  product_id?: number;
+  quantity?: number;
+  price?: number;
+  product_name?: string;
+  product?: {
+    name?: string;
+    image?: string;
+    media?: Array<{ original_url: string }>;
+  } | null;
+  image?: string | null;
+}
+
+interface ApiTransaction {
+  id: number | string;
+  reference?: string;
+  status?: number; // 0 pending, 1 captured, 2 settlement, -1 deny, -2 expired, -3 cancel
+  total: number;
+  discount_total?: number;
+  created_at?: string;
+  details?: ApiTransactionDetail[];
+  tracking_number?: string;
+}
+
+/** Helper aman untuk ambil gambar produk */
+const pickImageUrl = (d?: ApiTransactionDetail): string => {
+  if (!d) return "/api/placeholder/80/80";
+  if (typeof d.image === "string" && d.image) return d.image;
+  const prod = d.product;
+  if (prod?.image) return prod.image;
+  const firstMedia = prod?.media?.[0]?.original_url;
+  if (firstMedia) return firstMedia;
+  return "/api/placeholder/80/80";
+};
+
+/** Pemetaan status backend -> UI tanpa mengubah tampilan */
+const mapTxnStatusToOrderStatus = (s?: number): OrderStatus => {
+  switch (s) {
+    case 0: // PENDING
+      return "pending";
+    case 1: // CAPTURED
+      return "processing";
+    case 2: // SETTLEMENT
+      return "delivered";
+    case -1: // DENY
+    case -2: // EXPIRED
+    case -3: // CANCEL
+      return "cancelled";
+    default:
+      return "pending";
+  }
+};
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -84,6 +149,45 @@ export default function ProfilePage() {
     () => session?.user?.email ?? "user@email.com",
     [session]
   );
+  const sessionId = (session?.user as { id?: number } | undefined)?.id;
+
+  // ===== Ambil transaksi dari API (menyesuaikan contoh logic) =====
+  const itemsPerPage = 10;
+  const { data: txnResp } = useGetTransactionListQuery(
+    {
+      page: 1,
+      paginate: itemsPerPage,
+      user_id: sessionId,
+    },
+    { skip: !sessionId }
+  );
+
+  const transactions: ApiTransaction[] = useMemo(
+    () => (txnResp?.data as ApiTransaction[]) || [],
+    [txnResp]
+  );
+
+  /** Map API -> Order[] untuk dipakai UI tanpa ubah style */
+  const ordersFromApi: Order[] = useMemo(() => {
+    return transactions.map((t) => {
+      const items: OrderItem[] = (t.details || []).map((det, idx) => ({
+        id: String(det.id ?? `${t.id}-${idx}`),
+        name: det.product?.name ?? det.product_name ?? "Produk",
+        image: pickImageUrl(det),
+        quantity: det.quantity ?? 1,
+        price: det.price ?? 0,
+      }));
+      return {
+        id: String(t.id),
+        orderNumber: t.reference || `REF-${String(t.id)}`,
+        date: t.created_at || new Date().toISOString(),
+        status: mapTxnStatusToOrderStatus(t.status),
+        total: t.total ?? 0,
+        items,
+        trackingNumber: (t as { tracking_number?: string }).tracking_number,
+      };
+    });
+  }, [transactions]);
 
   // Mock user data (tetap ada untuk elemen lain), tapi fullName & email disinkronkan dari session
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -94,7 +198,7 @@ export default function ProfilePage() {
     email: sessionEmail,
     phone: "+62 812 3456 7890",
     birthDate: "1990-05-15",
-    avatar: "/api/placeholder/150/150",
+    avatar: session?.user?.image || "/api/placeholder/150/150",
     joinDate: "2023-06-15",
     totalOrders: 12,
     totalSpent: 1_450_000,
@@ -110,8 +214,22 @@ export default function ProfilePage() {
         prev.id,
       fullName: sessionName,
       email: sessionEmail,
+      avatar: session?.user?.image || prev.avatar,
     }));
   }, [sessionName, sessionEmail, session]);
+
+  // Update statistik Dashboard dari transaksi API (tanpa ubah UI)
+  useEffect(() => {
+    if (!transactions.length) return;
+    const totalOrders = transactions.length;
+    const totalSpent = transactions.reduce((acc, t) => acc + (t.total ?? 0), 0);
+    setUserProfile((prev) => ({
+      ...prev,
+      totalOrders,
+      totalSpent,
+      // loyaltyPoints bisa dibuat dinamis jika ada aturan, sementara biarkan
+    }));
+  }, [transactions]);
 
   const [addresses, setAddresses] = useState<Address[]>([
     {
@@ -138,65 +256,8 @@ export default function ProfilePage() {
     },
   ]);
 
-  const [orders] = useState<Order[]>([
-    {
-      id: "order1",
-      orderNumber: "COL240001",
-      date: "2024-03-15",
-      status: "delivered",
-      total: 298_000,
-      items: [
-        {
-          id: "item1",
-          name: "Eco Paint Set Premium",
-          image: "/api/placeholder/80/80",
-          quantity: 2,
-          price: 149_000,
-        },
-      ],
-      trackingNumber: "JNE123456789",
-    },
-    {
-      id: "order2",
-      orderNumber: "COL240002",
-      date: "2024-03-20",
-      status: "shipped",
-      total: 178_000,
-      items: [
-        {
-          id: "item2",
-          name: "Nature Craft Kit",
-          image: "/api/placeholder/80/80",
-          quantity: 1,
-          price: 89_000,
-        },
-        {
-          id: "item3",
-          name: "Creative Clay Set",
-          image: "/api/placeholder/80/80",
-          quantity: 1,
-          price: 89_000,
-        },
-      ],
-      trackingNumber: "JNE987654321",
-    },
-    {
-      id: "order3",
-      orderNumber: "COL240003",
-      date: "2024-03-25",
-      status: "processing",
-      total: 149_000,
-      items: [
-        {
-          id: "item4",
-          name: "Rainbow Crayon Pack",
-          image: "/api/placeholder/80/80",
-          quantity: 1,
-          price: 65_000,
-        },
-      ],
-    },
-  ]);
+  // GUNAKAN data API untuk pesanan; fallback ke array kosong (UI tetap sama)
+  const orders: Order[] = ordersFromApi;
 
   const tabs = [
     {
@@ -272,8 +333,7 @@ export default function ProfilePage() {
 
   const handleSaveProfile = () => {
     setIsEditing(false);
-    // Di sini bisa integrasi update profile ke API jika dibutuhkan
-    // console.log("Profile saved:", userProfile);
+    // Tempat integrasi update profile ke API (jika dibutuhkan)
   };
 
   const handleDeleteAddress = (addressId: string) => {
@@ -410,13 +470,16 @@ export default function ProfilePage() {
                         <span className="font-semibold">Total Belanja</span>
                       </div>
                       <div className="text-3xl font-bold">
-                        Rp {userProfile.totalSpent / 1000}k
+                        {new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 0,
+                        }).format(userProfile.totalSpent)}
                       </div>
                       <div className="text-white/80 text-sm">
                         Lifetime value
                       </div>
                     </div>
-
                   </div>
 
                   {/* Recent Orders */}
@@ -434,7 +497,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="space-y-4">
-                      {orders.slice(0, 3).map((order) => (
+                      {(orders || []).slice(0, 3).map((order) => (
                         <div
                           key={order.id}
                           className="border border-gray-200 rounded-2xl p-4 hover:border-[#A3B18A] transition-colors"
@@ -741,7 +804,7 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {/* Orders Tab */}
+              {/* Orders Tab (menggunakan data transaksi API yang sudah di-map) */}
               {activeTab === "orders" && (
                 <div className="space-y-8">
                   <div className="flex items-center gap-3 mb-6">
@@ -754,7 +817,7 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="space-y-6">
-                    {orders.map((order) => (
+                    {(orders || []).map((order) => (
                       <div
                         key={order.id}
                         className="border border-gray-200 rounded-2xl p-6 hover:border-[#A3B18A] transition-colors"
