@@ -217,12 +217,17 @@ export default function ShopProfilePage() {
           return { ...s, [field]: Number.isNaN(v) ? null : v };
         }
         if (field === "rajaongkir_district_id") {
-          return { ...s, [field]: value === "" ? null : (value as any) };
+          if (typeof value !== "string") {
+            return { ...s, rajaongkir_district_id: null };
+          }
+          const v =
+            value === "" ? null : /^\d+$/.test(value) ? Number(value) : value;
+          return { ...s, rajaongkir_district_id: v };
         }
         if (field === "status") {
           return { ...s, status: Boolean(value) };
         }
-        return { ...s, [field]: value as any };
+        return { ...s, [field]: value as unknown as (typeof s)[typeof field] };
       });
     };
 
