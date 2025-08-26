@@ -16,7 +16,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
 
   // Ambil data shop
   const shop = session?.user?.shop;
-  const shopName = shop?.name || "Superadmin";
   const shopLogo =
     shop?.logo && shop.logo.trim() !== "" ? shop.logo : "/icon-superadmin.png";
   const pathname = usePathname();
@@ -81,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
             </div>
             <div className="ml-3">
               <h2 className="text-gray-900 text-lg font-bold font-italic">
-                {shopName}
+                Manajemen Shop
               </h2>
             </div>
           </div>
