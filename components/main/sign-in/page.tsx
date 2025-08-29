@@ -15,10 +15,12 @@ import {
   AlertCircle,
   User,
   Phone,
+  ArrowLeft,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useRegisterMutation } from "@/services/auth.service";
+import { Button } from "@/components/ui/button";
 
 interface LoginFormData {
   email: string;
@@ -216,12 +218,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#DFF19D]/20 via-[#BFF0F5]/20 to-[#F6CCD0]/20 flex items-center justify-center p-6 mt-12">
+    <div className="min-h-screen bg-gradient-to-br from-[#DFF19D]/20 via-[#BFF0F5]/20 to-[#F6CCD0]/20 flex items-center justify-center p-6">
       {/* Decorative */}
       <div className="absolute top-20 left-10 w-20 h-20 bg-[#F6CCD0] rounded-full opacity-60 animate-pulse" />
       <div className="absolute bottom-32 right-16 w-16 h-16 bg-[#BFF0F5] rounded-full opacity-60 animate-pulse delay-1000" />
       <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-[#DFF19D] rounded-full opacity-40 animate-pulse delay-500" />
-
       <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden">
         {/* Left */}
         <div className="bg-gradient-to-br from-[#A3B18A] to-[#DFF19D] p-8 lg:p-12 flex flex-col justify-center text-white relative overflow-hidden">
@@ -232,6 +233,15 @@ export default function LoginPage() {
           </div>
 
           <div className="relative z-10">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/")}
+              className="text-[#A3B18A] cursor-pointer shadow-lg border-[#A3B18A]/20 hover:bg-[#A3B18A]/10 hover:text-white transition-colors absolute -top-12 left-0"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Kembali
+            </Button>
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center">
                 <span className="text-[#A3B18A] font-bold text-xl">C</span>

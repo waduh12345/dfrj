@@ -14,17 +14,22 @@ export default function PagesLayout({
 }) {
   const { isOpen, close, cartItems, removeItem } = useCart();
   const pathname = usePathname();
+  const isLoginPage = pathname === "/login";
   const isWisataPage = pathname === "/wisata" || pathname === "/profile";
 
   return (
     <div className="w-full bg-white">
-      <header className="sticky top-0 z-50">
-        <TopHeader />
-      </header>
-      
+      {!isLoginPage && (
+        <header className="sticky top-0 z-50">
+          <TopHeader />
+        </header>
+      )}
+
       {/* Padding-top untuk menghindari content ketutupan header saat fixed */}
-      <main className={clsx({ "pt-20": isWisataPage })}>{children}</main>
-      
+      <main className={clsx(!isLoginPage && isWisataPage && "pt-20")}>
+        {children}
+      </main>
+
       {/* Pass all necessary props to CartSidebar */}
       <CartSidebar
         isOpen={isOpen}
@@ -32,9 +37,13 @@ export default function PagesLayout({
         items={cartItems} // Changed from 'cartItems' to 'items'
         onRemove={removeItem}
       />
-      
-      <ScrollToTopButton />
-      <Footer />
+
+      {!isLoginPage && (
+        <>
+          <ScrollToTopButton />
+          <Footer />
+        </>
+      )}
     </div>
   );
 }

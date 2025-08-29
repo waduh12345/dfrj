@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combo-box";
+import { useGetCitiesQuery, useGetDistrictsQuery, useGetProvincesQuery } from "@/services/shop/open-shop/open-shop.service";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Shop = {
   id: number;
@@ -51,12 +54,35 @@ type UserSession = {
   expires: string;
 };
 
-const DEFAULT_LOGO = "/icon-superadmin.png";
+const DEFAULT_LOGO = "/favicon.ico";
 
 export default function ShopProfilePage() {
   const { data: sessionData } = useSession() as unknown as {
     data: UserSession | null;
   };
+  const [shippingInfo, setShippingInfo] = useState({
+    fullName: "",
+    phone: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    kecamatan: "",
+    rajaongkir_province_id: 0,
+    rajaongkir_city_id: 0,
+    rajaongkir_district_id: 0,
+  });
+
+  // === Data wilayah (provinsi/kota/kecamatan) ===
+  const { data: provinces = [], isLoading: loadingProvince } =
+    useGetProvincesQuery();
+  const { data: cities = [], isLoading: loadingCity } = useGetCitiesQuery(
+    shippingInfo.rajaongkir_province_id,
+    { skip: !shippingInfo.rajaongkir_province_id }
+  );
+  const { data: districts = [], isLoading: loadingDistrict } =
+    useGetDistrictsQuery(shippingInfo.rajaongkir_city_id, {
+      skip: !shippingInfo.rajaongkir_city_id,
+    });
 
   const shopFromSession = sessionData?.user?.shop ?? null;
 
@@ -295,7 +321,7 @@ export default function ShopProfilePage() {
       <div className="flex items-center gap-4">
         <Link href={shopUrl} className="flex-shrink-0" prefetch={false}>
           <Image
-            src={logoPreview || DEFAULT_LOGO}
+            src={DEFAULT_LOGO}
             alt="Logo Toko"
             width={48}
             height={48}
@@ -308,11 +334,10 @@ export default function ShopProfilePage() {
 
         <div className="min-w-0">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {displayShopName}
+            Colore Art Crafts Shop
           </h1>
           <p className="text-sm text-gray-500">
-            <span className="mr-2">Slug:</span>
-            <span className="font-medium">{shopFromSession?.slug ?? "-"}</span>
+            <span className="mr-2">Manajemen Toko</span>
             <span className="mx-3">•</span>
             <span className="mr-2">Rating:</span>
             <span className="font-medium">
@@ -471,18 +496,26 @@ export default function ShopProfilePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-2">
-                <input
-                  id="status"
-                  type="checkbox"
-                  checked={settingsForm.status}
-                  onChange={handleSettingsChange("status")}
-                />
-                <Label htmlFor="status">Status Aktif</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={settingsForm.status ? "1" : "0"}
+                  onValueChange={(val) => {
+                    setSettingsForm((s) => ({ ...s, status: val === "1" }));
+                  }}
+                >
+                  <SelectTrigger id="status" className="w-full">
+                    <SelectValue placeholder="Pilih Status" />
+                  </SelectTrigger>
+                  <SelectContent className="w-full">
+                    <SelectItem value="1">Aktif</SelectItem>
+                    <SelectItem value="0">Tidak Aktif</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <TextField
+              {/* <TextField
                 id="latitude"
                 label="Latitude"
                 type="number"
@@ -497,28 +530,66 @@ export default function ShopProfilePage() {
                 step="any"
                 value={settingsForm.longitude ?? ""}
                 onChange={handleSettingsChange("longitude")}
-              />
+              /> */}
 
-              <TextField
-                id="province"
-                label="Provinsi (RajaOngkir ID)"
-                type="number"
-                value={settingsForm.rajaongkir_province_id ?? ""}
-                onChange={handleSettingsChange("rajaongkir_province_id")}
-              />
-              <TextField
-                id="city"
-                label="Kota/Kab (RajaOngkir ID)"
-                type="number"
-                value={settingsForm.rajaongkir_city_id ?? ""}
-                onChange={handleSettingsChange("rajaongkir_city_id")}
-              />
-              <TextField
-                id="district"
-                label="Kecamatan (RajaOngkir ID)"
-                value={settingsForm.rajaongkir_district_id ?? ""}
-                onChange={handleSettingsChange("rajaongkir_district_id")}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Provinsi
+                </label>
+                <Combobox
+                  value={shippingInfo.rajaongkir_province_id}
+                  onChange={(id) => {
+                    setShippingInfo((prev) => ({
+                      ...prev,
+                      rajaongkir_province_id: id,
+                      rajaongkir_city_id: 0,
+                      rajaongkir_district_id: 0,
+                    }));
+                  }}
+                  data={provinces}
+                  isLoading={loadingProvince}
+                  getOptionLabel={(item) => item.name}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kota / Kabupaten
+                </label>
+                <Combobox
+                  value={shippingInfo.rajaongkir_city_id}
+                  onChange={(id) =>
+                    setShippingInfo((prev) => ({
+                      ...prev,
+                      rajaongkir_city_id: id,
+                      rajaongkir_district_id: 0,
+                    }))
+                  }
+                  data={cities}
+                  isLoading={loadingCity}
+                  getOptionLabel={(item) => item.name}
+                  disabled={!shippingInfo.rajaongkir_province_id}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kecamatan
+                </label>
+                <Combobox
+                  value={shippingInfo.rajaongkir_district_id}
+                  onChange={(id) =>
+                    setShippingInfo((prev) => ({
+                      ...prev,
+                      rajaongkir_district_id: id,
+                    }))
+                  }
+                  data={districts}
+                  isLoading={loadingDistrict}
+                  getOptionLabel={(item) => item.name}
+                  disabled={!shippingInfo.rajaongkir_city_id}
+                />
+              </div>
             </div>
 
             <div className="pt-2">

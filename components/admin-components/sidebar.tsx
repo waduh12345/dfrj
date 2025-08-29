@@ -5,19 +5,15 @@ import { X, ChevronDown, ChevronUp, LogOut } from "lucide-react";
 import { SidebarProps } from "@/types";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { Button } from "../ui/button";
 
 // ⬇️ Import service logout
 import { useLogoutMutation } from "@/services/auth.service";
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, menuItems }) => {
-  const { data: session } = useSession();
 
-  // Ambil data shop
-  const shop = session?.user?.shop;
-  const shopLogo =
-    shop?.logo && shop.logo.trim() !== "" ? shop.logo : "/icon-superadmin.png";
+  const shopLogo = "/favicon.ico";
   const pathname = usePathname();
   const [openMenus, setOpenMenus] = useState<string[]>([]);
 
