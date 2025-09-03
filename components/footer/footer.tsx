@@ -15,6 +15,7 @@ import {
   Send
 } from "lucide-react";
 import { FaInstagram, FaFacebookF, FaYoutube, FaTiktok, FaWhatsapp } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Footer() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -77,7 +78,7 @@ export default function Footer() {
         <div className="absolute bottom-10 left-1/4 w-20 h-20 bg-gradient-to-br from-lime-500 to-green-500 rounded-full shadow-xl"></div>
       </div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 bg-black/50">
         {/* Main Footer Content */}
         <div className="pt-16 pb-8 px-6 lg:px-12">
           <div className="container mx-auto">
@@ -85,8 +86,8 @@ export default function Footer() {
               {/* Company Info */}
               <div className="lg:col-span-1">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl">
-                    <span className="text-white font-bold text-xl">C</span>
+                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl">
+                    <Image src="/favicon.ico" alt="Logo" width={48} height={48} />
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-white">COLORE</h3>
@@ -291,9 +292,9 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="bg-black/50 border-t border-white/20">
+        <div className="bg-white border-t border-white/20">
           <div className="container mx-auto px-6 lg:px-12 py-4">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-white">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-black/50">
               <div className="flex items-center gap-4">
                 <p>
                   © {new Date().getFullYear()} COLORE Art & Crafts. All rights

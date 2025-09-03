@@ -5,7 +5,8 @@ import { useState, useEffect, useMemo } from "react";
 import { Menu, X, ShoppingCart, User, Globe } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import useCart from "@/hooks/use-cart"; // ← pakai zustand store
+import useCart from "@/hooks/use-cart";
+import Image from "next/image";
 
 interface TranslationContent {
   home: string;
@@ -46,7 +47,7 @@ export default function Header() {
       howToOrder: "Cara Pemesanan",
       about: "Tentang Kami",
       news: "Cerita",
-      gallery: "Galeri",
+      gallery: "Kolaborasi",
       tagline: "Plant based Colorant",
       switchLanguage: "Ganti ke English",
     },
@@ -56,7 +57,7 @@ export default function Header() {
       howToOrder: "How to Order",
       about: "About Us",
       news: "Story",
-      gallery: "Gallery",
+      gallery: "Collaboration",
       tagline: "Plant based Colorant",
       switchLanguage: "Switch to Bahasa",
     },
@@ -64,13 +65,43 @@ export default function Header() {
 
   const t = translations[language];
 
-  const menuItems = [
-    { name: t.home, href: "/" },
-    { name: t.products, href: "/product" },
-    { name: t.howToOrder, href: "/how-to-order" },
-    { name: t.about, href: "/about" },
-    { name: t.news, href: "/news" },
-    { name: t.gallery, href: "/gallery" },
+  // Mapping warna hover untuk setiap menu sesuai palet
+  const menuItemColors = [
+    {
+      name: t.about,
+      href: "/about",
+      hoverBg: "hover:bg-[#DFF1AD]", // Light green
+      activeBg: "bg-[#DFF1AD]",
+      textColor: "text-[#6B7280]",
+    },
+    {
+      name: t.products,
+      href: "/product",
+      hoverBg: "hover:bg-[#F6CCD0]", // Light pink
+      activeBg: "bg-[#F6CCD0]",
+      textColor: "text-[#6B7280]",
+    },
+    {
+      name: t.howToOrder,
+      href: "/how-to-order",
+      hoverBg: "hover:bg-[#BFF0F5]", // Light blue
+      activeBg: "bg-[#BFF0F5]",
+      textColor: "text-[#6B7280]",
+    },
+    {
+      name: t.news,
+      href: "/news",
+      hoverBg: "hover:bg-[#DFF1AD]", // Light green
+      activeBg: "bg-[#DFF1AD]",
+      textColor: "text-[#6B7280]",
+    },
+    {
+      name: t.gallery,
+      href: "/gallery",
+      hoverBg: "hover:bg-[#F6CCD0]", // Light pink
+      activeBg: "bg-[#F6CCD0]",
+      textColor: "text-[#6B7280]",
+    },
   ];
 
   useEffect(() => {
@@ -111,7 +142,7 @@ export default function Header() {
     if (session?.user) {
       router.push("/me");
     } else {
-      router.push("/login"); // ganti ke "/auth/login" jika halaman login Anda di sana
+      router.push("/login");
     }
   };
 
@@ -134,13 +165,23 @@ export default function Header() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110">
-                  <span className="text-white font-bold text-xl">C</span>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110">
+                  <Image
+                    src="/favicon.ico"
+                    alt="Colore Logo"
+                    width={48}
+                    height={48}
+                  />
                 </div>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent group-hover:from-emerald-700 group-hover:to-teal-700 transition-all duration-300">
-                  COLORE
+                <h1 className="text-2xl font-bold transition-all duration-300">
+                  <span className="text-[#B8D68C]">C</span>
+                  <span className="text-[#E8A5AB]">O</span>
+                  <span className="text-[#8FCED6]">L</span>
+                  <span className="text-[#B8D68C]">O</span>
+                  <span className="text-[#E8A5AB]">R</span>
+                  <span className="text-[#8FCED6]">E</span>
                 </h1>
                 <p className="text-xs text-gray-600 font-medium leading-tight">
                   {t.tagline}
@@ -149,23 +190,21 @@ export default function Header() {
             </Link>
 
             {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-8">
-              {menuItems.map((item) => (
+            <div className="hidden lg:flex items-center gap-2">
+              {menuItemColors.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`relative font-semibold transition-all duration-300 py-2 px-3 group rounded-xl ${
+                  className={`relative font-semibold transition-all duration-300 py-3 px-4 group rounded-xl ${
                     isActiveLink(item.href)
-                      ? "text-emerald-600 bg-gradient-to-r from-emerald-50 to-teal-50"
-                      : "text-gray-700 hover:text-emerald-600 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50"
+                      ? `${item.activeBg} text-gray-700 shadow-md`
+                      : `text-gray-700 ${item.hoverBg} hover:shadow-sm`
                   }`}
                 >
                   {item.name}
                   <span
-                    className={`absolute bottom-1 left-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full transition-all duration-300 ${
-                      isActiveLink(item.href)
-                        ? "w-full"
-                        : "w-0 group-hover:w-full"
+                    className={`absolute bottom-1 left-1/2 transform -translate-x-1/2 h-1 bg-gray-600 rounded-full transition-all duration-300 ${
+                      isActiveLink(item.href) ? "w-8" : "w-0 group-hover:w-6"
                     }`}
                   />
                 </Link>
@@ -177,11 +216,11 @@ export default function Header() {
               {/* Language Toggle - Desktop */}
               <button
                 onClick={toggleLanguage}
-                className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-100 to-teal-100 hover:from-emerald-200 hover:to-teal-200 transition-all duration-300 group shadow-md hover:shadow-lg"
+                className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-[#DFF1AD] hover:bg-[#D1E7A0] transition-all duration-300 group shadow-md hover:shadow-lg"
                 title={t.switchLanguage}
               >
-                <Globe className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-bold text-emerald-600">
+                <Globe className="w-4 h-4 text-gray-600 group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-bold text-gray-600">
                   {language.toUpperCase()}
                 </span>
               </button>
@@ -189,19 +228,19 @@ export default function Header() {
               {/* User Icon */}
               <button
                 onClick={handleUserClick}
-                className="p-3 rounded-xl hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 group shadow-sm hover:shadow-md"
+                className="p-3 rounded-xl hover:bg-[#F6CCD0] transition-all duration-300 group shadow-sm hover:shadow-md"
                 aria-label="User"
               >
-                <User className="w-5 h-5 text-gray-700 group-hover:text-emerald-600 transition-colors" />
+                <User className="w-5 h-5 text-gray-700 group-hover:text-gray-800 transition-colors" />
               </button>
 
               {/* Cart */}
               <button
                 onClick={handleCartClick}
-                className="relative p-3 cursor-pointer rounded-xl hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 group shadow-sm hover:shadow-md"
+                className="relative p-3 cursor-pointer rounded-xl hover:bg-[#BFF0F5] transition-all duration-300 group shadow-sm hover:shadow-md"
                 aria-label="Cart"
               >
-                <ShoppingCart className="w-5 h-5 text-gray-700 group-hover:text-emerald-600 transition-colors" />
+                <ShoppingCart className="w-5 h-5 text-gray-700 group-hover:text-gray-800 transition-colors" />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold min-w-[20px] h-[20px] rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-pulse">
                     {cartCount > 99 ? "99+" : cartCount}
@@ -212,13 +251,13 @@ export default function Header() {
               {/* Mobile Menu Button */}
               <button
                 onClick={toggleMobileMenu}
-                className="lg:hidden p-3 rounded-xl border-2 border-emerald-600/30 hover:bg-gradient-to-r hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 shadow-md hover:shadow-lg"
+                className="lg:hidden p-3 rounded-xl border-2 border-gray-300 hover:bg-[#DFF1AD] hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg"
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-5 h-5 text-emerald-600" />
+                  <X className="w-5 h-5 text-gray-600" />
                 ) : (
-                  <Menu className="w-5 h-5 text-emerald-600" />
+                  <Menu className="w-5 h-5 text-gray-600" />
                 )}
               </button>
             </div>
@@ -240,7 +279,7 @@ export default function Header() {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Mobile Header */}
-          <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-emerald-400/30 to-cyan-400/30">
+          <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-[#DFF1AD]/50 to-[#BFF0F5]/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -258,22 +297,22 @@ export default function Header() {
                 className="p-2 rounded-lg hover:bg-white/50 transition-colors"
                 aria-label="Close mobile menu"
               >
-                <X className="w-5 h-5 text-emerald-600" />
+                <X className="w-5 h-5 text-gray-600" />
               </button>
             </div>
           </div>
 
           {/* Mobile Menu Items */}
           <div className="p-6 space-y-2 flex-1 overflow-y-auto">
-            {menuItems.map((item, index) => (
+            {menuItemColors.map((item, index) => (
               <Link
                 key={item.name}
                 href={item.href}
                 onClick={toggleMobileMenu}
                 className={`flex items-center gap-4 p-4 rounded-2xl font-semibold transition-all duration-300 group ${
                   isActiveLink(item.href)
-                    ? "bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-600 border-2 border-emerald-200 shadow-md"
-                    : "text-gray-700 hover:text-emerald-600 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:shadow-sm"
+                    ? `${item.activeBg} text-gray-700 border-2 border-gray-300 shadow-md`
+                    : `text-gray-700 ${item.hoverBg} hover:shadow-sm`
                 }`}
                 style={{
                   animationDelay: `${index * 50}ms`,
@@ -285,13 +324,13 @@ export default function Header() {
                 <div
                   className={`w-3 h-3 rounded-full transition-all duration-300 shadow-sm ${
                     isActiveLink(item.href)
-                      ? "bg-gradient-to-r from-emerald-600 to-teal-600"
-                      : "bg-gray-300 group-hover:bg-gradient-to-r group-hover:from-emerald-600 group-hover:to-teal-600"
+                      ? "bg-gray-600"
+                      : "bg-gray-300 group-hover:bg-gray-500"
                   }`}
                 />
                 <span className="flex-1">{item.name}</span>
                 {isActiveLink(item.href) && (
-                  <div className="w-1 h-6 bg-gradient-to-b from-emerald-600 to-teal-600 rounded-full shadow-sm" />
+                  <div className="w-1 h-6 bg-gray-600 rounded-full shadow-sm" />
                 )}
               </Link>
             ))}
@@ -299,18 +338,18 @@ export default function Header() {
             {/* Language Toggle - Mobile */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-4 p-4 w-full rounded-2xl text-gray-700 hover:text-emerald-600 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 font-semibold transition-all duration-300 mt-6 border-2 border-emerald-200 bg-gradient-to-r from-emerald-100 to-teal-100"
+              className="flex items-center gap-4 p-4 w-full rounded-2xl text-gray-700 hover:bg-[#DFF1AD] font-semibold transition-all duration-300 mt-6 border-2 border-gray-300 bg-[#DFF1AD]/50"
             >
-              <Globe className="w-5 h-5 text-emerald-600" />
+              <Globe className="w-5 h-5 text-gray-600" />
               <span className="flex-1 text-left">{t.switchLanguage}</span>
-              <span className="text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1 rounded-lg shadow-md">
+              <span className="text-sm font-bold text-white bg-gray-600 px-3 py-1 rounded-lg shadow-md">
                 {language === "id" ? "EN" : "ID"}
               </span>
             </button>
           </div>
 
           {/* Mobile Footer */}
-          <div className="p-6 border-t border-gray-200 bg-gradient-to-r from-emerald-50 to-teal-50">
+          <div className="p-6 border-t border-gray-200 bg-gradient-to-r from-[#DFF1AD]/30 to-[#F6CCD0]/30">
             <div className="flex items-center justify-center gap-4">
               <button className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4 rounded-2xl font-bold hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                 Belanja Sekarang

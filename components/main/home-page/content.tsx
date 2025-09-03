@@ -32,10 +32,13 @@ import {
 } from "@/services/master/product-category.service";
 import type { ProductCategory } from "@/types/master/product-category";
 
-// === Produk public (maks 3 item)
 import { useGetProductListQuery } from "@/services/product.service";
 import type { Product } from "@/types/admin/product";
 import DotdLoader from "@/components/loader/3dot";
+import { fredoka, sniglet } from "@/lib/fonts";
+import ImageCarousel from "./caraousel-hero";
+
+
 
 export default function HomePage() {
   const router = useRouter();
@@ -214,42 +217,44 @@ export default function HomePage() {
             {/* Text Content */}
             <div className="text-center lg:text-left space-y-8">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-full shadow-lg">
-                <Sparkles className="w-4 h-4 text-yellow-300" />
-                <span className="text-sm font-medium">
-                  Ramah Lingkungan & Edukatif
+                <Image
+                  src="https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brl2xfj3HmgY8fkG9iJeAzFQyqLh5pudMZH7l2"
+                  alt="Logo"
+                  width={15}
+                  height={15}
+                />
+                <span className={`text-sm font-medium ${sniglet.className}`}>
+                  Eco Friendly & Enriching
                 </span>
               </div>
 
-              <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 leading-tight">
-                Warnai Dunia
+              <h1
+                className={`${fredoka.className} text-5xl lg:text-6xl font-semibold text-gray-900 leading-tight`}
+              >
+                Warnai Dunia Anak
                 <span className="block bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                  Anak dengan
+                  dengan
                 </span>
                 <span className="block bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
                   COLORE
                 </span>
               </h1>
 
-              <p className="text-xl text-gray-600 max-w-xl">
+              <p
+                className={`text-xl text-gray-600 max-w-xl ${sniglet.className}`}
+              >
                 Produk seni dan kerajinan ramah lingkungan yang mengembangkan
                 kreativitas anak sambil menjaga kelestarian bumi untuk masa
                 depan mereka.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row pt-4">
                 <button
                   onClick={() => router.push("/product")}
-                  className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-8 py-4 rounded-2xl text-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 transform hover:scale-105"
+                  className="w-1/2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-8 py-4 rounded-2xl text-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 transform hover:scale-105"
                 >
                   <ShoppingBag className="w-5 h-5" />
                   Belanja Sekarang
-                </button>
-                <button
-                  onClick={() => router.push("/about")}
-                  className="bg-white text-emerald-600 border-2 border-emerald-600 font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                  <Play className="w-5 h-5" />
-                  Lihat Demo
                 </button>
               </div>
 
@@ -284,17 +289,20 @@ export default function HomePage() {
             {/* Hero Image */}
             <div className="relative">
               <div className="relative w-full h-[600px] rounded-3xl overflow-hidden shadow-2xl">
-                <Image
-                  src="/hero-colore.webp"
-                  alt="Kids creating art with COLORE products"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                <div className="absolute top-6 right-6 bg-gradient-to-r from-emerald-600 to-teal-600 backdrop-blur-sm rounded-2xl p-4 shadow-xl">
+                <ImageCarousel />
+                <div className="absolute top-6 right-6 bg-gradient-to-r from-emerald-600 to-teal-600 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-xl">
                   <div className="flex items-center gap-2 text-white">
-                    <Shield className="w-5 h-5" />
-                    <span className="font-semibold text-sm">100% Aman</span>
+                    <Image
+                      src="https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brUEfLy3BWSPehBoYMr1DQnmd5C42qTFw3NOEk"
+                      alt="Leaf"
+                      width={20}
+                      height={20}
+                    />
+                    <span
+                      className={`font-semibold text-sm ${sniglet.className}`}
+                    >
+                      Plant Based Colorant
+                    </span>
                   </div>
                 </div>
               </div>
@@ -313,8 +321,8 @@ export default function HomePage() {
       {/* ===================== Categories Section (Dynamic via Service) ===================== */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6 lg:px-12">
-          <div className="text-center mb-10">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+          <div className={`text-center mb-10 ${fredoka.className}`}>
+            <h2 className="text-4xl lg:text-5xl font-semibold text-gray-900 mb-6">
               Jelajahi Kategori{" "}
               <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 Produk
@@ -436,7 +444,9 @@ export default function HomePage() {
       <section className="py-20 bg-[#DFF19D]">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900">
+            <h2
+              className={`text-4xl lg:text-5xl font-extrabold text-gray-900 ${fredoka.className}`}
+            >
               Mengapa Pilih{" "}
               <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 COLORE?
@@ -564,7 +574,7 @@ export default function HomePage() {
       {/* ===================== Featured Products (Dynamic via Service, max 3) ===================== */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6 lg:px-12">
-          <div className="text-center mb-16">
+          <div className={`text-center mb-16 ${fredoka.className}`}>
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Produk{" "}
               <span className="bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
@@ -693,14 +703,14 @@ export default function HomePage() {
         </div>
 
         <div className="container mx-auto px-6 lg:px-12 text-center relative z-10">
-          <div className="max-w-4xl mx-auto">
+          <div className={`max-w-4xl mx-auto ${fredoka.className}`}>
             <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-              Mulai Perjalanan Kreatif Anak Anda Hari Ini!
+              Yuk Mulai Perjalanan Kreatif Si Kecil Hari Ini!
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Bergabunglah dengan ribuan keluarga yang telah mempercayai COLORE
-              untuk mengembangkan kreativitas anak mereka dengan cara yang aman
-              dan ramah lingkungan.
+              Bergabunglah bersama ribuan keluarga yang telah mempercayai COLORE
+              untuk menumbuhkan kreativitas anak dengan cara yang aman,
+              menyenangkan, dan ramah lingkungan
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
