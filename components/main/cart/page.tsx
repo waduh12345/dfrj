@@ -479,7 +479,7 @@ export default function CartPage() {
   // ===== Empty cart
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24">
+      <div className="min-h-screen w-full bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-2xl mx-auto text-center py-20">
             <div className="w-32 h-32 bg-[#A3B18A]/10 rounded-full flex items-center justify-center mx-auto mb-8">

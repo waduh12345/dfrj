@@ -176,13 +176,13 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10">
       {/* ===================== Header / Hero (Tema #DFF19D + blend) ===================== */}
-      <section className="relative pt-24 pb-12 px-6 lg:px-12 overflow-hidden">
+      <section className="relative pt-24 pb-12 px-6 lg:px-12 overflow-hidden bg-[#F6CCD0]">
         {/* layer blend background */}
-        <div className="pointer-events-none absolute inset-0">
+        {/* <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-24 -left-24 w-[40rem] h-[40rem] rounded-full bg-[#DFF19D] blur-3xl opacity-80" />
           <div className="absolute -top-10 right-[-10%] w-[28rem] h-[28rem] rounded-full bg-[#F6CCD0] blur-3xl opacity-40" />
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full bg-[#BFF0F5] blur-3xl opacity-40" />
-        </div>
+        </div> */}
 
         <div className="container mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-[#DFF19D]/20 px-4 py-2 rounded-full mb-6">
@@ -418,10 +418,10 @@ export default function ProductsPage() {
                         </span>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
                         <button
                           onClick={() => addToCart(product)}
-                          className="flex-1 bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
+                          className="flex-1 bg-black/50 text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
                         >
                           <ShoppingCart className="w-5 h-5" />
                           Add to Cart
