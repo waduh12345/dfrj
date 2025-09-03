@@ -10,6 +10,8 @@ export interface Product {
   product_merk: ProductMerk;
   category_name: string;
   category_slug: string;
+  postal_code: string;
+  address_line_1: string;
   merk_name: string;
   merk_slug: string;
   name: string;

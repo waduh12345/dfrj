@@ -140,9 +140,9 @@ export default function CartPage() {
   const [shippingInfo, setShippingInfo] = useState({
     fullName: "",
     phone: "",
-    address: "",
+    address_line_1: "",
     city: "",
-    postalCode: "",
+    postal_code: "",
     kecamatan: "",
     rajaongkir_province_id: 0,
     rajaongkir_city_id: 0,
@@ -283,7 +283,7 @@ export default function CartPage() {
     switch (shippingMethod) {
       case "express":
         return {
-          courier: "jne",
+          courier: "jne", // backend expects: jne, pos, tiki
           parameter: JSON.stringify({
             destination: String(shippingInfo.rajaongkir_district_id || "486"),
             weight: 1000,
@@ -304,7 +304,7 @@ export default function CartPage() {
         };
       case "regular":
         return {
-          courier: "jne",
+          courier: "jne", // backend expects: jne, pos, tiki
           parameter: JSON.stringify({
             destination: String(shippingInfo.rajaongkir_district_id || "486"),
             weight: 1000,
@@ -324,20 +324,22 @@ export default function CartPage() {
           }),
         };
       case "pickup":
+        // For pickup, we still need to use a valid courier value
+        // You might want to discuss with backend team about handling pickup
         return {
-          courier: "pickup",
+          courier: "jne", // Use valid courier even for pickup
           parameter: JSON.stringify({
-            destination: "0",
+            destination: "0", // or use actual destination
             weight: 0,
             height: 0,
             length: 0,
             width: 0,
             diameter: 0,
-            courier: "pickup",
+            courier: "jne", // Keep consistent with courier field
           }),
           shipment_detail: JSON.stringify({
             name: "Ambil di Tempat",
-            code: "pickup",
+            code: "PICKUP", // Custom code for pickup
             service: "PICKUP",
             description: "Ambil langsung di toko",
             cost: 0,
@@ -348,7 +350,6 @@ export default function CartPage() {
         return null;
     }
   };
-
   const handleCheckout = async () => {
     setIsCheckingOut(true);
 
@@ -356,12 +357,13 @@ export default function CartPage() {
       !paymentMethod ||
       !shippingMethod ||
       !shippingInfo.fullName ||
-      !shippingInfo.address
+      !shippingInfo.address_line_1 ||
+      !shippingInfo.postal_code
     ) {
       await Swal.fire({
         icon: "warning",
         title: "Lengkapi Data",
-        text: "Harap lengkapi semua informasi yang diperlukan",
+        text: "Harap lengkapi semua informasi yang diperlukan termasuk kode pos",
       });
       setIsCheckingOut(false);
       return;
@@ -382,9 +384,11 @@ export default function CartPage() {
     try {
       const stored = parseStorage();
       const payload = {
+        address_line_1: shippingInfo.address_line_1,
+        postal_code: shippingInfo.postal_code,
         data: [
           {
-            shop_id: 1, // TODO: buat dinamis jika diperlukan
+            shop_id: 1,
             details: stored.map((item) => ({
               product_id: item.id,
               quantity: item.quantity ?? 1,
@@ -392,9 +396,21 @@ export default function CartPage() {
             shipment: {
               parameter: courierInfo.parameter,
               shipment_detail: courierInfo.shipment_detail,
-              courier: courierInfo.courier, // "jne" | "pickup"
+              courier: courierInfo.courier,
               cost: shippingCost,
             },
+            // Tambahkan informasi alamat yang sesuai dengan API
+            customer_info: {
+              name: shippingInfo.fullName,
+              phone: shippingInfo.phone,
+              address_line_1: shippingInfo.address_line_1,
+              postal_code: shippingInfo.postal_code,
+              city: shippingInfo.city || "Unknown",
+              province_id: shippingInfo.rajaongkir_province_id,
+              city_id: shippingInfo.rajaongkir_city_id,
+              district_id: shippingInfo.rajaongkir_district_id,
+            },
+            payment_method: paymentMethod,
           },
         ],
       };
@@ -781,9 +797,9 @@ export default function CartPage() {
                     Alamat Lengkap *
                   </label>
                   <textarea
-                    value={shippingInfo.address}
+                    value={shippingInfo.address_line_1}
                     onChange={(e) =>
-                      handleInputChange("address", e.target.value)
+                      handleInputChange("address_line_1", e.target.value)
                     }
                     rows={3}
                     placeholder="Nama jalan, RT/RW, Kelurahan"
@@ -856,9 +872,9 @@ export default function CartPage() {
                   </label>
                   <input
                     type="text"
-                    value={shippingInfo.postalCode}
+                    value={shippingInfo.postal_code}
                     onChange={(e) =>
-                      handleInputChange("postalCode", e.target.value)
+                      handleInputChange("postal_code", e.target.value)
                     }
                     placeholder="16911"
                     className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
@@ -1064,7 +1080,8 @@ export default function CartPage() {
                   !paymentMethod ||
                   !shippingMethod ||
                   !shippingInfo.fullName ||
-                  !shippingInfo.address
+                  !shippingInfo.address_line_1 ||
+                  !shippingInfo.postal_code
                 }
                 className="w-full bg-[#A3B18A] text-white py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -1084,7 +1101,7 @@ export default function CartPage() {
               {(!paymentMethod ||
                 !shippingMethod ||
                 !shippingInfo.fullName ||
-                !shippingInfo.address) && (
+                !shippingInfo.address_line_1) && (
                 <p className="text-red-500 text-sm text-center mt-3">
                   * Harap lengkapi semua informasi yang diperlukan
                 </p>
