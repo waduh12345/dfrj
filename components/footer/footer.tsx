@@ -1,25 +1,37 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { 
-  ChevronDown, 
-  ChevronUp, 
-  MapPin, 
-  Phone, 
+import {
+  ChevronDown,
+  ChevronUp,
+  MapPin,
+  Phone,
   Mail,
   Heart,
   Leaf,
   Shield,
   Award,
   ArrowRight,
-  Send
+  Send,
 } from "lucide-react";
-import { FaInstagram, FaFacebookF, FaYoutube, FaTiktok, FaWhatsapp } from "react-icons/fa";
+import {
+  FaInstagram,
+  FaFacebookF,
+  FaYoutube,
+  FaTiktok,
+  FaWhatsapp,
+} from "react-icons/fa";
 import Image from "next/image";
 
 export default function Footer() {
+  const router = useRouter();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [email, setEmail] = useState("");
+
+  const goTofaqPage = () => {
+    router.push("/faq");
+  };
 
   const faqs = [
     {
@@ -37,11 +49,11 @@ export default function Footer() {
       answer:
         "Produk COLORE mudah dibersihkan dengan air hangat dan sabun lembut. Simpan di tempat kering dan sejuk, hindari paparan sinar matahari langsung untuk menjaga kualitas warna dan bahan.",
     },
-    {
-      question: "Apakah ada garansi untuk produk yang rusak?",
-      answer:
-        "Kami memberikan garansi 30 hari untuk produk rusak atau cacat produksi. Hubungi customer service kami dengan foto produk untuk proses penggantian yang cepat dan mudah.",
-    },
+    // {
+    //   question: "Apakah ada garansi untuk produk yang rusak?",
+    //   answer:
+    //     "Kami memberikan garansi 30 hari untuk produk rusak atau cacat produksi. Hubungi customer service kami dengan foto produk untuk proses penggantian yang cepat dan mudah.",
+    // },
   ];
 
   const quickLinks = [
@@ -50,14 +62,14 @@ export default function Footer() {
     { name: "Produk", href: "/product" },
     { name: "Galeri", href: "/gallery" },
     { name: "Berita", href: "/news" },
-    { name: "Cara Pemesanan", href: "/how-to-order" }
+    { name: "Cara Pemesanan", href: "/how-to-order" },
   ];
 
   const productCategories = [
     { name: "Art Supplies", href: "/product?category=art-supplies" },
     { name: "Craft Kits", href: "/product?category=craft-kits" },
     { name: "Educational Toys", href: "/product?category=educational-toys" },
-    { name: "Workshop Kits", href: "/product?category=workshop-kits" }
+    { name: "Workshop Kits", href: "/product?category=workshop-kits" },
   ];
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
@@ -87,7 +99,12 @@ export default function Footer() {
               <div className="lg:col-span-1">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-xl">
-                    <Image src="/favicon.ico" alt="Logo" width={48} height={48} />
+                    <Image
+                      src="/favicon.ico"
+                      alt="Logo"
+                      width={48}
+                      height={48}
+                    />
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-white">COLORE</h3>
@@ -212,7 +229,7 @@ export default function Footer() {
               {/* FAQ */}
               <div>
                 <h4 className="text-lg font-semibold mb-6 text-white">FAQ</h4>
-                <div className="space-y-4">
+                <div className="space-y-4 mb-4">
                   {faqs.map((faq, i) => (
                     <div
                       key={i}
@@ -244,6 +261,14 @@ export default function Footer() {
                       )}
                     </div>
                   ))}
+
+                  <button
+                    onClick={goTofaqPage}
+                    type="button"
+                    className="w-full bg-white text-[#A3B18A] py-3 rounded-2xl font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+                  >
+                    Punya Pertanyaan Lain?
+                  </button>
                 </div>
               </div>
             </div>

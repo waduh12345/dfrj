@@ -295,7 +295,7 @@ export default function HowToOrderPage() {
           </p>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {benefits.map((benefit, i) => (
               <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-center mb-3">{benefit.icon}</div>
@@ -573,6 +573,92 @@ export default function HowToOrderPage() {
         </div>
       </section>
 
+      {/* ============== CONTACT (section berwarna) ============== */}
+      <section className="px-6 lg:px-12 mb-16">
+        <div className="container mx-auto">
+          <div
+            className="rounded-3xl p-8 lg:p-12 text-gray-900"
+            style={{
+              background: `linear-gradient(90deg, ${THEME.primary} 0%, ${THEME.primary}CC 100%)`,
+              color: "#fff",
+            }}
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold mb-4">Butuh Bantuan?</h2>
+              <p className="text-white/90 max-w-2xl mx-auto">
+                Tim Customer Services akan siap membantu fast response hari
+                Senin - Jumat jam 08.00 - 17.00 WIB. Jangan ragu untuk
+                menghubungi kami!
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  {/* phone icon replaced with Mail & MessageCircle above; keeping consistent */}
+                  <MessageCircle className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold mb-2">WhatsApp</h3>
+                <p className="text-white/90">+62 817 694 2128</p>
+                <p className="text-sm text-white/70">
+                  Respon cepat dalam 5 menit
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold mb-2">Email</h3>
+                <p className="text-white/90">help@coloreartcrafts.com</p>
+                <p className="text-sm text-white/70">Respon dalam 2 jam</p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <HeadphonesIcon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-semibold mb-2">Customer Support</h3>
+                <p className="text-white/90">24/7 Online</p>
+                <p className="text-sm text-white/70">Live chat tersedia</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============== CTA (section putih) ============== */}
+      <section className="px-6 lg:px-12 mb-16">
+        <div className="container mx-auto">
+          <div className="bg-white rounded-3xl p-8 lg:p-12 text-center shadow-lg">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              Yuk Mulai Belanja Sekarang
+            </h2>
+            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+              Jelajahi koleksi produk ramah lingkungan kami dan berikan yang
+              terbaik untuk perkembangan kreativitas anak Anda.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                className="text-white px-8 py-4 rounded-2xl font-semibold transition-colors flex items-center justify-center gap-2"
+                style={{ backgroundColor: THEME.primary }}
+              >
+                <ShoppingCart className="w-5 h-5" />
+                Mulai Berbelanja
+              </button>
+              <button
+                className="px-8 py-4 rounded-2xl font-semibold transition-colors flex items-center justify-center gap-2 border"
+                style={{ color: THEME.primary, borderColor: THEME.primary }}
+              >
+                <Play className="w-5 h-5" />
+                Lihat Video Tutorial
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ============== FAQ (section putih) ============== */}
       <section className="px-6 lg:px-12 mb-16">
         <div className="container mx-auto">
@@ -621,110 +707,6 @@ export default function HowToOrderPage() {
                       </p>
                     </div>
                   )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============== CONTACT (section berwarna) ============== */}
-      <section className="px-6 lg:px-12 mb-16">
-        <div className="container mx-auto">
-          <div
-            className="rounded-3xl p-8 lg:p-12 text-gray-900"
-            style={{
-              background: `linear-gradient(90deg, ${THEME.primary} 0%, ${THEME.primary}CC 100%)`,
-              color: "#fff",
-            }}
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-4">Butuh Bantuan?</h2>
-              <p className="text-white/90 max-w-2xl mx-auto">
-                Tim customer service COLORE siap membantu Anda 24/7. Jangan ragu
-                untuk menghubungi kami!
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  {/* phone icon replaced with Mail & MessageCircle above; keeping consistent */}
-                  <MessageCircle className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="font-semibold mb-2">WhatsApp</h3>
-                <p className="text-white/90">+62 812 3456 7890</p>
-                <p className="text-sm text-white/70">
-                  Respon cepat dalam 5 menit
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="font-semibold mb-2">Email</h3>
-                <p className="text-white/90">help@colore.co.id</p>
-                <p className="text-sm text-white/70">Respon dalam 2 jam</p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <HeadphonesIcon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="font-semibold mb-2">Customer Support</h3>
-                <p className="text-white/90">24/7 Online</p>
-                <p className="text-sm text-white/70">Live chat tersedia</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============== CTA (section putih) ============== */}
-      <section className="px-6 lg:px-12 mb-16">
-        <div className="container mx-auto">
-          <div className="bg-white rounded-3xl p-8 lg:p-12 text-center shadow-lg">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Siap Mulai Berbelanja?
-            </h2>
-            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-              Jelajahi koleksi produk ramah lingkungan kami dan berikan yang
-              terbaik untuk perkembangan kreativitas anak Anda.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                className="text-white px-8 py-4 rounded-2xl font-semibold transition-colors flex items-center justify-center gap-2"
-                style={{ backgroundColor: THEME.primary }}
-              >
-                <ShoppingCart className="w-5 h-5" />
-                Mulai Berbelanja
-              </button>
-              <button
-                className="px-8 py-4 rounded-2xl font-semibold transition-colors flex items-center justify-center gap-2 border"
-                style={{ color: THEME.primary, borderColor: THEME.primary }}
-              >
-                <Play className="w-5 h-5" />
-                Lihat Video Tutorial
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-12 pt-8 border-t border-gray-200">
-              {[
-                { v: "5000+", l: "Pesanan Berhasil" },
-                { v: "4.9", l: "Rating Kepuasan" },
-                { v: "24/7", l: "Customer Support" },
-                { v: "100%", l: "Aman & Terpercaya" },
-              ].map((x, i) => (
-                <div key={i} className="text-center">
-                  <div
-                    className="text-2xl font-bold mb-1"
-                    style={{ color: THEME.primary }}
-                  >
-                    {x.v}
-                  </div>
-                  <div className="text-sm text-gray-600">{x.l}</div>
                 </div>
               ))}
             </div>

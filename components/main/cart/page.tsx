@@ -149,6 +149,17 @@ export default function CartPage() {
     rajaongkir_district_id: 0,
   });
 
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
+
+  const validatePhone = (phone: string) => {
+    const regex = /^(?:\+62|62|0)8\d{8,11}$/;
+    return regex.test(phone);
+  };
+
+  useEffect(() => {
+    setIsPhoneValid(validatePhone(shippingInfo.phone));
+  }, [shippingInfo.phone]);
+
   const handleInputChange = (field: string, value: string) => {
     setShippingInfo((prev) => ({ ...prev, [field]: value }));
   };
@@ -581,13 +592,15 @@ export default function CartPage() {
                             </span>
                           )}
                         </div>
-                        <button
-                          onClick={() => addRelatedToCart(product.__raw)}
-                          className="w-full bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Plus className="w-4 h-4" />
-                          Tambah ke Keranjang
-                        </button>
+                        <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
+                          <button
+                            onClick={() => addRelatedToCart(product.__raw)}
+                            className="w-full bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Tambah ke Keranjang
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -790,6 +803,12 @@ export default function CartPage() {
                     placeholder="08xxxxxxxxxx"
                     className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
                   />
+
+                  {!isPhoneValid && shippingInfo.phone && (
+                    <p className="text-sm text-red-500 mt-0.5">
+                      Nomor telepon tidak valid
+                    </p>
+                  )}
                 </div>
 
                 <div className="col-span-2">
@@ -1081,7 +1100,8 @@ export default function CartPage() {
                   !shippingMethod ||
                   !shippingInfo.fullName ||
                   !shippingInfo.address_line_1 ||
-                  !shippingInfo.postal_code
+                  !shippingInfo.postal_code ||
+                  !isPhoneValid
                 }
                 className="w-full bg-[#A3B18A] text-white py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -1194,13 +1214,15 @@ export default function CartPage() {
                       )}
                     </div>
 
-                    <button
-                      onClick={() => addRelatedToCart(product.__raw)}
-                      className="w-full bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Tambah ke Keranjang
-                    </button>
+                    <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
+                      <button
+                        onClick={() => addRelatedToCart(product.__raw)}
+                        className="w-full bg-black/50 text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Tambah ke Keranjang
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
