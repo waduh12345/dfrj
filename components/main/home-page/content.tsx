@@ -10,8 +10,6 @@ import {
   Award,
   ShoppingBag,
   ArrowRight,
-  Play,
-  Sparkles,
   TreePine,
   Shield,
   CheckCircle,
@@ -27,18 +25,16 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
-  useGetProductCategoryListQuery,
-  useGetProductCategoryBySlugQuery,
-} from "@/services/master/product-category.service";
-import type { ProductCategory } from "@/types/master/product-category";
+  useGetProductMerkListQuery,
+  useGetProductMerkBySlugQuery,
+} from "@/services/products-merk.service";
+import type { ProductMerk } from "@/types/master/product-merk";
 
 import { useGetProductListQuery } from "@/services/product.service";
 import type { Product } from "@/types/admin/product";
 import DotdLoader from "@/components/loader/3dot";
 import { fredoka, sniglet } from "@/lib/fonts";
 import ImageCarousel from "./caraousel-hero";
-
-
 
 export default function HomePage() {
   const router = useRouter();
@@ -55,9 +51,10 @@ export default function HomePage() {
     data: listData,
     isLoading: isListLoading,
     isError: isListError,
-  } = useGetProductCategoryListQuery({ page, paginate });
+  } = useGetProductMerkListQuery({ page, paginate });
 
-  const categories: ProductCategory[] = useMemo(
+  // mapping hasil ke variabel categories (TETAP)
+  const categories: ProductMerk[] = useMemo(
     () => listData?.data ?? [],
     [listData]
   );
@@ -68,7 +65,7 @@ export default function HomePage() {
 
   // ========== Fetch detail by slug when modal open ==========
   const { data: detailData, isLoading: isDetailLoading } =
-    useGetProductCategoryBySlugQuery(selectedSlug ?? "", {
+    useGetProductMerkBySlugQuery(selectedSlug ?? "", {
       skip: !selectedSlug,
     });
 
@@ -122,7 +119,7 @@ export default function HomePage() {
     return list[i % list.length];
   };
 
-  const safeCategoryImg = (img: ProductCategory["image"]) =>
+  const safeCategoryImg = (img: ProductMerk["image"]) =>
     typeof img === "string" && img.length > 0 ? img : "/kategori.webp";
 
   const formatIDR = (value: number | string) => {
@@ -323,7 +320,7 @@ export default function HomePage() {
         <div className="container mx-auto px-6 lg:px-12">
           <div className={`text-center mb-10 ${fredoka.className}`}>
             <h2 className="text-4xl lg:text-5xl font-semibold text-gray-900 mb-6">
-              Jelajahi Kategori{" "}
+              Jelajahi Merk{" "}
               <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 Produk
               </span>
@@ -337,13 +334,13 @@ export default function HomePage() {
 
           {/* List states */}
           {isListLoading && (
-            <div className="text-center text-gray-600 py-10">
+            <div className="w-full flex items-center justify-center py-10">
               <DotdLoader />
             </div>
           )}
           {isListError && (
             <div className="text-center text-red-600 py-10">
-              Gagal memuat kategori.
+              Gagal memuat data.
             </div>
           )}
 
@@ -351,7 +348,7 @@ export default function HomePage() {
             <>
               {categories.length === 0 ? (
                 <div className="text-center text-gray-600 py-10">
-                  Belum ada kategori.
+                  Belum ada merk.
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -489,13 +486,13 @@ export default function HomePage() {
               {isDetailLoading ? "Memuat..." : detailData?.name ?? "Detail"}
             </DialogTitle>
             <DialogDescription>
-              Informasi singkat kategori yang dipilih.
+              Informasi kategori yang dipilih.
             </DialogDescription>
           </DialogHeader>
 
           {/* Body */}
           {isDetailLoading ? (
-            <div className="py-8 text-center text-gray-600">
+            <div className="w-full flex justify-center py-8">
               <DotdLoader />
             </div>
           ) : detailData ? (
@@ -533,19 +530,6 @@ export default function HomePage() {
                     {detailData.description || "—"}
                   </p>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="text-sm">
-                    <span className="text-gray-500">ID</span>
-                    <div className="font-semibold">{detailData.id}</div>
-                  </div>
-                  <div className="text-sm">
-                    <span className="text-gray-500">Parent ID</span>
-                    <div className="font-semibold">
-                      {detailData.parent_id ?? "—"}
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           ) : (
@@ -560,11 +544,12 @@ export default function HomePage() {
             </Button>
             {detailData?.slug && (
               <Button
+                className="bg-emerald-700 hover:bg-emerald-800"
                 onClick={() =>
                   router.push(`/product?category=${detailData.slug}`)
                 }
               >
-                Lihat Produk di Kategori Ini
+                Lihat Produk
               </Button>
             )}
           </DialogFooter>
@@ -588,7 +573,7 @@ export default function HomePage() {
           </div>
 
           {isProductsLoading && (
-            <div className="text-center text-gray-600 py-10">
+            <div className="w-full flex justify-center items-center py-10">
               <DotdLoader />
             </div>
           )}

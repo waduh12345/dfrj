@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Image from "next/image";
 import {
   ShoppingCart,
@@ -41,6 +41,11 @@ import { useCreateTransactionMutation } from "@/services/admin/transaction.servi
 import { useRouter } from "next/navigation";
 // SweetAlert
 import Swal from "sweetalert2";
+
+// ==== [TAMBAHAN] Prefill dari session & user-address ====
+import { useSession } from "next-auth/react";
+import { useGetUserAddressListQuery } from "@/services/address.service";
+import type { Address } from "@/types/address";
 
 const STORAGE_KEY = "cart-storage";
 
@@ -126,6 +131,10 @@ type ErrorBag = Record<string, string[] | string>;
 export default function CartPage() {
   const router = useRouter();
 
+  // ==== [TAMBAHAN] ambil session untuk nama user ====
+  const { data: session } = useSession();
+  const sessionName = useMemo(() => session?.user?.name ?? "", [session]);
+
   // ===== Cart from localStorage (sinkron)
   const [cartItems, setCartItems] = useState<CartItemView[]>([]);
   const [couponCode, setCouponCode] = useState("");
@@ -149,20 +158,46 @@ export default function CartPage() {
     rajaongkir_district_id: 0,
   });
 
-  const [isPhoneValid, setIsPhoneValid] = useState(false);
-
-  const validatePhone = (phone: string) => {
-    const regex = /^(?:\+62|62|0)8\d{8,11}$/;
-    return regex.test(phone);
-  };
-
-  useEffect(() => {
-    setIsPhoneValid(validatePhone(shippingInfo.phone));
-  }, [shippingInfo.phone]);
-
   const handleInputChange = (field: string, value: string) => {
     setShippingInfo((prev) => ({ ...prev, [field]: value }));
   };
+
+  // ==== [TAMBAHAN] Prefill dari user-address (default) ====
+  const { data: userAddressList } = useGetUserAddressListQuery({
+    page: 1,
+    paginate: 100,
+  });
+  const defaultAddress: Address | undefined = userAddressList?.data?.find(
+    (a) => a.is_default
+  );
+  const didPrefill = useRef(false);
+
+  // ==== [TAMBAHAN] Prefill nama dari session (editable) ====
+  useEffect(() => {
+    if (didPrefill.current) return;
+    if (sessionName) {
+      setShippingInfo((prev) => ({ ...prev, fullName: sessionName }));
+    }
+  }, [sessionName]);
+
+  // ==== [TAMBAHAN] Prefill alamat dari default address (editable) ====
+  useEffect(() => {
+    if (didPrefill.current) return;
+    if (defaultAddress) {
+      setShippingInfo((prev) => ({
+        ...prev,
+        address_line_1: defaultAddress.address_line_1 ?? prev.address_line_1,
+        postal_code: defaultAddress.postal_code ?? prev.postal_code,
+        rajaongkir_province_id:
+          defaultAddress.rajaongkir_province_id ?? prev.rajaongkir_province_id,
+        rajaongkir_city_id:
+          defaultAddress.rajaongkir_city_id ?? prev.rajaongkir_city_id,
+        rajaongkir_district_id:
+          defaultAddress.rajaongkir_district_id ?? prev.rajaongkir_district_id,
+      }));
+      didPrefill.current = true; // hanya sekali agar tetap bisa diedit user
+    }
+  }, [defaultAddress]);
 
   // === Data wilayah (provinsi/kota/kecamatan) ===
   const { data: provinces = [], isLoading: loadingProvince } =
@@ -592,15 +627,13 @@ export default function CartPage() {
                             </span>
                           )}
                         </div>
-                        <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
-                          <button
-                            onClick={() => addRelatedToCart(product.__raw)}
-                            className="w-full bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Tambah ke Keranjang
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => addRelatedToCart(product.__raw)}
+                          className="w-full bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Tambah ke Keranjang
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -803,12 +836,6 @@ export default function CartPage() {
                     placeholder="08xxxxxxxxxx"
                     className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
                   />
-
-                  {!isPhoneValid && shippingInfo.phone && (
-                    <p className="text-sm text-red-500 mt-0.5">
-                      Nomor telepon tidak valid
-                    </p>
-                  )}
                 </div>
 
                 <div className="col-span-2">
@@ -1100,8 +1127,7 @@ export default function CartPage() {
                   !shippingMethod ||
                   !shippingInfo.fullName ||
                   !shippingInfo.address_line_1 ||
-                  !shippingInfo.postal_code ||
-                  !isPhoneValid
+                  !shippingInfo.postal_code
                 }
                 className="w-full bg-[#A3B18A] text-white py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -1214,15 +1240,13 @@ export default function CartPage() {
                       )}
                     </div>
 
-                    <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
-                      <button
-                        onClick={() => addRelatedToCart(product.__raw)}
-                        className="w-full bg-black/50 text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Tambah ke Keranjang
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => addRelatedToCart(product.__raw)}
+                      className="w-full bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Tambah ke Keranjang
+                    </button>
                   </div>
                 </div>
               ))}

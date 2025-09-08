@@ -24,9 +24,25 @@ import {
   Download,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
-import { useLogoutMutation } from "@/services/auth.service"; // pastikan path sesuai
+import { useLogoutMutation } from "@/services/auth.service";
+import {
+  useGetUserAddressListQuery,
+  useGetUserAddressByIdQuery,
+  useCreateUserAddressMutation,
+  useUpdateUserAddressMutation,
+  useDeleteUserAddressMutation,
+} from "@/services/address.service";
+import {
+  useGetProvincesQuery,
+  useGetCitiesQuery,
+  useGetDistrictsQuery,
+} from "@/services/shop/open-shop/open-shop.service";
 import { useGetTransactionListQuery } from "@/services/admin/transaction.service";
 import Swal from "sweetalert2";
+import { mapTxnStatusToOrderStatus, OrderStatus } from "@/lib/status-order";
+import type { Address as UserAddress } from "@/types/address";
+import { ROResponse, toList, findName } from "@/types/geo";
+import { Region } from "@/types/shop";
 
 interface UserProfile {
   id: string;
@@ -41,18 +57,6 @@ interface UserProfile {
   loyaltyPoints: number;
 }
 
-interface Address {
-  id: string;
-  label: string;
-  fullName: string;
-  phone: string;
-  address: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  isDefault: boolean;
-}
-
 interface OrderItem {
   id: string;
   name: string;
@@ -60,14 +64,6 @@ interface OrderItem {
   quantity: number;
   price: number;
 }
-
-type OrderStatus =
-  | "pending"
-  | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
-
 interface Order {
   id: string;
   orderNumber: string;
@@ -77,8 +73,6 @@ interface Order {
   items: OrderItem[];
   trackingNumber?: string;
 }
-
-/** ====== TIPE DATA MINIMAL DARI API TRANSAKSI (meniru contoh logic) ====== */
 interface ApiTransactionDetail {
   id?: number | string;
   product_id?: number;
@@ -92,19 +86,16 @@ interface ApiTransactionDetail {
   } | null;
   image?: string | null;
 }
-
 interface ApiTransaction {
   id: number | string;
   reference?: string;
-  status?: number; // 0 pending, 1 captured, 2 settlement, -1 deny, -2 expired, -3 cancel
+  status?: number;
   total: number;
   discount_total?: number;
   created_at?: string;
   details?: ApiTransactionDetail[];
   tracking_number?: string;
 }
-
-/** Helper aman untuk ambil gambar produk */
 const pickImageUrl = (d?: ApiTransactionDetail): string => {
   if (!d) return "/api/placeholder/80/80";
   if (typeof d.image === "string" && d.image) return d.image;
@@ -115,23 +106,7 @@ const pickImageUrl = (d?: ApiTransactionDetail): string => {
   return "/api/placeholder/80/80";
 };
 
-/** Pemetaan status backend -> UI tanpa mengubah tampilan */
-const mapTxnStatusToOrderStatus = (s?: number): OrderStatus => {
-  switch (s) {
-    case 0: // PENDING
-      return "pending";
-    case 1: // CAPTURED
-      return "processing";
-    case 2: // SETTLEMENT
-      return "delivered";
-    case -1: // DENY
-    case -2: // EXPIRED
-    case -3: // CANCEL
-      return "cancelled";
-    default:
-      return "pending";
-  }
-};
+/* ======================================================================= */
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -141,9 +116,8 @@ export default function ProfilePage() {
     "dashboard" | "profile" | "addresses" | "orders"
   >("dashboard");
   const [isEditing, setIsEditing] = useState(false);
-  const [showAddAddress, setShowAddAddress] = useState(false);
 
-  // Ambil name & email dari session
+  // Session basics
   const sessionName = useMemo(() => session?.user?.name ?? "User", [session]);
   const sessionEmail = useMemo(
     () => session?.user?.email ?? "user@email.com",
@@ -151,24 +125,16 @@ export default function ProfilePage() {
   );
   const sessionId = (session?.user as { id?: number } | undefined)?.id;
 
-  // ===== Ambil transaksi dari API (menyesuaikan contoh logic) =====
-  const itemsPerPage = 10;
+  /* --------------------- Transaksi (tetap) --------------------- */
   const { data: txnResp } = useGetTransactionListQuery(
-    {
-      page: 1,
-      paginate: itemsPerPage,
-      user_id: sessionId,
-    },
+    { page: 1, paginate: 10, user_id: sessionId },
     { skip: !sessionId }
   );
-
   const transactions: ApiTransaction[] = useMemo(
     () => (txnResp?.data as ApiTransaction[]) || [],
     [txnResp]
   );
-
-  /** Map API -> Order[] untuk dipakai UI tanpa ubah style */
-  const ordersFromApi: Order[] = useMemo(() => {
+  const orders: Order[] = useMemo(() => {
     return transactions.map((t) => {
       const items: OrderItem[] = (t.details || []).map((det, idx) => ({
         id: String(det.id ?? `${t.id}-${idx}`),
@@ -189,7 +155,126 @@ export default function ProfilePage() {
     });
   }, [transactions]);
 
-  // Mock user data (tetap ada untuk elemen lain), tapi fullName & email disinkronkan dari session
+  /* --------------------- Address via SERVICE --------------------- */
+  const [addrModalOpen, setAddrModalOpen] = useState(false);
+  const [addrEditId, setAddrEditId] = useState<number | null>(null);
+
+  type AddrForm = Partial<Omit<UserAddress, "id">>;
+  const [addrForm, setAddrForm] = useState<AddrForm>({
+    user_id: sessionId || undefined,
+    rajaongkir_province_id: null,
+    rajaongkir_city_id: null,
+    rajaongkir_district_id: null,
+    address_line_1: "",
+    address_line_2: "",
+    postal_code: "",
+    is_default: false,
+  });
+
+  const [createUserAddress, { isLoading: isCreatingAddr }] =
+    useCreateUserAddressMutation();
+  const [updateUserAddress, { isLoading: isUpdatingAddr }] =
+    useUpdateUserAddressMutation();
+  const [deleteUserAddress, { isLoading: isDeletingAddr }] =
+    useDeleteUserAddressMutation();
+
+  const {
+    data: userAddressList,
+    refetch: refetchUserAddressList,
+    isFetching: isFetchingAddressList,
+  } = useGetUserAddressListQuery(
+    { page: 1, paginate: 100 },
+    { skip: !sessionId }
+  );
+
+  const { data: addrDetail } = useGetUserAddressByIdQuery(addrEditId ?? 0, {
+    skip: !addrEditId,
+  });
+
+  // RO hooks – pakai 0 saat skip agar param number tetap valid
+  const provinceId = addrForm.rajaongkir_province_id ?? 0;
+  const { data: provinces } = useGetProvincesQuery();
+  const { data: cities } = useGetCitiesQuery(provinceId, {
+    skip: !addrForm.rajaongkir_province_id,
+  });
+  const cityId = addrForm.rajaongkir_city_id ?? 0;
+  const { data: districts } = useGetDistrictsQuery(cityId, {
+    skip: !addrForm.rajaongkir_city_id,
+  });
+
+  // Normalisasi RO lists (tanpa any)
+  const provinceList = toList<Region>(provinces as ROResponse<Region>);
+  const cityList = toList<Region>(cities as ROResponse<Region>);
+  const districtList = toList<Region>(districts as ROResponse<Region>);
+
+  // Prefill form saat edit
+  useEffect(() => {
+    if (!addrDetail) return;
+    setAddrForm({
+      user_id: sessionId || undefined,
+      rajaongkir_province_id: addrDetail.rajaongkir_province_id ?? null,
+      rajaongkir_city_id: addrDetail.rajaongkir_city_id ?? null,
+      rajaongkir_district_id: addrDetail.rajaongkir_district_id ?? null,
+      address_line_1: addrDetail.address_line_1 ?? "",
+      address_line_2: addrDetail.address_line_2 ?? "",
+      postal_code: addrDetail.postal_code ?? "",
+      is_default: Boolean(addrDetail.is_default),
+    });
+  }, [addrDetail, sessionId]);
+
+  const openCreateAddress = () => {
+    setAddrEditId(null);
+    setAddrForm({
+      user_id: sessionId || undefined,
+      rajaongkir_province_id: null,
+      rajaongkir_city_id: null,
+      rajaongkir_district_id: null,
+      address_line_1: "",
+      address_line_2: "",
+      postal_code: "",
+      is_default: false,
+    });
+    setAddrModalOpen(true);
+  };
+
+  const openEditAddress = (id: number) => {
+    setAddrEditId(id);
+    setAddrModalOpen(true);
+  };
+
+  const handleDeleteAddressApi = async (id: number) => {
+    const ok = confirm("Hapus alamat ini?");
+    if (!ok) return;
+    try {
+      await deleteUserAddress(id).unwrap();
+      await refetchUserAddressList();
+    } catch (e) {
+      console.error(e);
+      Swal.fire("Gagal", "Tidak dapat menghapus alamat.", "error");
+    }
+  };
+
+  const handleSubmitAddress = async () => {
+    if (!addrForm.user_id) {
+      Swal.fire("Info", "Session user belum tersedia.", "info");
+      return;
+    }
+    try {
+      if (addrEditId) {
+        await updateUserAddress({ id: addrEditId, payload: addrForm }).unwrap();
+      } else {
+        await createUserAddress(addrForm).unwrap();
+      }
+      setAddrModalOpen(false);
+      setAddrEditId(null);
+      await refetchUserAddressList();
+    } catch (e) {
+      console.error(e);
+      Swal.fire("Gagal", "Tidak dapat menyimpan alamat.", "error");
+    }
+  };
+
+  /* --------------------- Profil/dsb (tetap) --------------------- */
   const [userProfile, setUserProfile] = useState<UserProfile>({
     id:
       (session?.user as { id?: number } | undefined)?.id?.toString?.() ??
@@ -205,7 +290,6 @@ export default function ProfilePage() {
     loyaltyPoints: 2500,
   });
 
-  // Sinkronkan ketika session berubah
   useEffect(() => {
     setUserProfile((prev) => ({
       ...prev,
@@ -218,46 +302,12 @@ export default function ProfilePage() {
     }));
   }, [sessionName, sessionEmail, session]);
 
-  // Update statistik Dashboard dari transaksi API (tanpa ubah UI)
   useEffect(() => {
     if (!transactions.length) return;
     const totalOrders = transactions.length;
     const totalSpent = transactions.reduce((acc, t) => acc + (t.total ?? 0), 0);
-    setUserProfile((prev) => ({
-      ...prev,
-      totalOrders,
-      totalSpent,
-      // loyaltyPoints bisa dibuat dinamis jika ada aturan, sementara biarkan
-    }));
+    setUserProfile((prev) => ({ ...prev, totalOrders, totalSpent }));
   }, [transactions]);
-
-  const [addresses, setAddresses] = useState<Address[]>([
-    {
-      id: "addr1",
-      label: "Rumah",
-      fullName: sessionName,
-      phone: "+62 812 3456 7890",
-      address: "Jl. Kemanggisan Raya No. 123, RT/RW 05/02",
-      city: "Jakarta Barat",
-      province: "DKI Jakarta",
-      postalCode: "11480",
-      isDefault: true,
-    },
-    {
-      id: "addr2",
-      label: "Kantor",
-      fullName: sessionName,
-      phone: "+62 812 3456 7890",
-      address: "Jl. Sudirman No. 456, Lantai 10",
-      city: "Jakarta Pusat",
-      province: "DKI Jakarta",
-      postalCode: "10220",
-      isDefault: false,
-    },
-  ]);
-
-  // GUNAKAN data API untuk pesanan; fallback ke array kosong (UI tetap sama)
-  const orders: Order[] = ordersFromApi;
 
   const tabs = [
     {
@@ -286,7 +336,6 @@ export default function ProfilePage() {
         return "text-gray-600 bg-gray-50";
     }
   };
-
   const getStatusText = (status: Order["status"]) => {
     switch (status) {
       case "delivered":
@@ -315,42 +364,30 @@ export default function ProfilePage() {
       confirmButtonText: "Ya, Keluar",
       cancelButtonText: "Batal",
     });
-
     if (!result.isConfirmed) return;
-
     try {
-      // 1) Logout ke backend
       await logoutReq().unwrap();
       await Swal.fire("Berhasil!", "Anda telah keluar.", "success");
     } catch (e) {
       console.error("Logout API error:", e);
       await Swal.fire("Gagal!", "Terjadi kesalahan saat logout.", "error");
     } finally {
-      // 2) Hapus sesi NextAuth & redirect
       await signOut({ callbackUrl: "/login" });
     }
   };
 
-  const handleSaveProfile = () => {
-    setIsEditing(false);
-    // Tempat integrasi update profile ke API (jika dibutuhkan)
-  };
+  const DEFAULT_AVATAR =
+    "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brRRAfCOa62KGLnZzEJ8j0tpdrMSvRcPXiYUsh";
 
-  const handleDeleteAddress = (addressId: string) => {
-    const ok = confirm("Apakah Anda yakin ingin menghapus alamat ini?");
-    if (!ok) return;
-    setAddresses((prev) => prev.filter((addr) => addr.id !== addressId));
-  };
+  const safeAvatar = (() => {
+    const raw = (userProfile.avatar ?? "").trim();
+    if (!raw || raw === "null" || raw === "undefined") return DEFAULT_AVATAR;
+    return raw;
+  })();
 
-  const setDefaultAddress = (addressId: string) => {
-    setAddresses((prev) =>
-      prev.map((addr) => ({
-        ...addr,
-        isDefault: addr.id === addressId,
-      }))
-    );
-  };
+  const [avatarError, setAvatarError] = useState(false);
 
+  /* --------------------- UI --------------------- */
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24">
       <div className="container mx-auto px-6 lg:px-12 pb-12">
@@ -375,17 +412,17 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
+          {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-3xl p-6 shadow-lg">
-              {/* User Info */}
               <div className="text-center mb-6 pb-6 border-b border-gray-200">
                 <div className="relative w-20 h-20 mx-auto mb-4">
                   <Image
-                    src={userProfile.avatar}
+                    src={avatarError ? DEFAULT_AVATAR : safeAvatar}
                     alt={userProfile.fullName}
                     fill
                     className="object-cover rounded-full"
+                    onError={() => setAvatarError(true)}
                   />
                   <div className="absolute bottom-0 right-0 w-6 h-6 bg-[#A3B18A] rounded-full flex items-center justify-center">
                     <Camera className="w-3 h-3 text-white" />
@@ -395,15 +432,8 @@ export default function ProfilePage() {
                   {userProfile.fullName}
                 </h3>
                 <p className="text-sm text-gray-600">{userProfile.email}</p>
-                <div className="mt-3 flex items-center justify-center gap-2">
-                  <Star className="w-4 h-4 text-yellow-500" />
-                  <span className="text-sm font-semibold text-[#A3B18A]">
-                    {userProfile.loyaltyPoints} Poin
-                  </span>
-                </div>
               </div>
 
-              {/* Navigation */}
               <nav className="space-y-2 mb-6">
                 {tabs.map((tab) => (
                   <button
@@ -421,7 +451,6 @@ export default function ProfilePage() {
                 ))}
               </nav>
 
-              {/* Logout Button */}
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
@@ -434,10 +463,10 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Main Content */}
+          {/* Main */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-3xl p-8 shadow-lg">
-              {/* Dashboard Tab */}
+              {/* Dashboard */}
               {activeTab === "dashboard" && (
                 <div className="space-y-8">
                   <div className="flex items-center gap-3 mb-6">
@@ -449,7 +478,6 @@ export default function ProfilePage() {
                     </h2>
                   </div>
 
-                  {/* Stats Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-gradient-to-r from-[#A3B18A] to-[#DFF19D] rounded-2xl p-6 text-white">
                       <div className="flex items-center gap-3 mb-3">
@@ -482,7 +510,6 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  {/* Recent Orders */}
                   <div>
                     <div className="flex items-center justify-between mb-6">
                       <h3 className="text-xl font-bold text-gray-900">
@@ -553,7 +580,7 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {/* Profile Tab */}
+              {/* Profile */}
               {activeTab === "profile" && (
                 <div className="space-y-8">
                   <div className="flex items-center justify-between mb-6">
@@ -567,7 +594,7 @@ export default function ProfilePage() {
                     </div>
                     <button
                       onClick={() =>
-                        isEditing ? handleSaveProfile() : setIsEditing(true)
+                        isEditing ? setIsEditing(false) : setIsEditing(true)
                       }
                       className="flex items-center gap-2 px-4 py-2 bg-[#A3B18A] text-white rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors"
                     >
@@ -671,7 +698,6 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  {/* Account Info */}
                   <div className="bg-[#A3B18A]/5 rounded-2xl p-6">
                     <h3 className="font-semibold text-gray-900 mb-4">
                       Informasi Akun
@@ -682,11 +708,7 @@ export default function ProfilePage() {
                         <div className="font-semibold text-gray-900">
                           {new Date(userProfile.joinDate).toLocaleDateString(
                             "id-ID",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            }
+                            { year: "numeric", month: "long", day: "numeric" }
                           )}
                         </div>
                       </div>
@@ -719,7 +741,7 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {/* Addresses Tab */}
+              {/* Addresses */}
               {activeTab === "addresses" && (
                 <div className="space-y-8">
                   <div className="flex items-center justify-between mb-6">
@@ -732,7 +754,7 @@ export default function ProfilePage() {
                       </h2>
                     </div>
                     <button
-                      onClick={() => setShowAddAddress(true)}
+                      onClick={openCreateAddress}
                       className="flex items-center gap-2 px-4 py-2 bg-[#A3B18A] text-white rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors"
                     >
                       <Plus className="w-4 h-4" />
@@ -740,71 +762,349 @@ export default function ProfilePage() {
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {addresses.map((address) => (
+                  {isFetchingAddressList ? (
+                    <div className="text-gray-600">Memuat alamat...</div>
+                  ) : (
+                    (() => {
+                      const addressData: ReadonlyArray<UserAddress> =
+                        userAddressList?.data ?? [];
+                      if (addressData.length === 0) {
+                        return (
+                          <div className="text-gray-600">Belum ada alamat.</div>
+                        );
+                      }
+                      return (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {addressData.map((a) => {
+                            const provName = findName(
+                              provinceList,
+                              a.rajaongkir_province_id
+                            );
+                            const cityName = findName(
+                              cityList,
+                              a.rajaongkir_city_id
+                            );
+                            const distName = findName(
+                              districtList,
+                              a.rajaongkir_district_id
+                            );
+                            return (
+                              <div
+                                key={a.id}
+                                className={`border-2 rounded-2xl p-6 transition-all ${
+                                  a.is_default
+                                    ? "border-[#A3B18A] bg-[#A3B18A]/5"
+                                    : "border-gray-200 hover:border-[#A3B18A]/50"
+                                }`}
+                              >
+                                <div className="flex items-start justify-between mb-4">
+                                  <div>
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <h3 className="font-bold text-gray-900">
+                                        Alamat #{a.id}
+                                      </h3>
+                                      {a.is_default && (
+                                        <span className="px-2 py-1 bg-[#A3B18A] text-white text-xs font-semibold rounded-full">
+                                          Default
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() =>
+                                        openEditAddress(Number(a.id))
+                                      }
+                                      className="p-2 text-gray-400 hover:text-[#A3B18A] transition-colors"
+                                      title="Edit alamat"
+                                    >
+                                      <Edit3 className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteAddressApi(Number(a.id))
+                                      }
+                                      className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                      title={
+                                        isDeletingAddr
+                                          ? "Menghapus..."
+                                          : "Hapus alamat"
+                                      }
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="text-sm text-gray-600 mb-4">
+                                  <p className="text-gray-800 font-medium">
+                                    {a.address_line_1}
+                                  </p>
+                                  {a.address_line_2 && (
+                                    <p>{a.address_line_2}</p>
+                                  )}
+                                  <p>
+                                    {distName ? `${distName}, ` : ""}
+                                    {cityName ? `${cityName}, ` : ""}
+                                    {provName
+                                      ? provName
+                                      : `Prov ID ${a.rajaongkir_province_id}`}
+                                    {a.postal_code ? `, ${a.postal_code}` : ""}
+                                  </p>
+                                </div>
+
+                                {!a.is_default && (
+                                  <button
+                                    onClick={async () => {
+                                      try {
+                                        await updateUserAddress({
+                                          id: Number(a.id),
+                                          payload: { is_default: true },
+                                        }).unwrap();
+                                        await refetchUserAddressList();
+                                      } catch {
+                                        Swal.fire(
+                                          "Gagal",
+                                          "Tidak dapat menjadikan default.",
+                                          "error"
+                                        );
+                                      }
+                                    }}
+                                    className="text-[#A3B18A] text-sm font-semibold hover:underline"
+                                  >
+                                    Jadikan Default
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()
+                  )}
+
+                  {/* Modal Create / Edit */}
+                  {addrModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center">
                       <div
-                        key={address.id}
-                        className={`border-2 rounded-2xl p-6 transition-all ${
-                          address.isDefault
-                            ? "border-[#A3B18A] bg-[#A3B18A]/5"
-                            : "border-gray-200 hover:border-[#A3B18A]/50"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-bold text-gray-900">
-                                {address.label}
-                              </h3>
-                              {address.isDefault && (
-                                <span className="px-2 py-1 bg-[#A3B18A] text-white text-xs font-semibold rounded-full">
-                                  Default
-                                </span>
-                              )}
-                            </div>
-                            <p className="font-semibold text-gray-900">
-                              {address.fullName}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {address.phone}
-                            </p>
-                          </div>
-                          <div className="flex gap-2">
-                            <button className="p-2 text-gray-400 hover:text-[#A3B18A] transition-colors">
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteAddress(address.id)}
-                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="text-sm text-gray-600 mb-4">
-                          <p>{address.address}</p>
-                          <p>
-                            {address.city}, {address.province}{" "}
-                            {address.postalCode}
-                          </p>
-                        </div>
-
-                        {!address.isDefault && (
+                        className="absolute inset-0 bg-black/50"
+                        onClick={() => {
+                          setAddrModalOpen(false);
+                          setAddrEditId(null);
+                        }}
+                      />
+                      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-xl font-bold text-gray-900">
+                            {addrEditId ? "Edit Alamat" : "Tambah Alamat"}
+                          </h3>
                           <button
-                            onClick={() => setDefaultAddress(address.id)}
-                            className="text-[#A3B18A] text-sm font-semibold hover:underline"
+                            onClick={() => {
+                              setAddrModalOpen(false);
+                              setAddrEditId(null);
+                            }}
+                            className="text-gray-400 hover:text-gray-600"
                           >
-                            Jadikan Default
+                            ✕
                           </button>
-                        )}
+                        </div>
+
+                        <div className="space-y-4">
+                          {/* Province */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Provinsi
+                            </label>
+                            <select
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.rajaongkir_province_id ?? ""}
+                              onChange={(e) => {
+                                const v = e.target.value
+                                  ? Number(e.target.value)
+                                  : null;
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  rajaongkir_province_id: v,
+                                  rajaongkir_city_id: null,
+                                  rajaongkir_district_id: null,
+                                }));
+                              }}
+                            >
+                              <option value="">-- Pilih Provinsi --</option>
+                              {provinceList.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* City */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Kota/Kabupaten
+                            </label>
+                            <select
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.rajaongkir_city_id ?? ""}
+                              onChange={(e) => {
+                                const v = e.target.value
+                                  ? Number(e.target.value)
+                                  : null;
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  rajaongkir_city_id: v,
+                                  rajaongkir_district_id: null,
+                                }));
+                              }}
+                              disabled={!addrForm.rajaongkir_province_id}
+                            >
+                              <option value="">
+                                -- Pilih Kota/Kabupaten --
+                              </option>
+                              {cityList.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                  {c.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* District */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Kecamatan
+                            </label>
+                            <select
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.rajaongkir_district_id ?? ""}
+                              onChange={(e) =>
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  rajaongkir_district_id: e.target.value
+                                    ? Number(e.target.value)
+                                    : null,
+                                }))
+                              }
+                              disabled={!addrForm.rajaongkir_city_id}
+                            >
+                              <option value="">-- Pilih Kecamatan --</option>
+                              {districtList.map((d) => (
+                                <option key={d.id} value={d.id}>
+                                  {d.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Address line 1 */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Alamat (Baris 1)
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.address_line_1 ?? ""}
+                              onChange={(e) =>
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  address_line_1: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+
+                          {/* Address line 2 */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Alamat (Baris 2) – opsional
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.address_line_2 ?? ""}
+                              onChange={(e) =>
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  address_line_2: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+
+                          {/* Postal code */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Kode Pos
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.postal_code ?? ""}
+                              onChange={(e) =>
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  postal_code: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+
+                          {/* Default */}
+                          <div className="flex items-center gap-2">
+                            <input
+                              id="is_default"
+                              type="checkbox"
+                              className="w-4 h-4"
+                              checked={Boolean(addrForm.is_default)}
+                              onChange={(e) =>
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  is_default: e.target.checked,
+                                }))
+                              }
+                            />
+                            <label
+                              htmlFor="is_default"
+                              className="text-sm text-gray-800"
+                            >
+                              Jadikan alamat default
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 flex items-center justify-end gap-3">
+                          <button
+                            onClick={() => {
+                              setAddrModalOpen(false);
+                              setAddrEditId(null);
+                            }}
+                            className="px-4 py-2 rounded-2xl border border-gray-200 text-gray-700 hover:bg-gray-50"
+                          >
+                            Batal
+                          </button>
+                          <button
+                            onClick={handleSubmitAddress}
+                            disabled={isCreatingAddr || isUpdatingAddr}
+                            className="px-4 py-2 rounded-2xl bg-[#A3B18A] text-white font-semibold hover:bg-[#A3B18A]/90 disabled:opacity-60"
+                          >
+                            {addrEditId
+                              ? isUpdatingAddr
+                                ? "Menyimpan..."
+                                : "Simpan Perubahan"
+                              : isCreatingAddr
+                              ? "Menyimpan..."
+                              : "Simpan"}
+                          </button>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Orders Tab (menggunakan data transaksi API yang sudah di-map) */}
+              {/* Orders */}
               {activeTab === "orders" && (
                 <div className="space-y-8">
                   <div className="flex items-center gap-3 mb-6">

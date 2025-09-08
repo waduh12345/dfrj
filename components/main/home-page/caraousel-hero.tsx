@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+
+function dataImage() {
+  return [
+    { url: "/hero-colore.webp" },
+    { url: "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brtLyODtex0OYVvL2QeijZs4TN9tB6HcnbPodI"},
+    { url:"https://8nc5ppykod.ufs.sh/f/H265ZJJzf6bri3rJ2rdJLrZYECsOD7ov0VHgdItKxMcf2my3"},
+  ];
+}
+
 export default function ImageCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -18,6 +27,8 @@ export default function ImageCarousel() {
     return () => clearInterval(interval);
   }, []);
 
+  const images = dataImage();
+
   return (
     <div className="relative w-full h-full overflow-hidden">
       {/* Slides */}
@@ -25,10 +36,10 @@ export default function ImageCarousel() {
         className="flex transition-transform duration-500 ease-in-out h-full"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
-        {[0, 1, 2].map((index) => (
+        {images.map((item, index) => (
           <div key={index} className="w-full h-full flex-shrink-0">
             <img
-              src="/hero-colore.webp"
+              src={item.url}
               alt={`Slide ${index + 1}`}
               className="w-full h-full object-cover"
             />
