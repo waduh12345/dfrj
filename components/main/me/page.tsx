@@ -570,7 +570,10 @@ export default function ProfilePage() {
                     unoptimized
                   />
                   <div className="absolute bottom-0 right-0 w-6 h-6 bg-[#A3B18A] rounded-full flex items-center justify-center">
-                    <Camera className="w-3 h-3 text-white" />
+                    <Camera
+                      onClick={openEditProfileModal}
+                      className="w-3 h-3 text-white cursor-pointer"
+                    />
                   </div>
                 </div>
                 <h3 className="font-bold text-gray-900">
