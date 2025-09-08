@@ -41,6 +41,7 @@ export interface CreateUserPayload {
   phone: string;
   password: string;
   password_confirmation: string;
+  image: File| string | null;
   status: number;
   sales_category_id?: number;
   sales_type_id?: number;

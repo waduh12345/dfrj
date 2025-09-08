@@ -9,7 +9,6 @@ import {
   BarChart3,
   LogOut,
   Edit3,
-  Save,
   Plus,
   Trash2,
   Eye,
@@ -24,7 +23,11 @@ import {
   Download,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
-import { useLogoutMutation } from "@/services/auth.service";
+import {
+  useLogoutMutation,
+  useGetCurrentUserQuery,
+  useUpdateCurrentUserMutation,
+} from "@/services/auth.service";
 import {
   useGetUserAddressListQuery,
   useGetUserAddressByIdQuery,
@@ -43,9 +46,8 @@ import { mapTxnStatusToOrderStatus, OrderStatus } from "@/lib/status-order";
 import type { Address as UserAddress } from "@/types/address";
 import { ROResponse, toList, findName } from "@/types/geo";
 import { Region } from "@/types/shop";
-
-/* === Tambahan: konsumsi profil user === */
-import { useGetCurrentUserQuery } from "@/services/auth.service";
+import ProfileEditModal from "../profile-page/edit-modal";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 interface UserProfile {
   id: string;
@@ -53,7 +55,7 @@ interface UserProfile {
   email: string;
   phone: string;
   birthDate: string;
-  avatar: string;
+  image: string;
   joinDate: string;
   totalOrders: number;
   totalSpent: number;
@@ -114,6 +116,26 @@ const pickImageUrl = (d?: ApiTransactionDetail): string => {
 export default function ProfilePage() {
   const { data: session } = useSession();
   const [logoutReq, { isLoading: isLoggingOut }] = useLogoutMutation();
+  const [updateCurrentUser, { isLoading: isUpdatingProfile }] =
+    useUpdateCurrentUserMutation();
+  const [isPrefillingProfile, setIsPrefillingProfile] = useState(false);
+
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [profileForm, setProfileForm] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    password_confirmation: string;
+    imageFile: File | null;
+  }>({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    password_confirmation: "",
+    imageFile: null,
+  });
 
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "profile" | "addresses" | "orders"
@@ -303,7 +325,7 @@ export default function ProfilePage() {
     email: sessionEmail,
     phone: "",
     birthDate: "1990-05-15", // default birth date
-    avatar: session?.user?.image || "/api/placeholder/150/150",
+    image: session?.user?.image || "/api/placeholder/150/150",
     joinDate: "",
     totalOrders: 12,
     totalSpent: 1_450_000,
@@ -318,7 +340,7 @@ export default function ProfilePage() {
         prev.id,
       fullName: sessionName,
       email: sessionEmail,
-      avatar: session?.user?.image || prev.avatar,
+      image: session?.user?.image || prev.image,
     }));
   }, [sessionName, sessionEmail, session]);
 
@@ -329,11 +351,18 @@ export default function ProfilePage() {
     setUserProfile((prev) => ({ ...prev, totalOrders, totalSpent }));
   }, [transactions]);
 
-  /* === Tambahan: sinkronkan tab Profile dari useGetCurrentUserQuery === */
-  const { data: currentUserResp } = useGetCurrentUserQuery();
+  const { data: currentUserResp, refetch: refetchCurrentUser } =
+    useGetCurrentUserQuery();
+
   useEffect(() => {
-    const u = currentUserResp; 
+    const u = currentUserResp;
     if (!u) return;
+
+    const apiImage =
+      (u as { image?: string }).image ||
+      (u as { media?: Array<{ original_url?: string }> }).media?.[0]
+        ?.original_url ||
+      "";
 
     setUserProfile((prev) => ({
       ...prev,
@@ -342,6 +371,7 @@ export default function ProfilePage() {
       email: u.email ?? prev.email,
       phone: u.phone ?? prev.phone,
       joinDate: u.created_at ?? prev.joinDate,
+      image: apiImage || prev.image,
     }));
   }, [currentUserResp]);
 
@@ -389,6 +419,69 @@ export default function ProfilePage() {
     }
   };
 
+  const openEditProfileModal = async () => {
+    setIsPrefillingProfile(true);
+    try {
+      const result = await refetchCurrentUser();
+      const u = result.data ?? currentUserResp;
+
+      setProfileForm({
+        name: u?.name ?? userProfile.fullName ?? "",
+        email: u?.email ?? userProfile.email ?? "",
+        phone: u?.phone ?? userProfile.phone ?? "",
+        password: "",
+        password_confirmation: "",
+        imageFile: null,
+      });
+
+      setProfileModalOpen(true);
+    } finally {
+      setIsPrefillingProfile(false);
+    }
+  };
+
+  const handleSubmitProfile = async () => {
+    try {
+      const fd = new FormData();
+      // wajib/umum
+      fd.append("name", profileForm.name ?? "");
+      fd.append("email", profileForm.email ?? "");
+      fd.append("phone", profileForm.phone ?? "");
+      // password opsional (hanya kirim jika diisi)
+      if (profileForm.password) {
+        fd.append("password", profileForm.password);
+        fd.append(
+          "password_confirmation",
+          profileForm.password_confirmation || ""
+        );
+      }
+      // image opsional
+      if (profileForm.imageFile) {
+        fd.append("image", profileForm.imageFile);
+      }
+
+      await updateCurrentUser(fd).unwrap();
+      await refetchCurrentUser();
+
+      // sinkronkan tampilan lokal
+      setUserProfile((prev) => ({
+        ...prev,
+        fullName: profileForm.name || prev.fullName,
+        email: profileForm.email || prev.email,
+        phone: profileForm.phone || prev.phone,
+        // avatar akan ikut dari current user ketika di-SSR/CSR fetch; di sini cukup refetch
+      }));
+
+      setProfileModalOpen(false);
+      await Swal.fire("Berhasil", "Profil berhasil diperbarui.", "success");
+    } catch (err: unknown) {
+      const e = err as FetchBaseQueryError;
+      const data = e.data as { message?: string } | undefined;
+      const msg = data?.message || "Terjadi kesalahan saat menyimpan profil.";
+      Swal.fire("Gagal", msg, "error");
+    }
+  };
+
   const handleLogout = async () => {
     const result = await Swal.fire({
       title: "Konfirmasi Logout",
@@ -415,13 +508,28 @@ export default function ProfilePage() {
   const DEFAULT_AVATAR =
     "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brRRAfCOa62KGLnZzEJ8j0tpdrMSvRcPXiYUsh";
 
-  const safeAvatar = (() => {
-    const raw = (userProfile.avatar ?? "").trim();
-    if (!raw || raw === "null" || raw === "undefined") return DEFAULT_AVATAR;
-    return raw;
-  })();
+  const normalizeUrl = (u?: string) => {
+    if (!u) return "";
+    try {
+      // encode karakter spesial, tapi tetap pertahankan slash
+      return encodeURI(u);
+    } catch {
+      return u;
+    }
+  };
+  // Avatar source dengan fallback otomatis
+  const rawAvatar = (userProfile.image ?? "").trim();
+  const wantedAvatar = normalizeUrl(rawAvatar);
 
-  const [avatarError, setAvatarError] = useState(false);
+  // pegang src di state supaya bisa diganti saat onError
+  const [imgSrc, setImgSrc] = useState<string>(
+    wantedAvatar ? wantedAvatar : DEFAULT_AVATAR
+  );
+
+  // update kalau userProfile.image berubah
+  useEffect(() => {
+    setImgSrc(wantedAvatar ? wantedAvatar : DEFAULT_AVATAR);
+  }, [wantedAvatar]);
 
   /* --------------------- UI --------------------- */
   return (
@@ -454,11 +562,12 @@ export default function ProfilePage() {
               <div className="text-center mb-6 pb-6 border-b border-gray-200">
                 <div className="relative w-20 h-20 mx-auto mb-4">
                   <Image
-                    src={avatarError ? DEFAULT_AVATAR : safeAvatar}
-                    alt={userProfile.fullName}
+                    src={imgSrc}
+                    alt={userProfile.fullName || "Avatar"}
                     fill
                     className="object-cover rounded-full"
-                    onError={() => setAvatarError(true)}
+                    onError={() => setImgSrc(DEFAULT_AVATAR)}
+                    unoptimized
                   />
                   <div className="absolute bottom-0 right-0 w-6 h-6 bg-[#A3B18A] rounded-full flex items-center justify-center">
                     <Camera className="w-3 h-3 text-white" />
@@ -629,22 +738,12 @@ export default function ProfilePage() {
                       </h2>
                     </div>
                     <button
-                      onClick={() =>
-                        isEditing ? setIsEditing(false) : setIsEditing(true)
-                      }
-                      className="flex items-center gap-2 px-4 py-2 bg-[#A3B18A] text-white rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors"
+                      onClick={openEditProfileModal}
+                      disabled={isPrefillingProfile}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#A3B18A] text-white rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors disabled:opacity-60"
                     >
-                      {isEditing ? (
-                        <>
-                          <Save className="w-4 h-4" />
-                          Simpan
-                        </>
-                      ) : (
-                        <>
-                          <Edit3 className="w-4 h-4" />
-                          Edit
-                        </>
-                      )}
+                      <Edit3 className="w-4 h-4" />
+                      {isPrefillingProfile ? "Memuat..." : "Edit"}
                     </button>
                   </div>
 
@@ -1269,6 +1368,24 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      {profileModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setProfileModalOpen(false)}
+          />
+          <ProfileEditModal
+            open={profileModalOpen}
+            onClose={() => setProfileModalOpen(false)}
+            values={profileForm}
+            onChange={(patch) =>
+              setProfileForm((prev) => ({ ...prev, ...patch }))
+            }
+            onSubmit={handleSubmitProfile}
+            isSubmitting={isUpdatingProfile}
+          />
+        </div>
+      )}
     </div>
   );
 }

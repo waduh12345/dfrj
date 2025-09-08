@@ -3,7 +3,7 @@ import { User } from "@/types/user";
 
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // Login
+    // 🔑 Login
     login: builder.mutation({
       query: (credentials) => ({
         url: "/login",
@@ -12,7 +12,7 @@ export const authApi = apiSlice.injectEndpoints({
       }),
     }),
 
-    // Register
+    // 📝 Register
     register: builder.mutation({
       query: (payload) => ({
         url: "/register",
@@ -21,7 +21,7 @@ export const authApi = apiSlice.injectEndpoints({
       }),
     }),
 
-    // ✅ Resend Verification Email
+    // 📧 Resend Verification Email
     resendVerification: builder.mutation<void, { email: string }>({
       query: ({ email }) => ({
         url: "/email/resend",
@@ -30,7 +30,7 @@ export const authApi = apiSlice.injectEndpoints({
       }),
     }),
 
-    // Logout
+    // 🚪 Logout
     logout: builder.mutation<void, void>({
       query: () => ({
         url: "/logout",
@@ -38,7 +38,7 @@ export const authApi = apiSlice.injectEndpoints({
       }),
     }),
 
-    // Get current user
+    // 👤 Get current user
     getCurrentUser: builder.query<User, void>({
       query: () => ({
         url: "/me",
@@ -50,7 +50,22 @@ export const authApi = apiSlice.injectEndpoints({
         data: User;
       }) => response.data,
     }),
+
+    // ✏️ Update current user profile
+    updateCurrentUser: builder.mutation<User, FormData>({
+      query: (payload) => ({
+        url: "/me?_method=PUT",
+        method: "POST",
+        body: payload,
+      }),
+      transformResponse: (response: {
+        code: number;
+        message: string;
+        data: User;
+      }) => response.data,
+    }),
   }),
+  overrideExisting: false,
 });
 
 export const {
@@ -59,4 +74,5 @@ export const {
   useResendVerificationMutation,
   useLogoutMutation,
   useGetCurrentUserQuery,
+  useUpdateCurrentUserMutation,
 } = authApi;
