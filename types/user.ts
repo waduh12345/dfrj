@@ -7,6 +7,8 @@ export interface User {
   status: number;
   sales_category_id?: number;
   sales_type_id?: number;
+  created_at: string;
+  updated_at: string;
   roles: { id: number; name: string }[];
   shop: {
     id: number;

@@ -44,6 +44,9 @@ import type { Address as UserAddress } from "@/types/address";
 import { ROResponse, toList, findName } from "@/types/geo";
 import { Region } from "@/types/shop";
 
+/* === Tambahan: konsumsi profil user === */
+import { useGetCurrentUserQuery } from "@/services/auth.service";
+
 interface UserProfile {
   id: string;
   fullName: string;
@@ -243,14 +246,31 @@ export default function ProfilePage() {
   };
 
   const handleDeleteAddressApi = async (id: number) => {
-    const ok = confirm("Hapus alamat ini?");
-    if (!ok) return;
-    try {
-      await deleteUserAddress(id).unwrap();
-      await refetchUserAddressList();
-    } catch (e) {
-      console.error(e);
-      Swal.fire("Gagal", "Tidak dapat menghapus alamat.", "error");
+    const result = await Swal.fire({
+      title: "Hapus alamat ini?",
+      text: "Tindakan ini tidak bisa dibatalkan.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6b7280",
+      showLoaderOnConfirm: true,
+      allowOutsideClick: () => !Swal.isLoading(),
+      preConfirm: async () => {
+        try {
+          await deleteUserAddress(id).unwrap();
+          await refetchUserAddressList();
+        } catch (e) {
+          console.error(e);
+          Swal.showValidationMessage("Gagal menghapus alamat.");
+          throw e;
+        }
+      },
+    });
+
+    if (result.isConfirmed) {
+      await Swal.fire("Terhapus!", "Alamat berhasil dihapus.", "success");
     }
   };
 
@@ -281,10 +301,10 @@ export default function ProfilePage() {
       "user-id",
     fullName: sessionName,
     email: sessionEmail,
-    phone: "+62 812 3456 7890",
-    birthDate: "1990-05-15",
+    phone: "",
+    birthDate: "1990-05-15", // default birth date
     avatar: session?.user?.image || "/api/placeholder/150/150",
-    joinDate: "2023-06-15",
+    joinDate: "",
     totalOrders: 12,
     totalSpent: 1_450_000,
     loyaltyPoints: 2500,
@@ -308,6 +328,22 @@ export default function ProfilePage() {
     const totalSpent = transactions.reduce((acc, t) => acc + (t.total ?? 0), 0);
     setUserProfile((prev) => ({ ...prev, totalOrders, totalSpent }));
   }, [transactions]);
+
+  /* === Tambahan: sinkronkan tab Profile dari useGetCurrentUserQuery === */
+  const { data: currentUserResp } = useGetCurrentUserQuery();
+  useEffect(() => {
+    const u = currentUserResp; 
+    if (!u) return;
+
+    setUserProfile((prev) => ({
+      ...prev,
+      id: String(u.id ?? prev.id),
+      fullName: u.name ?? prev.fullName,
+      email: u.email ?? prev.email,
+      phone: u.phone ?? prev.phone,
+      joinDate: u.created_at ?? prev.joinDate,
+    }));
+  }, [currentUserResp]);
 
   const tabs = [
     {
@@ -713,26 +749,11 @@ export default function ProfilePage() {
                         </div>
                       </div>
                       <div>
-                        <span className="text-gray-600">ID Pengguna:</span>
-                        <div className="font-semibold text-gray-900">
-                          {userProfile.id}
-                        </div>
-                      </div>
-                      <div>
                         <span className="text-gray-600">Status Akun:</span>
                         <div className="flex items-center gap-2">
                           <CheckCircle className="w-4 h-4 text-green-600" />
                           <span className="font-semibold text-green-600">
                             Terverifikasi
-                          </span>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Level Member:</span>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-500" />
-                          <span className="font-semibold text-[#A3B18A]">
-                            Gold Member
                           </span>
                         </div>
                       </div>
@@ -801,7 +822,7 @@ export default function ProfilePage() {
                                   <div>
                                     <div className="flex items-center gap-2 mb-2">
                                       <h3 className="font-bold text-gray-900">
-                                        Alamat #{a.id}
+                                        Alamat
                                       </h3>
                                       {a.is_default && (
                                         <span className="px-2 py-1 bg-[#A3B18A] text-white text-xs font-semibold rounded-full">
@@ -941,7 +962,7 @@ export default function ProfilePage() {
 
                           {/* City */}
                           <div>
-                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                            <label className="block text sm font-semibold text-gray-900 mb-2">
                               Kota/Kabupaten
                             </label>
                             <select

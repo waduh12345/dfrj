@@ -62,6 +62,7 @@ export const authOptions: AuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
+          phone: user.phone,
           token: token,
           roles: user.roles || [],
           shop: user.shop,
@@ -75,6 +76,7 @@ export const authOptions: AuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
+        token.phone = user.phone;
         token.token = user.token;
         token.roles = user.roles;
         token.shop = user.shop;
