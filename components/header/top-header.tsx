@@ -6,29 +6,16 @@ import { Menu, X, ShoppingCart, User, Globe } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useTranslation } from "@/hooks/use-translation";
+import id from "@/translations/header/id";
+import en from "@/translations/header/en";
 import useCart from "@/hooks/use-cart";
 import Image from "next/image";
 
-interface TranslationContent {
-  home: string;
-  about: string;
-  products: string;
-  gallery: string;
-  news: string;
-  howToOrder: string;
-  tagline: string;
-  switchLanguage: string;
-}
-
-interface Translations {
-  id: TranslationContent;
-  en: TranslationContent;
-}
-
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { switchLang } = useLanguage();
-  const [language, setLanguage] = useState<"id" | "en">("id");
+  const { lang, switchLang } = useLanguage();
+  const t = useTranslation({ id, en });
   const [isScrolled, setIsScrolled] = useState(false);
 
   const pathname = usePathname();
@@ -41,31 +28,6 @@ export default function Header() {
     () => cartItems.reduce((t, item) => t + item.quantity, 0),
     [cartItems]
   );
-
-  const translations: Translations = {
-    id: {
-      home: "Beranda",
-      products: "Belanja",
-      howToOrder: "Cara Pemesanan",
-      about: "Tentang Kami",
-      news: "Cerita",
-      gallery: "Kolaborasi",
-      tagline: "Plant based Colorant",
-      switchLanguage: "Ganti ke English",
-    },
-    en: {
-      home: "Home",
-      products: "Shop",
-      howToOrder: "How to Order",
-      about: "About Us",
-      news: "Story",
-      gallery: "Collaboration",
-      tagline: "Plant based Colorant",
-      switchLanguage: "Switch to Bahasa",
-    },
-  };
-
-  const t = translations[language];
 
   // Mapping warna hover untuk setiap menu sesuai palet
   const menuItemColors = [
@@ -112,23 +74,12 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedLanguage = localStorage.getItem("colore-language");
-      if (savedLanguage === "id" || savedLanguage === "en") {
-        setLanguage(savedLanguage);
-      }
-    }
-  }, []);
-
   const toggleMobileMenu = () => setIsMobileMenuOpen((v) => !v);
 
   const toggleLanguage = () => {
-    const newLang = language === "id" ? "en" : "id";
-    setLanguage(newLang);
+    const newLang = lang === "id" ? "en" : "id";
     switchLang(newLang);
     if (typeof window !== "undefined") {
-      localStorage.setItem("colore-language", newLang);
       window.dispatchEvent(
         new CustomEvent("languageChanged", { detail: newLang })
       );
@@ -224,7 +175,7 @@ export default function Header() {
               >
                 <Globe className="w-4 h-4 text-gray-600 group-hover:scale-110 transition-transform" />
                 <span className="text-sm font-bold text-gray-600">
-                  {language.toUpperCase()}
+                  {lang.toUpperCase()}
                 </span>
               </button>
 
@@ -346,7 +297,7 @@ export default function Header() {
               <Globe className="w-5 h-5 text-gray-600" />
               <span className="flex-1 text-left">{t.switchLanguage}</span>
               <span className="text-sm font-bold text-white bg-gray-600 px-3 py-1 rounded-lg shadow-md">
-                {language === "id" ? "EN" : "ID"}
+                {lang === "id" ? "EN" : "ID"}
               </span>
             </button>
           </div>

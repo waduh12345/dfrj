@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { fredoka, sniglet } from "@/lib/fonts";
 import {
   ShoppingCart,
   CreditCard,
@@ -275,27 +277,42 @@ export default function HowToOrderPage() {
           >
             <Sparkles className="w-4 h-4" style={{ color: THEME.primary }} />
             <span
-              className="text-sm font-medium"
+              className={cn(fredoka.className, "text-sm font-medium")}
               style={{ color: THEME.primary }}
             >
               Panduan Pemesanan
             </span>
           </div>
 
-          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+          <h1
+            className={cn(
+              fredoka.className,
+              "text-4xl lg:text-6xl font-bold text-gray-900 mb-6"
+            )}
+          >
             Cara Pesan di
             <span className="block" style={{ color: THEME.primary }}>
               COLORE
             </span>
           </h1>
 
-          <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
+          <p
+            className={cn(
+              sniglet.className,
+              "text-xl text-gray-700 max-w-3xl mx-auto mb-8"
+            )}
+          >
             Ikuti 6 langkah mudah untuk mendapatkan produk seni ramah lingkungan
             terbaik untuk anak Anda. Proses yang simple, aman, dan menyenangkan!
           </p>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div
+            className={cn(
+              sniglet.className,
+              "grid grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto"
+            )}
+          >
             {benefits.map((benefit, i) => (
               <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-center mb-3">{benefit.icon}</div>
@@ -313,11 +330,21 @@ export default function HowToOrderPage() {
       <section className="px-6 lg:px-12 mb-16">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2
+              className={cn(
+                fredoka.className,
+                "text-3xl lg:text-4xl font-bold text-gray-900 mb-4"
+              )}
+            >
               Langkah-langkah{" "}
               <span style={{ color: THEME.primary }}>Pemesanan</span>
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p
+              className={cn(
+                sniglet.className,
+                "text-gray-600 max-w-2xl mx-auto"
+              )}
+            >
               Proses pemesanan yang simple dan user-friendly, dirancang untuk
               kemudahan Anda
             </p>
@@ -529,10 +556,20 @@ export default function HowToOrderPage() {
         <div className="container mx-auto">
           <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-lg">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              <h2
+                className={cn(
+                  fredoka.className,
+                  "text-3xl font-bold text-gray-900 mb-4"
+                )}
+              >
                 Metode <span style={{ color: THEME.primary }}>Pembayaran</span>
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p
+                className={cn(
+                  sniglet.className,
+                  "text-gray-600 max-w-2xl mx-auto"
+                )}
+              >
                 Kami menyediakan berbagai metode pembayaran yang aman dan
                 terpercaya melalui gateway Midtrans
               </p>
@@ -561,10 +598,15 @@ export default function HowToOrderPage() {
               <div className="flex justify-center mb-4">
                 <Shield className="w-8 h-8" style={{ color: THEME.primary }} />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">
+              <h3
+                className={cn(
+                  fredoka.className,
+                  "font-semibold text-gray-900 mb-2 text-lg"
+                )}
+              >
                 Keamanan Terjamin
               </h3>
-              <p className="text-gray-600">
+              <p className={cn(sniglet.className, "text-gray-600")}>
                 Semua transaksi dilindungi enkripsi SSL 256-bit dan diproses
                 melalui Midtrans yang telah tersertifikasi PCI DSS Level 1
               </p>
@@ -584,8 +626,15 @@ export default function HowToOrderPage() {
             }}
           >
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-4">Butuh Bantuan?</h2>
-              <p className="text-white/90 max-w-2xl mx-auto">
+              <h2 className={cn(fredoka.className, "text-3xl font-bold mb-4")}>
+                Butuh Bantuan?
+              </h2>
+              <p
+                className={cn(
+                  sniglet.className,
+                  "text-white/90 max-w-2xl mx-auto"
+                )}
+              >
                 Tim Customer Services akan siap membantu fast response hari
                 Senin - Jumat jam 08.00 - 17.00 WIB. Jangan ragu untuk
                 menghubungi kami!
@@ -631,10 +680,20 @@ export default function HowToOrderPage() {
       <section className="px-6 lg:px-12 mb-16">
         <div className="container mx-auto">
           <div className="bg-white rounded-3xl p-8 lg:p-12 text-center shadow-lg">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2
+              className={cn(
+                fredoka.className,
+                "text-3xl lg:text-4xl font-bold text-gray-900 mb-4"
+              )}
+            >
               Yuk Mulai Belanja Sekarang
             </h2>
-            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p
+              className={cn(
+                sniglet.className,
+                "text-gray-600 mb-8 max-w-2xl mx-auto"
+              )}
+            >
               Jelajahi koleksi produk ramah lingkungan kami dan berikan yang
               terbaik untuk perkembangan kreativitas anak Anda.
             </p>
@@ -663,10 +722,20 @@ export default function HowToOrderPage() {
       <section className="px-6 lg:px-12 mb-16">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2
+              className={cn(
+                fredoka.className,
+                "text-3xl lg:text-4xl font-bold text-gray-900 mb-4"
+              )}
+            >
               Pertanyaan <span style={{ color: THEME.primary }}>Umum</span>
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p
+              className={cn(
+                sniglet.className,
+                "text-gray-600 max-w-2xl mx-auto"
+              )}
+            >
               Temukan jawaban untuk pertanyaan yang sering ditanyakan tentang
               proses pemesanan
             </p>

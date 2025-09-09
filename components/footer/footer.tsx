@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslation } from "@/hooks/use-translation";
+import id from "@/translations/footer/id";
+import en from "@/translations/footer/en";
 import {
   ChevronDown,
   ChevronUp,
@@ -26,6 +29,7 @@ import Image from "next/image";
 
 export default function Footer() {
   const router = useRouter();
+  const t = useTranslation({ id, en });
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [email, setEmail] = useState("");
 
@@ -49,20 +53,15 @@ export default function Footer() {
       answer:
         "Produk COLORE mudah dibersihkan dengan air hangat dan sabun lembut. Simpan di tempat kering dan sejuk, hindari paparan sinar matahari langsung untuk menjaga kualitas warna dan bahan.",
     },
-    // {
-    //   question: "Apakah ada garansi untuk produk yang rusak?",
-    //   answer:
-    //     "Kami memberikan garansi 30 hari untuk produk rusak atau cacat produksi. Hubungi customer service kami dengan foto produk untuk proses penggantian yang cepat dan mudah.",
-    // },
   ];
 
   const quickLinks = [
-    { name: "Beranda", href: "/" },
-    { name: "Tentang Kami", href: "/about" },
-    { name: "Produk", href: "/product" },
-    { name: "Galeri", href: "/gallery" },
-    { name: "Berita", href: "/news" },
-    { name: "Cara Pemesanan", href: "/how-to-order" },
+    { name: t["col-2-b"], href: "/" },
+    { name: t["col-2-c"], href: "/about" },
+    { name: t["col-2-d"], href: "/product" },
+    { name: t["col-2-e"], href: "/gallery" },
+    { name: t["col-2-f"], href: "/news" },
+    { name: t["col-2-g"], href: "/how-to-order" },
   ];
 
   const productCategories = [
@@ -113,24 +112,22 @@ export default function Footer() {
                 </div>
 
                 <p className="text-white leading-relaxed mb-6">
-                  Menciptakan masa depan yang lebih berwarna melalui produk seni
-                  dan kerajinan ramah lingkungan untuk mengembangkan kreativitas
-                  anak Indonesia.
+                  {t["col-1-a"]}
                 </p>
 
                 {/* Values */}
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center gap-2 text-sm">
                     <Leaf className="w-4 h-4 text-white" />
-                    <span>100% Ramah Lingkungan</span>
+                    <span>{t["col-1-b"]}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Shield className="w-4 h-4 text-white" />
-                    <span>Aman untuk Anak</span>
+                    <span>{t["col-1-c"]}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Award className="w-4 h-4 text-white" />
-                    <span>Tersertifikasi Internasional</span>
+                    <span>{t["col-1-d"]}</span>
                   </div>
                 </div>
 
@@ -156,7 +153,7 @@ export default function Footer() {
               {/* Quick Links */}
               <div>
                 <h4 className="text-lg font-semibold mb-6 text-white">
-                  Menu Utama
+                  {t["col-2-a"]}
                 </h4>
                 <ul className="space-y-3">
                   {quickLinks.map((link, index) => (
@@ -178,7 +175,7 @@ export default function Footer() {
               {/* Product Categories */}
               <div>
                 <h4 className="text-lg font-semibold mb-6 text-white">
-                  Kategori Produk
+                  {t["col-3-a"]}
                 </h4>
                 <ul className="space-y-3">
                   {productCategories.map((category, index) => (
@@ -201,16 +198,14 @@ export default function Footer() {
                   <h4 className="text-lg font-semibold mb-4 text-white">
                     Newsletter
                   </h4>
-                  <p className="text-white text-sm mb-4">
-                    Dapatkan tips kreatif dan info produk terbaru!
-                  </p>
+                  <p className="text-white text-sm mb-4">{t["col-3-b"]}</p>
                   <form onSubmit={handleNewsletterSubmit} className="space-y-3">
                     <div className="relative">
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Email Anda"
+                        placeholder={t["col-3-c"]}
                         className="w-full bg-white/10 border border-white/30 rounded-2xl px-4 py-3 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
                         required
                       />
@@ -220,7 +215,7 @@ export default function Footer() {
                       className="w-full bg-white text-[#A3B18A] py-3 rounded-2xl font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
                     >
                       <Send className="w-4 h-4" />
-                      Subscribe
+                      {t["col-3-d"]}
                     </button>
                   </form>
                 </div>
@@ -267,7 +262,7 @@ export default function Footer() {
                     type="button"
                     className="w-full bg-white text-[#A3B18A] py-3 rounded-2xl font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
                   >
-                    Punya Pertanyaan Lain?
+                    {t["col-4-a"]}
                   </button>
                 </div>
               </div>
@@ -281,7 +276,7 @@ export default function Footer() {
             <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
               {/* Social Media */}
               <div className="flex flex-col sm:flex-row items-center gap-6">
-                <p className="text-white text-sm">Ikuti kami di:</p>
+                <p className="text-white text-sm">{t["bottom-1"]}:</p>
                 <div className="flex gap-4">
                   <a className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-white hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500">
                     <FaInstagram size={18} />
