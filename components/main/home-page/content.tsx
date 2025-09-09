@@ -82,23 +82,23 @@ export default function HomePage() {
   // ====== Static content (tidak diubah) ======
   const features = [
     {
-      icon: <Leaf className="w-8 h-8 text-emerald-600" />,
+      icon: "/images/advantage/advantage-1.png",
       title: "100% Ramah Lingkungan",
       description: "Semua produk dibuat dari bahan daur ulang dan non-toxic",
     },
     {
-      icon: <Award className="w-8 h-8 text-amber-600" />,
+      icon: "/images/advantage/advantage-2.png",
       title: "Sertifikat Aman",
       description: "Tersertifikasi aman untuk anak-anak dari berbagai lembaga",
     },
     {
-      icon: <Heart className="w-8 h-8 text-pink-600" />,
+      icon: "/images/advantage/advantage-3.png",
       title: "Mengembangkan Kreativitas",
       description:
         "Dirancang khusus untuk mengasah imajinasi dan keterampilan anak",
     },
     {
-      icon: <Users className="w-8 h-8 text-cyan-600" />,
+      icon: "/images/advantage/advantage-4.png",
       title: "Aktivitas Bersama",
       description: "Perfect untuk bonding time keluarga dan aktivitas kelompok",
     },
@@ -204,7 +204,6 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 via-sky-400/30 to-[#DFF19D]"></div>
-
         <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full opacity-80 animate-pulse shadow-lg"></div>
         <div className="absolute bottom-32 right-16 w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full opacity-80 animate-pulse delay-1000 shadow-lg"></div>
         <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-gradient-to-br from-lime-500 to-green-500 rounded-full opacity-70 animate-pulse delay-500 shadow-lg"></div>
@@ -461,9 +460,11 @@ export default function HomePage() {
                 key={i}
                 className="group bg-white/70 backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-md transition-all"
               >
-                <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center shadow-sm mx-auto">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center shadow-sm mx-auto p-1">
                   {/* icon dari array features */}
-                  <div className="scale-110">{f.icon}</div>
+                  <div className="scale-110">
+                    <Image src={f.icon} width={100} height={100} alt="icon" />
+                  </div>
                 </div>
 
                 <h3 className="mt-5 text-center text-base font-semibold text-gray-900">
@@ -680,19 +681,26 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-emerald-600 via-teal-600 to-[#DFF19D] text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full"></div>
-          <div className="absolute bottom-20 right-20 w-24 h-24 bg-white rounded-full"></div>
-          <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-white rounded-full"></div>
-        </div>
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 via-sky-400/30 to-[#DFF19D]"></div>
+        <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full opacity-80 animate-pulse shadow-lg"></div>
+        <div className="absolute bottom-32 right-16 w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full opacity-80 animate-pulse delay-1000 shadow-lg"></div>
+        <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-gradient-to-br from-lime-500 to-green-500 rounded-full opacity-70 animate-pulse delay-500 shadow-lg"></div>
 
         <div className="container mx-auto px-6 lg:px-12 text-center relative z-10">
           <div className={`max-w-4xl mx-auto ${fredoka.className}`}>
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-              Yuk Mulai Perjalanan Kreatif Si Kecil Hari Ini!
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-gray-900">
+              Yuk Mulai Perjalanan{" "}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                Kreatif
+              </span>{" "}
+              Si{" "}
+              <span className="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
+                Kecil
+              </span>{" "}
+              Hari Ini!
             </h2>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl mb-8 max-w-2xl mx-auto text-gray-600">
               Bergabunglah bersama ribuan keluarga yang telah mempercayai COLORE
               untuk menumbuhkan kreativitas anak dengan cara yang aman,
               menyenangkan, dan ramah lingkungan
@@ -701,36 +709,36 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <button
                 onClick={() => router.push("/product")}
-                className="bg-white text-emerald-600 font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-all duration-300 inline-flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transform hover:scale-105"
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-all duration-300 inline-flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transform hover:scale-105"
               >
                 <ShoppingBag className="w-5 h-5" />
                 Mulai Belanja
               </button>
               <button
                 onClick={() => router.push("/about")}
-                className="bg-transparent text-white border-2 border-white font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-white hover:text-emerald-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="border-2 border-white font-semibold px-8 py-4 rounded-2xl text-lg bg-white text-emerald-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 Pelajari Lebih Lanjut
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-              <div className="flex flex-col items-center bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <TreePine className="w-12 h-12 mb-4" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center text-gray-600">
+              <div className="flex flex-col items-center bg-white/60 backdrop-blur-sm rounded-2xl p-6">
+                <TreePine className="w-12 h-12 mb-4 text-emerald-600" />
                 <h3 className="text-xl font-bold mb-2">Ramah Lingkungan</h3>
-                <p className="text-white/80">100% bahan daur ulang</p>
+                <p className="">100% bahan daur ulang</p>
               </div>
-              <div className="flex flex-col items-center bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <Shield className="w-12 h-12 mb-4" />
+              <div className="flex flex-col items-center bg-white/60 backdrop-blur-sm rounded-2xl p-6">
+                <Shield className="w-12 h-12 mb-4 text-amber-600" />
                 <h3 className="text-xl font-bold mb-2">Aman untuk Anak</h3>
-                <p className="text-white/80">Tersertifikasi internasional</p>
+                <p className="">Tersertifikasi internasional</p>
               </div>
-              <div className="flex flex-col items-center bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <Heart className="w-12 h-12 mb-4" />
+              <div className="flex flex-col items-center bg-white/60 backdrop-blur-sm rounded-2xl p-6">
+                <Heart className="w-12 h-12 mb-4 text-pink-600" />
                 <h3 className="text-xl font-bold mb-2">
                   Mengembangkan Kreativitas
                 </h3>
-                <p className="text-white/80">Dirancang oleh ahli pendidikan</p>
+                <p className="">Dirancang oleh ahli pendidikan</p>
               </div>
             </div>
           </div>
