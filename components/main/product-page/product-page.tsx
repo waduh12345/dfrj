@@ -13,6 +13,8 @@ import {
   Package,
 } from "lucide-react";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { fredoka, sniglet } from "@/lib/fonts";
 import { Product } from "@/types/admin/product";
 import {
   useGetProductListQuery,
@@ -178,30 +180,50 @@ export default function ProductsPage() {
       {/* ===================== Header / Hero (Tema #DFF19D + blend) ===================== */}
       <section className="relative pt-24 pb-12 px-6 lg:px-12 overflow-hidden bg-[#F6CCD0]">
         {/* layer blend background */}
-        {/* <div className="pointer-events-none absolute inset-0">
+        <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-24 -left-24 w-[40rem] h-[40rem] rounded-full bg-[#DFF19D] blur-3xl opacity-80" />
           <div className="absolute -top-10 right-[-10%] w-[28rem] h-[28rem] rounded-full bg-[#F6CCD0] blur-3xl opacity-40" />
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full bg-[#BFF0F5] blur-3xl opacity-40" />
-        </div> */}
+        </div>
 
         <div className="container mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-[#DFF19D]/20 px-4 py-2 rounded-full mb-6">
             <Sparkles className="w-4 h-4 text-[#DFF19D]" />
-            <span className="text-sm font-medium text-emerald-900">
+            <span
+              className={cn(
+                fredoka.className,
+                "text-sm font-medium text-emerald-900"
+              )}
+            >
               Produk Ramah Lingkungan
             </span>
           </div>
 
-          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+          <h1
+            className={cn(
+              fredoka.className,
+              "text-4xl lg:text-6xl font-bold text-gray-900 mb-6"
+            )}
+          >
             Koleksi Produk
             <span className="block text-emerald-800">COLORE</span>
           </h1>
 
-          <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
+          <p
+            className={cn(
+              sniglet.className,
+              "text-xl text-gray-700 max-w-3xl mx-auto mb-8"
+            )}
+          >
             Jelajahi koleksi lengkap produk seni dan kerajinan ramah lingkungan…
           </p>
 
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-700">
+          <div
+            className={cn(
+              fredoka.className,
+              "flex flex-wrap justify-center gap-4 text-sm text-gray-700"
+            )}
+          >
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-[#DFF19D] rounded-full" />
               <span>100% Ramah Lingkungan</span>
