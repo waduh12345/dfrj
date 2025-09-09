@@ -1,5 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import Footer from "@/components/footer/footer";
 import TopHeader from "@/components/header/top-header";
 import CartSidebar from "@/components/main/product-page/cart-sidebar";
@@ -18,32 +19,34 @@ export default function PagesLayout({
   const isWisataPage = pathname === "/wisata" || pathname === "/profile";
 
   return (
-    <div className="w-full bg-white">
-      {!isLoginPage && (
-        <header className="sticky top-0 z-50">
-          <TopHeader />
-        </header>
-      )}
+    <LanguageProvider>
+      <div className="w-full bg-white">
+        {!isLoginPage && (
+          <header className="sticky top-0 z-50">
+            <TopHeader />
+          </header>
+        )}
 
-      {/* Padding-top untuk menghindari content ketutupan header saat fixed */}
-      <main className={clsx(!isLoginPage && isWisataPage && "pt-20")}>
-        {children}
-      </main>
+        {/* Padding-top untuk menghindari content ketutupan header saat fixed */}
+        <main className={clsx(!isLoginPage && isWisataPage && "pt-20")}>
+          {children}
+        </main>
 
-      {/* Pass all necessary props to CartSidebar */}
-      <CartSidebar
-        isOpen={isOpen}
-        onClose={close}
-        items={cartItems} // Changed from 'cartItems' to 'items'
-        onRemove={removeItem}
-      />
+        {/* Pass all necessary props to CartSidebar */}
+        <CartSidebar
+          isOpen={isOpen}
+          onClose={close}
+          items={cartItems} // Changed from 'cartItems' to 'items'
+          onRemove={removeItem}
+        />
 
-      {!isLoginPage && (
-        <>
-          <ScrollToTopButton />
-          <Footer />
-        </>
-      )}
-    </div>
+        {!isLoginPage && (
+          <>
+            <ScrollToTopButton />
+            <Footer />
+          </>
+        )}
+      </div>
+    </LanguageProvider>
   );
 }

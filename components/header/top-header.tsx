@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { Menu, X, ShoppingCart, User, Globe } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import useCart from "@/hooks/use-cart";
@@ -26,6 +27,7 @@ interface Translations {
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { switchLang } = useLanguage();
   const [language, setLanguage] = useState<"id" | "en">("id");
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -124,6 +126,7 @@ export default function Header() {
   const toggleLanguage = () => {
     const newLang = language === "id" ? "en" : "id";
     setLanguage(newLang);
+    switchLang(newLang);
     if (typeof window !== "undefined") {
       localStorage.setItem("colore-language", newLang);
       window.dispatchEvent(

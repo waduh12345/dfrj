@@ -1,0 +1,56 @@
+const translations = {
+  "hero-title-1": "Color the Children's World",
+  "hero-title-2": "with",
+  "hero-title-3": "COLORE",
+  "hero-subtitle":
+    "Eco-friendly arts and crafts products that nurture children's creativity while preserving the earth for their future.",
+  "hero-cta": "Shop Now",
+  "hero-other-1": "Happy Families",
+  "hero-other-2": "Creative Products",
+  "sec-2-title-1": "Explore Product",
+  "sec-2-title-2": "Brands",
+  "sec-2-subtitle":
+    "Discover a variety of arts and crafts products specially designed to develop children's creativity in a fun and eco-friendly way.",
+  "sec-2-card-active": "Active",
+  "sec-2-card-inactive": "Inactive",
+  "sec-2-card-cta": "View Products",
+  "sec-3-title-1": "Why Choose",
+  "sec-3-title-2": "COLORE?",
+  "sec-3-subtitle":
+    "We are committed to providing the best for children with high-quality products that are safe and eco-friendly.",
+  "sec-3-item-1-title": "100% Eco-Friendly",
+  "sec-3-item-2-title": "Safety Certified",
+  "sec-3-item-3-title": "Boosts Creativity",
+  "sec-3-item-4-title": "Activities Together",
+  "sec-3-item-1-content":
+    "All products are made from recycled and non-toxic materials",
+  "sec-3-item-2-content": "Certified safe for children by various institutions",
+  "sec-3-item-3-content":
+    "Specifically designed to sharpen children's imagination and skills",
+  "sec-3-item-4-content":
+    "Perfect for family bonding time and group activities",
+  "sec-4-title-1": "Best",
+  "sec-4-title-2": "Sellers",
+  "sec-4-subtitle":
+    "Selected products most loved by children and parents across Indonesia.",
+  "sec-4-cta": "View All Products",
+  "sec-4-card-reviews": "Reviews",
+  "sec-4-card-cta": "Add to Cart",
+  "sec-5-title-1": "Let's Start a",
+  "sec-5-title-2": "Creative",
+  "sec-5-title-3": "Little",
+  "sec-5-title-4": "Journey",
+  "sec-5-title-5": "Today!",
+  "sec-5-subtitle":
+    "Join thousands of families who trust COLORE to nurture children's creativity in a safe, fun, and eco-friendly way.",
+  "sec-5-cta-1": "Start Shopping",
+  "sec-5-cta-2": "Learn More",
+  "sec-5-item-1-title": "Eco-Friendly",
+  "sec-5-item-2-title": "Safe for Children",
+  "sec-5-item-3-title": "Boosts Creativity",
+  "sec-5-item-1-content": "100% recycled materials",
+  "sec-5-item-2-content": "Internationally certified",
+  "sec-5-item-3-content": "Designed by education experts",
+};
+
+export default translations;

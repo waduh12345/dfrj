@@ -4,16 +4,16 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Star,
-  Leaf,
   Heart,
-  Users,
-  Award,
   ShoppingBag,
   ArrowRight,
   TreePine,
   Shield,
   CheckCircle,
 } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
+import en from "@/translations/home/en";
+import id from "@/translations/home/id";
 import { useCallback, useMemo, useState } from "react";
 import {
   Dialog,
@@ -38,6 +38,7 @@ import ImageCarousel from "./caraousel-hero";
 
 export default function HomePage() {
   const router = useRouter();
+  const t = useTranslation({ en, id });
 
   // ========== Local UI states ==========
   const [page, setPage] = useState<number>(1);
@@ -83,24 +84,23 @@ export default function HomePage() {
   const features = [
     {
       icon: "/images/advantage/advantage-1.png",
-      title: "100% Ramah Lingkungan",
-      description: "Semua produk dibuat dari bahan daur ulang dan non-toxic",
+      title: t["sec-3-item-1-title"],
+      description: t["sec-3-item-1-content"],
     },
     {
       icon: "/images/advantage/advantage-2.png",
-      title: "Sertifikat Aman",
-      description: "Tersertifikasi aman untuk anak-anak dari berbagai lembaga",
+      title: t["sec-3-item-2-title"],
+      description: t["sec-3-item-2-content"],
     },
     {
       icon: "/images/advantage/advantage-3.png",
-      title: "Mengembangkan Kreativitas",
-      description:
-        "Dirancang khusus untuk mengasah imajinasi dan keterampilan anak",
+      title: t["sec-3-item-3-title"],
+      description: t["sec-3-item-3-content"],
     },
     {
       icon: "/images/advantage/advantage-4.png",
-      title: "Aktivitas Bersama",
-      description: "Perfect untuk bonding time keluarga dan aktivitas kelompok",
+      title: t["sec-3-item-4-title"],
+      description: t["sec-3-item-4-content"],
     },
   ];
 
@@ -227,21 +227,19 @@ export default function HomePage() {
               <h1
                 className={`${fredoka.className} text-5xl lg:text-6xl font-semibold text-gray-900 leading-tight`}
               >
-                Warnai Dunia Anak
+                {t["hero-title-1"]}
                 <span className="block bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                  dengan
+                  {t["hero-title-2"]}
                 </span>
                 <span className="block bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
-                  COLORE
+                  {t["hero-title-3"]}
                 </span>
               </h1>
 
               <p
                 className={`text-xl text-gray-600 max-w-xl ${sniglet.className}`}
               >
-                Produk seni dan kerajinan ramah lingkungan yang mengembangkan
-                kreativitas anak sambil menjaga kelestarian bumi untuk masa
-                depan mereka.
+                {t["hero-subtitle"]}
               </p>
 
               <div className="flex flex-col sm:flex-row pt-4">
@@ -250,7 +248,7 @@ export default function HomePage() {
                   className="w-1/2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-8 py-4 rounded-2xl text-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 transform hover:scale-105"
                 >
                   <ShoppingBag className="w-5 h-5" />
-                  Belanja Sekarang
+                  {t["hero-cta"]}
                 </button>
               </div>
 
@@ -265,7 +263,7 @@ export default function HomePage() {
                     ))}
                   </div>
                   <span className="text-sm text-gray-600 font-semibold">
-                    1000+ Keluarga Puas
+                    1000+ {t["hero-other-1"]}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -306,7 +304,9 @@ export default function HomePage() {
               <div className="absolute -bottom-6 -left-6 bg-gradient-to-r from-pink-500 to-rose-500 p-6 rounded-2xl shadow-xl">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-white">50+</div>
-                  <div className="text-sm text-white/90">Produk Kreatif</div>
+                  <div className="text-sm text-white/90">
+                    {t["hero-other-2"]}
+                  </div>
                 </div>
               </div>
             </div>
@@ -319,15 +319,13 @@ export default function HomePage() {
         <div className="container mx-auto px-6 lg:px-12">
           <div className={`text-center mb-10 ${fredoka.className}`}>
             <h2 className="text-4xl lg:text-5xl font-semibold text-gray-900 mb-6">
-              Jelajahi Merk{" "}
+              {t["sec-2-title-1"]}{" "}
               <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                Produk
+                {t["sec-2-title-2"]}
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Temukan beragam produk seni dan kerajinan yang dirancang khusus
-              untuk mengembangkan kreativitas anak dengan cara yang menyenangkan
-              dan ramah lingkungan.
+              {t["sec-2-subtitle"]}
             </p>
           </div>
 
@@ -378,11 +376,11 @@ export default function HomePage() {
                             {Boolean(category.status) ? (
                               <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full text-xs font-semibold">
                                 <CheckCircle className="w-4 h-4" />
-                                Aktif
+                                {t["sec-2-card-active"]}
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-gray-600 bg-gray-100 px-2 py-1 rounded-full text-xs font-semibold">
-                                Nonaktif
+                                {t["sec-2-card-inactive"]}
                               </span>
                             )}
                           </div>
@@ -396,7 +394,7 @@ export default function HomePage() {
                               onClick={() => handleOpenDetail(category.slug)}
                               className="flex items-center text-emerald-600 font-semibold"
                             >
-                              <span>Lihat Produk</span>
+                              <span>{t["sec-2-card-cta"]}</span>
                               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </button>
                           </div>
@@ -443,15 +441,12 @@ export default function HomePage() {
             <h2
               className={`text-4xl lg:text-5xl font-extrabold text-gray-900 ${fredoka.className}`}
             >
-              Mengapa Pilih{" "}
+              {t["sec-3-title-1"]}{" "}
               <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                COLORE?
+                {t["sec-3-title-2"]}
               </span>
             </h2>
-            <p className="mt-4 text-gray-700">
-              Kami berkomitmen memberikan yang terbaik untuk anak-anak dengan
-              produk berkualitas tinggi yang aman dan ramah lingkungan.
-            </p>
+            <p className="mt-4 text-gray-700">{t["sec-2-subtitle"]}</p>
           </div>
 
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -562,14 +557,13 @@ export default function HomePage() {
         <div className="container mx-auto px-6 lg:px-12">
           <div className={`text-center mb-16 ${fredoka.className}`}>
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              Produk{" "}
+              {t["sec-4-title-1"]}{" "}
               <span className="bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
-                Terlaris
+                {t["sec-4-title-2"]}
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Produk pilihan yang paling disukai oleh anak-anak dan orang tua di
-              seluruh Indonesia.
+              {t["sec-4-subtitle"]}
             </p>
           </div>
 
@@ -641,7 +635,8 @@ export default function HomePage() {
                               ))}
                             </div>
                             <span className="text-sm text-gray-600">
-                              ({toInt(product.total_reviews)} ulasan)
+                              ({toInt(product.total_reviews)}{" "}
+                              {t["sec-4-card-reviews"]})
                             </span>
                           </div>
 
@@ -657,7 +652,7 @@ export default function HomePage() {
                             className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3 rounded-2xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
                           >
                             <ShoppingBag className="w-5 h-5" />
-                            Tambah ke Keranjang
+                            {t["sec-4-card-cta"]}
                           </button>
                         </div>
                       </div>
@@ -673,7 +668,7 @@ export default function HomePage() {
               onClick={() => router.push("/product")}
               className="bg-white text-emerald-600 border-2 border-emerald-600 font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 inline-flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              Lihat Semua Produk
+              {t["sec-4-cta"]}
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
@@ -690,20 +685,18 @@ export default function HomePage() {
         <div className="container mx-auto px-6 lg:px-12 text-center relative z-10">
           <div className={`max-w-4xl mx-auto ${fredoka.className}`}>
             <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-gray-900">
-              Yuk Mulai Perjalanan{" "}
+              {t["sec-5-title-1"]}{" "}
               <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                Kreatif
+                {t["sec-5-title-2"]}
               </span>{" "}
-              Si{" "}
+              {t["sec-5-title-3"]}{" "}
               <span className="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
-                Kecil
+                {t["sec-5-title-4"]}
               </span>{" "}
-              Hari Ini!
+              {t["sec-5-title-5"]}
             </h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto text-gray-600">
-              Bergabunglah bersama ribuan keluarga yang telah mempercayai COLORE
-              untuk menumbuhkan kreativitas anak dengan cara yang aman,
-              menyenangkan, dan ramah lingkungan
+              {t["sec-5-subtitle"]}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -712,33 +705,37 @@ export default function HomePage() {
                 className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-all duration-300 inline-flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transform hover:scale-105"
               >
                 <ShoppingBag className="w-5 h-5" />
-                Mulai Belanja
+                {t["sec-5-cta-1"]}
               </button>
               <button
                 onClick={() => router.push("/about")}
                 className="border-2 border-white font-semibold px-8 py-4 rounded-2xl text-lg bg-white text-emerald-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                Pelajari Lebih Lanjut
+                {t["sec-5-cta-2"]}
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center text-gray-600">
               <div className="flex flex-col items-center bg-white/60 backdrop-blur-sm rounded-2xl p-6">
                 <TreePine className="w-12 h-12 mb-4 text-emerald-600" />
-                <h3 className="text-xl font-bold mb-2">Ramah Lingkungan</h3>
-                <p className="">100% bahan daur ulang</p>
+                <h3 className="text-xl font-bold mb-2">
+                  {t["sec-5-item-1-title"]}
+                </h3>
+                <p className="">{t["sec-5-item-1-content"]}</p>
               </div>
               <div className="flex flex-col items-center bg-white/60 backdrop-blur-sm rounded-2xl p-6">
                 <Shield className="w-12 h-12 mb-4 text-amber-600" />
-                <h3 className="text-xl font-bold mb-2">Aman untuk Anak</h3>
-                <p className="">Tersertifikasi internasional</p>
+                <h3 className="text-xl font-bold mb-2">
+                  {t["sec-5-item-2-title"]}
+                </h3>
+                <p className="">{t["sec-5-item-2-content"]}</p>
               </div>
               <div className="flex flex-col items-center bg-white/60 backdrop-blur-sm rounded-2xl p-6">
                 <Heart className="w-12 h-12 mb-4 text-pink-600" />
                 <h3 className="text-xl font-bold mb-2">
-                  Mengembangkan Kreativitas
+                  {t["sec-5-item-3-title"]}
                 </h3>
-                <p className="">Dirancang oleh ahli pendidikan</p>
+                <p className="">{t["sec-5-item-3-content"]}</p>
               </div>
             </div>
           </div>
