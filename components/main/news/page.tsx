@@ -24,7 +24,7 @@ import {
   useGetNewsBySlugQuery,
 } from "@/services/public-news.service";
 import DotdLoader from "@/components/loader/3dot";
-import { sniglet } from "@/lib/fonts";
+import { fredoka, sniglet } from "@/lib/fonts";
 
 // ==== Utils ====
 const getImageUrl = (img: File | string) =>
@@ -346,18 +346,24 @@ export default function NewsPage() {
 
   // ===== Main News List View
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10">
+    <div
+      className={`min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 ${sniglet.className}`}
+    >
       {/* Header Section */}
-      <section className="pt-24 pb-12 px-6 lg:px-12">
+      <section className={`pt-24 pb-12 px-6 lg:px-12 ${sniglet.className}`}>
         <div className="container mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-6">
             <Sparkles className="w-4 h-4 text-[#A3B18A]" />
-            <span className={`text-sm font-medium text-[#A3B18A] ${sniglet.className}`}>
+            <span
+              className={`text-sm font-medium text-[#A3B18A] ${sniglet.className}`}
+            >
               {t["hero-badge"]}
             </span>
           </div>
 
-          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+          <h1
+            className={`text-4xl lg:text-6xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
+          >
             {t["hero-title-1"]}
             <span className="block text-[#A3B18A]">{t["hero-title-2"]}</span>
           </h1>
@@ -449,7 +455,9 @@ export default function NewsPage() {
                   <span className="text-[#A3B18A] font-semibold mb-3">
                     Berita
                   </span>
-                  <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 group-hover:text-[#A3B18A] transition-colors">
+                  <h2
+                    className={`text-3xl lg:text-4xl font-bold text-gray-900 mb-4 group-hover:text-[#A3B18A] transition-colors ${fredoka.className}`}
+                  >
                     {featured.title}
                   </h2>
                   <p className="text-gray-600 text-lg mb-6 leading-relaxed">
@@ -507,7 +515,7 @@ export default function NewsPage() {
       {!isLoading && (
         <section className="px-6 lg:px-12 mb-12">
           <div className="container mx-auto">
-            <div className="flex items-center justify-between mb-8">
+            <div className={`flex items-center justify-between mb-8 ${fredoka.className}`}>
               <h3 className="text-2xl font-bold text-gray-900">
                 {selectedCategory === "Semua"
                   ? t["header-title"]

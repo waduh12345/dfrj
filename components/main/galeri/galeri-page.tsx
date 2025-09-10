@@ -28,6 +28,7 @@ import {
   // useGetGalleryBySlugQuery, // tersedia bila nanti butuh detail per slug
 } from "@/services/gallery.service";
 import DotdLoader from "@/components/loader/3dot";
+import { fredoka, sniglet } from "@/lib/fonts";
 
 // Kategori untuk filter (UI)
 const categories = [
@@ -192,7 +193,9 @@ export default function GaleriPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10">
+    <div
+      className={`min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 ${sniglet.className}`}
+    >
       {/* Header Section */}
       <section className="pt-24 pb-12 px-6 lg:px-12 bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80">
         <div className="container mx-auto text-center text-white">
@@ -203,7 +206,9 @@ export default function GaleriPage() {
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl lg:text-6xl font-bold mb-6">
+          <h1
+            className={`text-4xl lg:text-6xl font-bold mb-6 ${fredoka.className}`}
+          >
             {t["hero-title-1"]}
             <span className="block">{t["hero-title-2"]}</span>
           </h1>
@@ -400,7 +405,9 @@ export default function GaleriPage() {
       <section className="px-6 lg:px-12 mb-12">
         <div className="container mx-auto">
           <div className="bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80 rounded-3xl p-8 text-white text-center">
-            <h3 className="text-3xl font-bold mb-6">{t["stats-title"]}</h3>
+            <h3 className={`text-4xl font-bold mb-8 ${fredoka.className}`}>
+              {t["stats-title"]}
+            </h3>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
                 <div className="text-4xl font-bold mb-2">500+</div>
@@ -433,7 +440,7 @@ export default function GaleriPage() {
       <section className="px-6 lg:px-12 mb-12">
         <div className="container mx-auto">
           <div className="bg-white rounded-3xl p-8 text-center shadow-lg border border-[#A3B18A]/10">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">
+            <h3 className={`text-4xl font-bold text-gray-900 mb-4 ${fredoka.className}`}>
               {t["cta-title"]}
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">

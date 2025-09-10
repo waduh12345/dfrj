@@ -46,6 +46,7 @@ import Swal from "sweetalert2";
 import { useSession } from "next-auth/react";
 import { useGetUserAddressListQuery } from "@/services/address.service";
 import type { Address } from "@/types/address";
+import { fredoka, sniglet } from "@/lib/fonts";
 
 const STORAGE_KEY = "cart-storage";
 
@@ -541,7 +542,9 @@ export default function CartPage() {
   // ===== Empty cart
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen w-full bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24">
+      <div
+        className={`min-h-screen w-full bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24 ${sniglet.className}`}
+      >
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-2xl mx-auto text-center py-20">
             <div className="w-32 h-32 bg-[#A3B18A]/10 rounded-full flex items-center justify-center mx-auto mb-8">
@@ -564,7 +567,7 @@ export default function CartPage() {
 
             {/* Related section tetap tampil saat kosong */}
             <div className="mt-16">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              <h2 className={`text-2xl font-bold text-gray-900 mb-6 ${fredoka.className}`}>
                 Produk Rekomendasi
               </h2>
               {isRelLoading && (
@@ -648,7 +651,9 @@ export default function CartPage() {
 
   // ===== Main cart page
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24">
+    <div
+      className={`min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24 ${sniglet.className}`}
+    >
       <div className="container mx-auto px-6 lg:px-12 pb-12">
         {/* Header */}
         <div className="mb-8">
@@ -669,7 +674,7 @@ export default function CartPage() {
                 Keranjang Belanja
               </span>
             </div>
-            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className={`text-4xl lg:text-5xl font-bold text-gray-900 mb-4 ${fredoka.className}`}>
               Produk <span className="text-[#A3B18A]">Pilihan Anda</span>
             </h1>
             <p className="text-gray-600 max-w-2xl mx-auto">

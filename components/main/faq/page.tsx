@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Sparkles, ChevronRight } from "lucide-react";
 import FaqItems from "./faq-items";
+import { fredoka, sniglet } from "@/lib/fonts";
 
 const FaqPage = () => {
   const [groupsActive, setGroupsActive] = useState<Array<number>>([]);
@@ -75,7 +76,9 @@ const FaqPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10">
+    <div
+      className={`min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 ${sniglet.className}`}
+    >
       {/* Header Section */}
       <section className="pt-24 pb-4 px-6 lg:px-12">
         <div className="container mx-auto text-center">
@@ -84,7 +87,7 @@ const FaqPage = () => {
             <span className="text-sm font-medium text-[#A3B18A]">FAQ</span>
           </div>
 
-          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className={`text-4xl lg:text-6xl font-bold text-gray-900 mb-6 ${fredoka.className}`}>
             Ada Pertanyaan?
           </h1>
 
