@@ -18,17 +18,14 @@ const translations = {
   "sec-3-title-2": "COLORE?",
   "sec-3-subtitle":
     "We are committed to providing the best for children with high-quality products that are safe and eco-friendly.",
-  "sec-3-item-1-title": "100% Eco-Friendly",
-  "sec-3-item-2-title": "Safety Certified",
-  "sec-3-item-3-title": "Boosts Creativity",
-  "sec-3-item-4-title": "Activities Together",
-  "sec-3-item-1-content":
-    "All products are made from recycled and non-toxic materials",
-  "sec-3-item-2-content": "Certified safe for children by various institutions",
-  "sec-3-item-3-content":
-    "Specifically designed to sharpen children's imagination and skills",
-  "sec-3-item-4-content":
-    "Perfect for family bonding time and group activities",
+  "sec-3-item-1-title": "Nature Colors",
+  "sec-3-item-2-title": "Connecting with Nature",
+  "sec-3-item-3-title": "Safe for Little Hands",
+  "sec-3-item-4-title": "Learn through Play",
+  "sec-3-item-1-content": "Utilizing natural materials",
+  "sec-3-item-2-content": "Connecting kids with nature through creativity",
+  "sec-3-item-3-content": "Non-toxic, safe for children and families",
+  "sec-3-item-4-content": "Ideal for both play and learning",
   "sec-4-title-1": "Best",
   "sec-4-title-2": "Sellers",
   "sec-4-subtitle":

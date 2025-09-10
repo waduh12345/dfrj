@@ -19,6 +19,7 @@ import {
   CheckCircle,
   Baby,
 } from "lucide-react";
+import { fredoka, sniglet } from "@/lib/fonts";
 
 export default function AboutPage() {
   const t = useTranslation({ id, en });
@@ -144,12 +145,16 @@ export default function AboutPage() {
             <div className="text-center lg:text-left space-y-8">
               <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full">
                 <Sparkles className="w-4 h-4 text-[#A3B18A]" />
-                <span className="text-sm font-medium text-[#A3B18A]">
+                <span
+                  className={`text-sm font-medium text-[#A3B18A] ${sniglet.className}`}
+                >
                   {t["hero-badge"]}
                 </span>
               </div>
 
-              <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+              <h1
+                className={`text-5xl lg:text-6xl font-semibold text-[#5B4A3B] leading-tight ${fredoka.className}`}
+              >
                 {t["hero-title-1"]}
                 <span className="block text-[#A3B18A]">
                   {t["hero-title-2"]}
@@ -159,11 +164,15 @@ export default function AboutPage() {
                 </span>
               </h1>
 
-              <p className="text-xl text-gray-600 leading-relaxed">
+              <p
+                className={`text-xl text-gray-600 leading-relaxed ${sniglet.className}`}
+              >
                 {t["hero-subtitle"]}
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div
+                className={`flex flex-col sm:flex-row gap-4 ${sniglet.className}`}
+              >
                 <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-lg">
                   <div className="w-12 h-12 bg-[#A3B18A] rounded-xl flex items-center justify-center">
                     <TreePine className="w-6 h-6 text-white" />
@@ -197,7 +206,7 @@ export default function AboutPage() {
             <div className="relative">
               <div className="relative w-full h-[600px] rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/api/placeholder/600/600"
+                  src="https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brtLyODtex0OYVvL2QeijZs4TN9tB6HcnbPodI"
                   alt="COLORE Art & Crafts Story"
                   fill
                   className="object-cover"
@@ -215,7 +224,11 @@ export default function AboutPage() {
                       ))}
                     </div>
                     <div>
-                      <div className="font-bold text-gray-900">5000+</div>
+                      <div
+                        className={`font-bold text-gray-900 ${sniglet.className}`}
+                      >
+                        5000+
+                      </div>
                       <div className="text-xs text-gray-600">
                         {t["hero-item-3-content"]}
                       </div>
@@ -229,7 +242,9 @@ export default function AboutPage() {
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-20 bg-gradient-to-r from-[#A3B18A]/5 to-[#DFF19D]/5">
+      <section
+        className={`py-20 bg-gradient-to-r from-[#A3B18A]/5 to-[#DFF19D]/5 ${sniglet.className}`}
+      >
         <div className="container mx-auto px-6 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Mission */}
@@ -238,7 +253,9 @@ export default function AboutPage() {
                 <div className="w-16 h-16 bg-[#A3B18A] rounded-2xl flex items-center justify-center">
                   <Target className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900">
+                <h2
+                  className={`text-3xl font-bold text-[#5B4A3B] ${fredoka.className}`}
+                >
                   {t["misi-title"]}
                 </h2>
               </div>
@@ -263,7 +280,9 @@ export default function AboutPage() {
                 <div className="w-16 h-16 bg-[#F6CCD0] rounded-2xl flex items-center justify-center">
                   <Eye className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900">
+                <h2
+                  className={`text-3xl font-bold text-[#5B4A3B] ${fredoka.className}`}
+                >
                   {t["visi-title"]}
                 </h2>
               </div>
@@ -286,10 +305,12 @@ export default function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 bg-white">
+      <section className={`py-20 bg-white ${sniglet.className}`}>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            <h2
+              className={`text-4xl lg:text-5xl font-bold text-[#5B4A3B] mb-6 ${fredoka.className}`}
+            >
               {t["value-title-1"]}{" "}
               <span className="text-[#A3B18A]">{t["value-title-2"]}</span>
             </h2>
@@ -322,10 +343,14 @@ export default function AboutPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-[#BFF0F5]/10 to-[#F6CCD0]/10">
+      <section
+        className={`py-20 bg-gradient-to-r from-[#BFF0F5]/10 to-[#F6CCD0]/10 ${sniglet.className}`}
+      >
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            <h2
+              className={`text-4xl lg:text-5xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
+            >
               {t["stats-title-1"]}{" "}
               <span className="text-[#A3B18A]">{t["stats-title-2"]}</span>
             </h2>
@@ -356,10 +381,12 @@ export default function AboutPage() {
       </section>
 
       {/* Timeline */}
-      <section className="py-20 bg-white">
+      <section className={`py-20 bg-white ${sniglet.className}`}>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            <h2
+              className={`text-4xl lg:text-5xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
+            >
               {t["journey-title-1"]}{" "}
               <span className="text-[#A3B18A]">{t["journey-title-2"]}</span>
             </h2>
@@ -406,10 +433,14 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="py-20 bg-gradient-to-r from-[#DFF19D]/10 to-[#BFF0F5]/10">
+      <section
+        className={`py-20 bg-gradient-to-r from-[#DFF19D]/10 to-[#BFF0F5]/10 ${sniglet.className}`}
+      >
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            <h2
+              className={`text-4xl lg:text-5xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
+            >
               {t["team-title-1"]}{" "}
               <span className="text-[#A3B18A]">{t["team-title-2"]}</span>
             </h2>
@@ -447,10 +478,12 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80 text-white">
+      <section
+        className={`py-20 bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80 text-white ${sniglet.className}`}
+      >
         <div className="container mx-auto px-6 lg:px-12 text-center">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+            <h2 className={`text-4xl lg:text-5xl font-bold mb-6 ${fredoka.className}`}>
               {t["cta-title"]}
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">

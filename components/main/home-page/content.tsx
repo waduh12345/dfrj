@@ -455,9 +455,9 @@ export default function HomePage() {
                 key={i}
                 className="group bg-white/70 backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-md transition-all"
               >
-                <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center shadow-sm mx-auto p-1">
+                <div className="w-32 h-32 rounded-2xl bg-emerald-50 flex items-center justify-center shadow-sm mx-auto p-1">
                   {/* icon dari array features */}
-                  <div className="scale-110">
+                  <div className="scale-130">
                     <Image src={f.icon} width={100} height={100} alt="icon" />
                   </div>
                 </div>

@@ -18,18 +18,17 @@ const translations = {
   "sec-3-title-2": "COLORE?",
   "sec-3-subtitle":
     "Kami berkomitmen memberikan yang terbaik untuk anak-anak dengan produk berkualitas tinggi yang aman dan ramah lingkungan.",
-  "sec-3-item-1-title": "100% Ramah Lingkungan",
-  "sec-3-item-2-title": "Sertifikat Aman",
-  "sec-3-item-3-title": "Mengembangkan Kreativitas",
-  "sec-3-item-4-title": "Aktivitas Bersama",
-  "sec-3-item-1-content":
-    "Semua produk dibuat dari bahan daur ulang dan non-toxic",
+  "sec-3-item-1-title": "Warna Alami",
+  "sec-3-item-2-title": "Terhubung dengan Alam",
+  "sec-3-item-3-title": "Menjaga Tangan si Kecil",
+  "sec-3-item-4-title": "Belajar Melalui Permainan",
+  "sec-3-item-1-content": "Memanfaatkan bahan-bahan alami",
   "sec-3-item-2-content":
-    "Tersertifikasi aman untuk anak-anak dari berbagai lembaga",
+    "Menghubungkan anak-anak dengan alam melalui kreativitas",
   "sec-3-item-3-content":
-    "Dirancang khusus untuk mengasah imajinasi dan keterampilan anak",
+    "Tidak Beracun, aman untuk anak dan keluarga",
   "sec-3-item-4-content":
-    "Perfect untuk bonding time keluarga dan aktivitas kelompok",
+    "Ideal Untuk Bermain dan Belajar",
   "sec-4-title-1": "Produk",
   "sec-4-title-2": "Terlaris",
   "sec-4-subtitle":
