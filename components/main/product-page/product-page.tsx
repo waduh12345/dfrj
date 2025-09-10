@@ -24,10 +24,14 @@ import DotdLoader from "@/components/loader/3dot";
 
 // ==== Cart (tanpa sidebar)
 import useCart from "@/hooks/use-cart";
+import { useTranslation } from "@/hooks/use-translation";
+import id from "@/translations/product/id";
+import en from "@/translations/product/en";
 
 type ViewMode = "grid" | "list";
 
 export default function ProductsPage() {
+  const t = useTranslation({ id, en });
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -195,7 +199,7 @@ export default function ProductsPage() {
                 "text-sm font-medium text-emerald-900"
               )}
             >
-              Produk Ramah Lingkungan
+              {t["hero-badge"]}
             </span>
           </div>
 
@@ -205,8 +209,10 @@ export default function ProductsPage() {
               "text-4xl lg:text-6xl font-bold text-gray-900 mb-6"
             )}
           >
-            Koleksi Produk
-            <span className="block text-emerald-800">COLORE</span>
+            {t["hero-title"]}
+            <span className="block text-emerald-800">
+              {t["hero-title-highlight"]}
+            </span>
           </h1>
 
           <p
@@ -215,7 +221,7 @@ export default function ProductsPage() {
               "text-xl text-gray-700 max-w-3xl mx-auto mb-8"
             )}
           >
-            Jelajahi koleksi lengkap produk seni dan kerajinan ramah lingkungan…
+            {t["hero-subtitle"]}
           </p>
 
           <div
@@ -226,15 +232,15 @@ export default function ProductsPage() {
           >
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-[#DFF19D] rounded-full" />
-              <span>100% Ramah Lingkungan</span>
+              <span>{t["hero-bullet-1"]}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-[#F6CCD0] rounded-full" />
-              <span>Aman untuk Anak</span>
+              <span>{t["hero-bullet-2"]}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-[#BFF0F5] rounded-full" />
-              <span>Tersertifikasi Internasional</span>
+              <span>{t["hero-bullet-3"]}</span>
             </div>
           </div>
         </div>
@@ -250,7 +256,7 @@ export default function ProductsPage() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Cari produk favorit anak..."
+                  placeholder={t["search-placeholder"]}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] focus:border-transparent"
@@ -266,7 +272,7 @@ export default function ProductsPage() {
                   }
                   className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
                 >
-                  <option value="all">Semua Kategori</option>
+                  <option value="all">{t["filter-category"]}</option>
                   {Array.from(
                     new Set(products.map((p) => p.category_name))
                   ).map((cat) => (
@@ -283,7 +289,7 @@ export default function ProductsPage() {
                   }
                   className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
                 >
-                  <option value="all">Semua Usia</option>
+                  <option value="all">{t["filter-age"]}</option>
                 </select>
 
                 <select
@@ -293,10 +299,10 @@ export default function ProductsPage() {
                   }
                   className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
                 >
-                  <option value="all">Semua Harga</option>
-                  <option value="under-100k">Di bawah 100k</option>
-                  <option value="100k-200k">100k - 200k</option>
-                  <option value="above-200k">Di atas 200k</option>
+                  <option value="all">{t["filter-price"]}</option>
+                  <option value="under-100k">{t["filter-price-under"]}</option>
+                  <option value="100k-200k">{t["filter-price-mid"]}</option>
+                  <option value="above-200k">{t["filter-price-above"]}</option>
                 </select>
 
                 <select
@@ -306,11 +312,11 @@ export default function ProductsPage() {
                   }
                   className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
                 >
-                  <option value="featured">Unggulan</option>
-                  <option value="newest">Terbaru</option>
-                  <option value="price-low">Harga: Rendah - Tinggi</option>
-                  <option value="price-high">Harga: Tinggi - Rendah</option>
-                  <option value="rating">Rating Tertinggi</option>
+                  <option value="featured">{t["filter-sort-featured"]}</option>
+                  <option value="newest">{t["filter-sort-newest"]}</option>
+                  <option value="price-low">{t["filter-sort-low"]}</option>
+                  <option value="price-high">{t["filter-sort-high"]}</option>
+                  <option value="rating">{t["filter-sort-rating"]}</option>
                 </select>
               </div>
 
@@ -352,14 +358,15 @@ export default function ProductsPage() {
               </div>
             ) : (
               <p className="text-gray-600">
-                Menampilkan {sortedProducts?.length ?? 0} dari{" "}
-                {products?.length ?? 0} produk
+                {t["list-showing"]
+                  .replace("{count}", String(sortedProducts?.length ?? 0))
+                  .replace("{total}", String(products?.length ?? 0))}
               </p>
             )}
           </div>
 
           {viewMode === "grid" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8">
               {sortedProducts.map((product) => {
                 const img = getImageUrl(product);
                 const ratingNum = toNumber(product.rating);
@@ -446,7 +453,7 @@ export default function ProductsPage() {
                           className="flex-1 bg-black/50 text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
                         >
                           <ShoppingCart className="w-5 h-5" />
-                          Add to Cart
+                          {t["list-add-cart"]}
                         </button>
                       </div>
                     </div>
@@ -548,7 +555,7 @@ export default function ProductsPage() {
                               className="px-6 py-3 bg-[#A3B18A] text-white rounded-2xl hover:bg-[#A3B18A]/90 transition-colors flex items-center gap-2"
                             >
                               <ShoppingCart className="w-5 h-5" />
-                              Add to Cart
+                              {t["list-add-cart"]}
                             </button>
                           </div>
                         </div>
@@ -567,11 +574,9 @@ export default function ProductsPage() {
                 <Package className="w-12 h-12 text-[#A3B18A]" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Produk tidak ditemukan
+                {t["empty-title"]}
               </h3>
-              <p className="text-gray-600 mb-6">
-                Coba ubah filter atau kata kunci pencarian Anda.
-              </p>
+              <p className="text-gray-600 mb-6">{t["empty-subtitle"]}</p>
               <button
                 onClick={() => {
                   setSearchTerm("");
@@ -584,7 +589,7 @@ export default function ProductsPage() {
                 }}
                 className="bg-[#A3B18A] text-white px-6 py-3 rounded-2xl hover:bg-[#A3B18A]/90 transition-colors"
               >
-                Reset Filter
+                {t["empty-reset"]}
               </button>
             </div>
           )}
@@ -601,7 +606,7 @@ export default function ProductsPage() {
                 onClick={() => setCurrentPage((prev) => prev - 1)}
                 className="px-6 py-3 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Previous
+                {t["pagination-prev"]}
               </button>
 
               <div className="flex gap-2">
@@ -627,7 +632,7 @@ export default function ProductsPage() {
                 onClick={() => setCurrentPage((prev) => prev + 1)}
                 className="px-6 py-3 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
+                {t["pagination-next"]}
               </button>
             </div>
           </div>
@@ -641,7 +646,7 @@ export default function ProductsPage() {
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Detail Produk
+                  {t["modal-title"]}
                 </h2>
                 <button
                   onClick={() => {
@@ -655,7 +660,7 @@ export default function ProductsPage() {
               </div>
 
               {isDetailError && (
-                <div className="text-red-600">Gagal memuat detail produk.</div>
+                <div className="text-red-600">{t["modal-error"]}</div>
               )}
 
               {isDetailLoading && (
@@ -714,15 +719,17 @@ export default function ProductsPage() {
 
                     <div className="space-y-3 mb-6">
                       <div className="flex items-center gap-3 text-sm text-gray-600">
-                        <span className="font-medium">Kategori:</span>
+                        <span className="font-medium">
+                          {t["modal-category"]}
+                        </span>
                         <span>{detailProduct.category_name}</span>
                       </div>
                       <div className="flex items-center gap-3 text-sm text-gray-600">
-                        <span className="font-medium">Merk Produk:</span>
+                        <span className="font-medium">{t["modal-brand"]}</span>
                         <span>{detailProduct.merk_name}</span>
                       </div>
                       <div className="flex items-center gap-3 text-sm text-gray-600">
-                        <span className="font-medium">Stok:</span>
+                        <span className="font-medium">{t["modal-stock"]}</span>
                         <span>{detailProduct.stock}</span>
                       </div>
                     </div>
@@ -737,7 +744,7 @@ export default function ProductsPage() {
                         className="flex-1 bg-[#A3B18A] text-white py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
                       >
                         <ShoppingCart className="w-5 h-5" />
-                        Tambah ke Keranjang
+                        {t["modal-add-cart"]}
                       </button>
                     </div>
                   </div>
