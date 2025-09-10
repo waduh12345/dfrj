@@ -19,6 +19,9 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useTranslation } from "@/hooks/use-translation";
+import id from "@/translations/auth/id";
+import en from "@/translations/auth/en";
 import { useRegisterMutation } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
 
@@ -46,6 +49,7 @@ type RegisterPayload = {
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslation({ id, en });
 
   const [isLogin, setIsLogin] = useState<boolean>(true);
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -172,12 +176,9 @@ export default function LoginPage() {
               <Lock className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Lupa Password?
+              {t["fp-title"]}
             </h2>
-            <p className="text-gray-600">
-              Masukkan email Anda dan kami akan mengirimkan link untuk reset
-              password
-            </p>
+            <p className="text-gray-600">{t["fp-subtitle"]}</p>
           </div>
 
           <form onSubmit={handleForgotPassword} className="space-y-6">
@@ -190,7 +191,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                  placeholder="Masukkan email Anda"
+                  placeholder={t["fp-email-placeholder"]}
                   required
                 />
               </div>
@@ -202,13 +203,13 @@ export default function LoginPage() {
                 onClick={() => setShowForgotPassword(false)}
                 className="flex-1 py-4 border border-gray-300 text-gray-700 rounded-2xl font-semibold hover:bg-gray-50 transition-colors"
               >
-                Batal
+                {t["fb-cancel-btn"]}
               </button>
               <button
                 type="submit"
                 className="flex-1 bg-[#A3B18A] text-white py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors"
               >
-                Kirim Link
+                {t["fb-send-btn"]}
               </button>
             </div>
           </form>
@@ -240,7 +241,7 @@ export default function LoginPage() {
               className="text-[#A3B18A] cursor-pointer shadow-lg border-[#A3B18A]/20 hover:bg-[#A3B18A]/10 hover:text-white transition-colors absolute -top-12 left-0"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
-              Kembali
+              {t["back-button"]}
             </Button>
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center">
@@ -254,44 +255,42 @@ export default function LoginPage() {
 
             <div className="mb-8">
               <h2 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
-                {isLogin
-                  ? "Selamat Datang Kembali!"
-                  : "Bergabung dengan COLORE"}
+                {isLogin ? t["left-login-title"] : t["left-register-title"]}
               </h2>
               <p className="text-white/90 text-lg">
                 {isLogin
-                  ? "Masuk untuk melanjutkan perjalanan kreatif anak Anda dengan produk ramah lingkungan terbaik."
-                  : "Daftar sekarang dan berikan yang terbaik untuk kreativitas si kecil dengan produk ramah lingkungan."}
+                  ? t["left-login-subtitle"]
+                  : t["left-register-subtitle"]}
               </p>
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Leaf className="w-6 h-6 text-white/90" />
-                <span className="text-white/90">100% Ramah Lingkungan</span>
+                <span className="text-white/90">{t["left-item-1"]}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Shield className="w-6 h-6 text-white/90" />
-                <span className="text-white/90">Aman untuk Anak</span>
+                <span className="text-white/90">{t["left-item-2"]}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Heart className="w-6 h-6 text-white/90" />
-                <span className="text-white/90">Mengembangkan Kreativitas</span>
+                <span className="text-white/90">{t["left-item-3"]}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/20">
               <div className="text-center">
                 <div className="text-2xl font-bold">5000+</div>
-                <div className="text-white/80 text-sm">Keluarga Puas</div>
+                <div className="text-white/80 text-sm">{t["left-stats-1"]}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">50+</div>
-                <div className="text-white/80 text-sm">Produk Kreatif</div>
+                <div className="text-white/80 text-sm">{t["left-stats-2"]}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">4.9</div>
-                <div className="text-white/80 text-sm">Rating</div>
+                <div className="text-white/80 text-sm">{t["left-stats-3"]}</div>
               </div>
             </div>
           </div>
@@ -304,16 +303,16 @@ export default function LoginPage() {
               <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-4">
                 <Sparkles className="w-4 h-4 text-[#A3B18A]" />
                 <span className="text-sm font-medium text-[#A3B18A]">
-                  {isLogin ? "Masuk Akun" : "Daftar Baru"}
+                  {isLogin ? t["right-login-badge"] : t["right-register-badge"]}
                 </span>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                {isLogin ? "Masuk ke Akun Anda" : "Buat Akun Baru"}
+                {isLogin ? t["right-login-title"] : t["right-register-title"]}
               </h3>
               <p className="text-gray-600">
                 {isLogin
-                  ? "Masukkan email dan password untuk melanjutkan"
-                  : "Lengkapi data di bawah untuk membuat akun"}
+                  ? t["right-login-subtitle"]
+                  : t["right-register-subtitle"]}
               </p>
             </div>
 
@@ -405,7 +404,7 @@ export default function LoginPage() {
                       className="w-4 h-4 text-[#A3B18A] border-gray-300 rounded focus:ring-[#A3B18A]"
                     />
                     <span className="ml-2 text-sm text-gray-600">
-                      Ingat saya
+                      {t["remember-me"]}
                     </span>
                   </label>
                   <button
@@ -413,7 +412,7 @@ export default function LoginPage() {
                     onClick={() => setShowForgotPassword(true)}
                     className="text-sm text-[#A3B18A] hover:underline"
                   >
-                    Lupa password?
+                    {t["forgot-password"]}
                   </button>
                 </div>
 
@@ -429,7 +428,7 @@ export default function LoginPage() {
                     </>
                   ) : (
                     <>
-                      Masuk
+                      {t["login-cta"]}
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
@@ -578,16 +577,16 @@ export default function LoginPage() {
                     className="w-4 h-4 text-[#A3B18A] border-gray-300 rounded focus:ring-[#A3B18A] mt-1"
                   />
                   <label htmlFor="terms" className="ml-3 text-sm text-gray-600">
-                    Saya setuju dengan{" "}
+                    {t["terms-1"]}{" "}
                     <a href="/terms" className="text-[#A3B18A] hover:underline">
-                      Syarat & Ketentuan
+                      {t["terms-2"]}
                     </a>{" "}
-                    dan{" "}
+                    {t["terms-3"]}{" "}
                     <a
                       href="/privacy"
                       className="text-[#A3B18A] hover:underline"
                     >
-                      Kebijakan Privasi
+                      {t["terms-4"]}
                     </a>
                   </label>
                 </div>
@@ -604,7 +603,7 @@ export default function LoginPage() {
                     </>
                   ) : (
                     <>
-                      Daftar Sekarang
+                      {t["register-cta"]}
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
@@ -614,7 +613,7 @@ export default function LoginPage() {
 
             <div className="mt-8 text-center">
               <p className="text-gray-600">
-                {isLogin ? "Belum punya akun?" : "Sudah punya akun?"}{" "}
+                {isLogin ? t["not-have-account"] : t["have-account"]}{" "}
                 <button
                   onClick={() => {
                     setIsLogin((v) => !v);
@@ -623,7 +622,7 @@ export default function LoginPage() {
                   }}
                   className="text-[#A3B18A] font-semibold hover:underline"
                 >
-                  {isLogin ? "Daftar di sini" : "Masuk di sini"}
+                  {isLogin ? t["regsiter-here"] : t["login-here"]}
                 </button>
               </p>
             </div>
@@ -636,7 +635,7 @@ export default function LoginPage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <CheckCircle className="w-4 h-4 text-[#A3B18A]" />
-                  <span>Data Terlindungi</span>
+                  <span>{t["data-save"]}</span>
                 </div>
               </div>
             </div>

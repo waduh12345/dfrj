@@ -1,0 +1,42 @@
+const translations = {
+  "back-button": "Back",
+  "left-login-title": "Welcome Back!",
+  "left-register-title": "Join COLORE",
+  "left-login-subtitle":
+    "Log in to continue your child’s creative journey with the best eco-friendly products.",
+  "left-register-subtitle":
+    "Sign up now and give the best for your child’s creativity with eco-friendly products.",
+  "left-item-1": "100% Eco-Friendly",
+  "left-item-2": "Child-Safe",
+  "left-item-3": "Boosts Creativity",
+  "left-stats-1": "Happy Families",
+  "left-stats-2": "Creative Products",
+  "left-stats-3": "Rating",
+  "fp-title": "Forgot Password",
+  "fp-subtitle":
+    "Enter your email and we will send you a link to reset your password",
+  "fp-email-placeholder": "Enter your email",
+  "fb-cancel-btn": "Cancel",
+  "fb-send-btn": "Send Link",
+  "right-login-badge": "Login",
+  "right-register-badge": "Sign Up",
+  "right-login-title": "Log in to Your Account",
+  "right-register-title": "Create a New Account",
+  "right-login-subtitle": "Enter your email and password to continue",
+  "right-register-subtitle": "Fill in the details below to create an account",
+  "remember-me": "Remember me",
+  "forgot-password": "Forgot password?",
+  "login-cta": "Login",
+  "not-have-account": "Don't have an account?",
+  "regsiter-here": "Register here",
+  "data-save": "Data Protected",
+  "terms-1": "I agree to the",
+  "terms-2": "Terms & Conditions",
+  "terms-3": "and",
+  "terms-4": "Privacy Policy",
+  "register-cta": "Register Now",
+  "have-account": "Already have an account?",
+  "login-here": "Login here",
+};
+
+export default translations;

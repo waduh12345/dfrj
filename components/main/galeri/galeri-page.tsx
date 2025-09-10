@@ -2,6 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import { useTranslation } from "@/hooks/use-translation";
+import id from "@/translations/gallery/id";
+import en from "@/translations/gallery/en";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Palette,
   Scissors,
@@ -146,6 +150,8 @@ function GaleriModal({ isOpen, onClose, item }: GaleriModalProps) {
 }
 
 export default function GaleriPage() {
+  const t = useTranslation({ id, en });
+  const { lang } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [selectedItem, setSelectedItem] = useState<GaleriCard | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -193,34 +199,33 @@ export default function GaleriPage() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-6">
             <Sparkles className="w-4 h-4 text-white" />
-            <span className="text-sm font-medium">Galeri COLORE</span>
+            <span className="text-sm font-medium">{t["hero-badge"]}</span>
           </div>
 
           {/* Title */}
           <h1 className="text-4xl lg:text-6xl font-bold mb-6">
-            Momen Kreatif
-            <span className="block">Bersama COLORE</span>
+            {t["hero-title-1"]}
+            <span className="block">{t["hero-title-2"]}</span>
           </h1>
 
           {/* Subtitle */}
           <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
-            Dokumentasi kegiatan seru, workshop edukatif, dan produk ramah
-            lingkungan yang mengembangkan kreativitas ribuan anak Indonesia.
+            {t["hero-subtitle"]}
           </p>
 
           {/* Tags */}
           <div className="flex flex-wrap justify-center gap-4 text-sm">
             <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full shadow-sm">
               <div className="w-3 h-3 rounded-full bg-[#DFF19D]"></div>
-              <span>Workshop Kreatif</span>
+              <span>{t["hero-item-1"]}</span>
             </div>
             <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full shadow-sm">
               <div className="w-3 h-3 rounded-full bg-[#F6CCD0]"></div>
-              <span>Produk Ramah Lingkungan</span>
+              <span>{t["hero-item-2"]}</span>
             </div>
             <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full shadow-sm">
               <div className="w-3 h-3 rounded-full bg-[#BFF0F5]"></div>
-              <span>Event Edukatif</span>
+              <span>{t["hero-item-3"]}</span>
             </div>
           </div>
         </div>
@@ -233,7 +238,7 @@ export default function GaleriPage() {
             <div className="flex items-center gap-3 mb-4">
               <Filter className="w-5 h-5 text-[#A3B18A]" />
               <h3 className="text-lg font-semibold text-gray-900">
-                Filter Kategori
+                {t["category-filter"]}
               </h3>
             </div>
 
@@ -272,12 +277,12 @@ export default function GaleriPage() {
               </div>
             ) : isError ? (
               <div className="flex items-center gap-3">
-                <p className="text-red-600">Gagal memuat galeri.</p>
+                <p className="text-red-600">{t["error-info"]}</p>
                 <button
                   onClick={() => refetch()}
                   className="px-3 py-1.5 rounded-xl border text-sm"
                 >
-                  Coba lagi
+                  {t["error-cta"]}
                 </button>
               </div>
             ) : (
@@ -377,16 +382,14 @@ export default function GaleriPage() {
                 <Camera className="w-12 h-12 text-[#A3B18A]" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Belum ada foto
+                {t["empty-title"]}
               </h3>
-              <p className="text-gray-600 mb-6">
-                Foto untuk kategori ini belum tersedia.
-              </p>
+              <p className="text-gray-600 mb-6">{t["empty-subtile"]}</p>
               <button
                 onClick={() => setSelectedCategory("Semua")}
                 className="bg-[#A3B18A] text-white px-6 py-3 rounded-2xl hover:bg-[#A3B18A]/90 transition-colors"
               >
-                Lihat Semua Foto
+                {t["empty-cta"]}
               </button>
             </div>
           )}
@@ -397,7 +400,7 @@ export default function GaleriPage() {
       <section className="px-6 lg:px-12 mb-12">
         <div className="container mx-auto">
           <div className="bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80 rounded-3xl p-8 text-white text-center">
-            <h3 className="text-3xl font-bold mb-6">Kreativitas Tanpa Batas</h3>
+            <h3 className="text-3xl font-bold mb-6">{t["stats-title"]}</h3>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
                 <div className="text-4xl font-bold mb-2">500+</div>
@@ -405,15 +408,21 @@ export default function GaleriPage() {
               </div>
               <div>
                 <div className="text-4xl font-bold mb-2">50+</div>
-                <div className="text-white/90">Produk</div>
+                <div className="text-white/90">
+                  {lang === "id" ? "Produk" : "Product"}
+                </div>
               </div>
               <div>
                 <div className="text-4xl font-bold mb-2">1000+</div>
-                <div className="text-white/90">Anak Bahagia</div>
+                <div className="text-white/90">
+                  {lang === "id" ? "Anak Bahagia" : "Happy Child"}
+                </div>
               </div>
               <div>
                 <div className="text-4xl font-bold mb-2">100%</div>
-                <div className="text-white/90">Ramah Lingkungan</div>
+                <div className="text-white/90">
+                  {lang === "id" ? "Ramah Lingkungan" : "ECO Friendly"}
+                </div>
               </div>
             </div>
           </div>
@@ -425,20 +434,18 @@ export default function GaleriPage() {
         <div className="container mx-auto">
           <div className="bg-white rounded-3xl p-8 text-center shadow-lg border border-[#A3B18A]/10">
             <h3 className="text-3xl font-bold text-gray-900 mb-4">
-              Bergabung dengan Komunitas Kreatif
+              {t["cta-title"]}
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Daftarkan anak Anda untuk workshop berikutnya dan saksikan
-              kreativitas mereka berkembang dengan produk-produk ramah
-              lingkungan dari COLORE.
+              {t["cta-subtitle"]}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-[#A3B18A] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2">
                 <Users className="w-5 h-5" />
-                Daftar Workshop
+                {t["cta-btn-1"]}
               </button>
               <button className="border border-[#A3B18A] text-[#A3B18A] px-8 py-4 rounded-2xl font-semibold hover:bg-[#A3B18A] hover:text-white transition-colors">
-                Lihat Produk
+                {t["cta-btn-2"]}
               </button>
             </div>
           </div>

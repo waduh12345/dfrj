@@ -1,0 +1,42 @@
+const translations = {
+  "back-button": "Kembali",
+  "left-login-title": "Selamat Datang Kembali!",
+  "left-register-title": "Bergabung dengan COLORE",
+  "left-login-subtitle":
+    "Masuk untuk melanjutkan perjalanan kreatif anak Anda dengan produk ramah lingkungan terbaik.",
+  "left-register-subtitle":
+    "Daftar sekarang dan berikan yang terbaik untuk kreativitas si kecil dengan produk ramah lingkungan.",
+  "left-item-1": "100% Ramah Lingkungan",
+  "left-item-2": "Aman untuk Anak",
+  "left-item-3": "Mengembangkan Kreativitas",
+  "left-stats-1": "Keluarga Puas",
+  "left-stats-2": "Produk Kreatif",
+  "left-stats-3": "Rating",
+  "fp-title": "Lupa Password",
+  "fp-subtitle":
+    "Masukkan email Anda dan kami akan mengirimkan link untuk reset password",
+  "fp-email-placeholder": "Masukkan email Anda",
+  "fb-cancel-btn": "Batal",
+  "fb-send-btn": "Kirim Link",
+  "right-login-badge": "Masuk Akun",
+  "right-register-badge": "Daftar Baru",
+  "right-login-title": "Masuk ke Akun Anda",
+  "right-register-title": "Buat Akun Baru",
+  "right-login-subtitle": "Masukkan email dan password untuk melanjutkan",
+  "right-register-subtitle": "Lengkapi data di bawah untuk membuat akun",
+  "remember-me": "Ingat saya",
+  "forgot-password": "Lupa password?",
+  "login-cta": "Masuk",
+  "not-have-account": "Belum punya akun?",
+  "regsiter-here": "Daftar di sini",
+  "data-save": "Data Terlindungi",
+  "terms-1": "Saya setuju dengan",
+  "terms-2": "Syarat & Ketentuan",
+  "terms-3": "dan",
+  "terms-4": "Kebijakan Privasi",
+  "register-cta": "Daftar Sekarang",
+  "have-account": "Sudah punya akun?",
+  "login-here": "Masuk di sini",
+};
+
+export default translations;
