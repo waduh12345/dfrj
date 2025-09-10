@@ -4,6 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { fredoka, sniglet } from "@/lib/fonts";
+import { useTranslation } from "@/hooks/use-translation";
+import { useLanguage } from "@/contexts/LanguageContext";
+import id from "@/translations/how-to-order/id";
+import en from "@/translations/how-to-order/en";
 import {
   ShoppingCart,
   CreditCard,
@@ -40,6 +44,8 @@ interface FAQ {
 }
 
 export default function HowToOrderPage() {
+  const { lang } = useLanguage();
+  const t = useTranslation({ id, en });
   const [activeStep, setActiveStep] = useState(1);
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
 
@@ -50,153 +56,307 @@ export default function HowToOrderPage() {
     bubbleB: "#BFF0F5",
   };
 
-  const orderSteps: Step[] = [
-    {
-      id: 1,
-      title: "Pilih Produk Favorit",
-      description:
-        "Jelajahi koleksi produk ramah lingkungan dan pilih yang sesuai untuk anak Anda",
-      details: [
-        "Browse kategori produk (Art Supplies, Craft Kits, Educational Toys)",
-        "Gunakan filter usia untuk menemukan produk yang tepat",
-        "Baca detail produk dan review dari orang tua lain",
-        "Klik 'Tambah ke Keranjang' untuk produk pilihan",
-      ],
-      icon: <ShoppingCart className="w-8 h-8" />,
-      image: "/api/placeholder/500/400",
-      tips: [
-        "Gunakan filter usia untuk hasil yang lebih akurat",
-        "Baca review produk untuk insight dari orang tua lain",
-        "Cek badge 'Eco-Friendly' untuk produk ramah lingkungan",
-      ],
-    },
-    {
-      id: 2,
-      title: "Review Keranjang Belanja",
-      description:
-        "Periksa kembali produk pilihan dan jumlah pesanan sebelum checkout",
-      details: [
-        "Klik icon keranjang di header untuk melihat daftar produk",
-        "Ubah quantity atau hapus produk jika diperlukan",
-        "Cek total harga dan estimasi ongkos kirim",
-        "Klik 'Checkout' untuk melanjutkan pemesanan",
-      ],
-      icon: <Package className="w-8 h-8" />,
-      image: "/api/placeholder/500/400",
-      tips: [
-        "Manfaatkan free shipping untuk pembelian di atas Rp 250.000",
-        "Cek kode promo yang tersedia",
-        "Pastikan semua produk masih tersedia",
-      ],
-    },
-    {
-      id: 3,
-      title: "Isi Data Pengiriman",
-      description:
-        "Lengkapi informasi pengiriman dan kontak untuk proses delivery",
-      details: [
-        "Isi nama lengkap dan nomor telepon yang bisa dihubungi",
-        "Masukkan alamat lengkap dengan detail patokan",
-        "Pilih metode pengiriman yang diinginkan",
-        "Tambahkan catatan khusus jika diperlukan",
-      ],
-      icon: <User className="w-8 h-8" />,
-      image: "/api/placeholder/500/400",
-      tips: [
-        "Pastikan nomor telepon aktif untuk koordinasi pengiriman",
-        "Tulis alamat selengkap mungkin termasuk patokan",
-        "Simpan alamat untuk kemudahan pemesanan berikutnya",
-      ],
-    },
-    {
-      id: 4,
-      title: "Pilih Metode Pembayaran",
-      description:
-        "Proses pembayaran aman menggunakan gateway Midtrans yang terpercaya",
-      details: [
-        "Pilih metode pembayaran: Transfer Bank, E-Wallet, atau Virtual Account",
-        "Sistem akan redirect ke halaman pembayaran Midtrans",
-        "Ikuti instruksi pembayaran sesuai metode yang dipilih",
-        "Konfirmasi pembayaran akan diterima otomatis",
-      ],
-      icon: <CreditCard className="w-8 h-8" />,
-      image: "/api/placeholder/500/400",
-      tips: [
-        "Semua metode pembayaran aman dan terenkripsi",
-        "Simpan bukti pembayaran untuk referensi",
-        "Konfirmasi pembayaran biasanya dalam 1-5 menit",
-      ],
-    },
-    {
-      id: 5,
-      title: "Pesanan Berhasil",
-      description: "Pesanan dikonfirmasi dan akan diproses untuk pengiriman",
-      details: [
-        "Anda akan menerima email konfirmasi pesanan",
-        "Pesanan akan diproses dalam 1-2 hari kerja",
-        "Update status pengiriman akan dikirim via WhatsApp/Email",
-        "Estimasi pengiriman 3-7 hari kerja",
-      ],
-      icon: <CheckCircle className="w-8 h-8" />,
-      image: "/api/placeholder/500/400",
-      tips: [
-        "Simpan nomor pesanan untuk tracking",
-        "Cek email dan WhatsApp untuk update status",
-        "Hubungi customer service jika ada pertanyaan",
-      ],
-    },
-    {
-      id: 6,
-      title: "Cek Status Pesanan",
-      description: "Monitor progress pesanan melalui halaman profile Anda",
-      details: [
-        "Login ke akun COLORE Anda",
-        "Buka menu 'Profile' → 'Pesanan Saya'",
-        "Lihat status real-time dari pesanan",
-        "Download invoice atau berikan review produk",
-      ],
-      icon: <Truck className="w-8 h-8" />,
-      image: "/api/placeholder/500/400",
-      tips: [
-        "Status akan update otomatis saat ada perubahan",
-        "Gunakan nomor resi untuk tracking di expedisi",
-        "Berikan review setelah produk diterima",
-      ],
-    },
-  ];
+  const orderStepsTranslation: Record<"id" | "en", Step[]> = {
+    id: [
+      {
+        id: 1,
+        title: "Pilih Produk Favorit",
+        description:
+          "Jelajahi koleksi produk ramah lingkungan dan pilih yang sesuai untuk anak Anda",
+        details: [
+          "Browse kategori produk (Art Supplies, Craft Kits, Educational Toys)",
+          "Gunakan filter usia untuk menemukan produk yang tepat",
+          "Baca detail produk dan review dari orang tua lain",
+          "Klik 'Tambah ke Keranjang' untuk produk pilihan",
+        ],
+        icon: <ShoppingCart className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Gunakan filter usia untuk hasil yang lebih akurat",
+          "Baca review produk untuk insight dari orang tua lain",
+          "Cek badge 'Eco-Friendly' untuk produk ramah lingkungan",
+        ],
+      },
+      {
+        id: 2,
+        title: "Review Keranjang Belanja",
+        description:
+          "Periksa kembali produk pilihan dan jumlah pesanan sebelum checkout",
+        details: [
+          "Klik icon keranjang di header untuk melihat daftar produk",
+          "Ubah quantity atau hapus produk jika diperlukan",
+          "Cek total harga dan estimasi ongkos kirim",
+          "Klik 'Checkout' untuk melanjutkan pemesanan",
+        ],
+        icon: <Package className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Manfaatkan free shipping untuk pembelian di atas Rp 250.000",
+          "Cek kode promo yang tersedia",
+          "Pastikan semua produk masih tersedia",
+        ],
+      },
+      {
+        id: 3,
+        title: "Isi Data Pengiriman",
+        description:
+          "Lengkapi informasi pengiriman dan kontak untuk proses delivery",
+        details: [
+          "Isi nama lengkap dan nomor telepon yang bisa dihubungi",
+          "Masukkan alamat lengkap dengan detail patokan",
+          "Pilih metode pengiriman yang diinginkan",
+          "Tambahkan catatan khusus jika diperlukan",
+        ],
+        icon: <User className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Pastikan nomor telepon aktif untuk koordinasi pengiriman",
+          "Tulis alamat selengkap mungkin termasuk patokan",
+          "Simpan alamat untuk kemudahan pemesanan berikutnya",
+        ],
+      },
+      {
+        id: 4,
+        title: "Pilih Metode Pembayaran",
+        description:
+          "Proses pembayaran aman menggunakan gateway Midtrans yang terpercaya",
+        details: [
+          "Pilih metode pembayaran: Transfer Bank, E-Wallet, atau Virtual Account",
+          "Sistem akan redirect ke halaman pembayaran Midtrans",
+          "Ikuti instruksi pembayaran sesuai metode yang dipilih",
+          "Konfirmasi pembayaran akan diterima otomatis",
+        ],
+        icon: <CreditCard className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Semua metode pembayaran aman dan terenkripsi",
+          "Simpan bukti pembayaran untuk referensi",
+          "Konfirmasi pembayaran biasanya dalam 1-5 menit",
+        ],
+      },
+      {
+        id: 5,
+        title: "Pesanan Berhasil",
+        description: "Pesanan dikonfirmasi dan akan diproses untuk pengiriman",
+        details: [
+          "Anda akan menerima email konfirmasi pesanan",
+          "Pesanan akan diproses dalam 1-2 hari kerja",
+          "Update status pengiriman akan dikirim via WhatsApp/Email",
+          "Estimasi pengiriman 3-7 hari kerja",
+        ],
+        icon: <CheckCircle className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Simpan nomor pesanan untuk tracking",
+          "Cek email dan WhatsApp untuk update status",
+          "Hubungi customer service jika ada pertanyaan",
+        ],
+      },
+      {
+        id: 6,
+        title: "Cek Status Pesanan",
+        description: "Monitor progress pesanan melalui halaman profile Anda",
+        details: [
+          "Login ke akun COLORE Anda",
+          "Buka menu 'Profile' → 'Pesanan Saya'",
+          "Lihat status real-time dari pesanan",
+          "Download invoice atau berikan review produk",
+        ],
+        icon: <CheckCircle className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Status akan update otomatis saat ada perubahan",
+          "Gunakan nomor resi untuk tracking di expedisi",
+          "Berikan review setelah produk diterima",
+        ],
+      },
+    ],
+    en: [
+      {
+        id: 1,
+        title: "Choose Your Favorite Product",
+        description:
+          "Explore our eco-friendly product collection and pick the best fit for your child",
+        details: [
+          "Browse product categories (Art Supplies, Craft Kits, Educational Toys)",
+          "Use the age filter to find the right product",
+          "Read product details and reviews from other parents",
+          "Click 'Add to Cart' for your chosen items",
+        ],
+        icon: <ShoppingCart className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Use the age filter for more accurate results",
+          "Check product reviews for insights from other parents",
+          "Look for the 'Eco-Friendly' badge for green products",
+        ],
+      },
+      {
+        id: 2,
+        title: "Review Your Cart",
+        description:
+          "Double-check your selected items and quantities before checkout",
+        details: [
+          "Click the cart icon in the header to see your items",
+          "Adjust quantity or remove items if needed",
+          "Check total price and estimated shipping cost",
+          "Click 'Checkout' to proceed with your order",
+        ],
+        icon: <Package className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Enjoy free shipping for orders above Rp 250,000",
+          "Look for available promo codes",
+          "Make sure all items are still in stock",
+        ],
+      },
+      {
+        id: 3,
+        title: "Fill in Shipping Details",
+        description:
+          "Complete your shipping and contact information for delivery",
+        details: [
+          "Enter your full name and a reachable phone number",
+          "Provide a complete address with nearby landmarks",
+          "Choose your preferred shipping method",
+          "Add special notes if necessary",
+        ],
+        icon: <User className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Ensure your phone number is active for delivery coordination",
+          "Write the full address including landmarks",
+          "Save your address for future orders",
+        ],
+      },
+      {
+        id: 4,
+        title: "Choose Payment Method",
+        description: "Secure payment process through trusted Midtrans gateway",
+        details: [
+          "Select a payment method: Bank Transfer, E-Wallet, or Virtual Account",
+          "The system will redirect you to the Midtrans payment page",
+          "Follow the instructions based on your chosen method",
+          "Payment confirmation will be received automatically",
+        ],
+        icon: <CreditCard className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "All payment methods are safe and encrypted",
+          "Keep your payment receipt for reference",
+          "Payment confirmation usually takes 1–5 minutes",
+        ],
+      },
+      {
+        id: 5,
+        title: "Order Successful",
+        description:
+          "Your order is confirmed and will be processed for delivery",
+        details: [
+          "You will receive an order confirmation email",
+          "Your order will be processed within 1–2 business days",
+          "Shipping updates will be sent via WhatsApp/Email",
+          "Estimated delivery time: 3–7 business days",
+        ],
+        icon: <CheckCircle className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Save your order number for tracking",
+          "Check your email and WhatsApp for updates",
+          "Contact customer service if you have any questions",
+        ],
+      },
+      {
+        id: 6,
+        title: "Track Your Order",
+        description: "Monitor your order progress from your profile page",
+        details: [
+          "Log in to your COLORE account",
+          "Go to 'Profile' → 'My Orders'",
+          "Check real-time order status",
+          "Download invoice or leave a product review",
+        ],
+        icon: <Truck className="w-8 h-8" />,
+        image: "/api/placeholder/500/400",
+        tips: [
+          "Status updates automatically when changes occur",
+          "Use the tracking number for expedition tracking",
+          "Leave a review after receiving your product",
+        ],
+      },
+    ],
+  };
 
-  const faqs: FAQ[] = [
-    {
-      question: "Berapa lama proses pengiriman?",
-      answer:
-        "Estimasi pengiriman 3-7 hari kerja untuk wilayah Jabodetabek, dan 7-14 hari kerja untuk luar kota. Kami menggunakan ekspedisi terpercaya seperti JNE, TIKI, dan J&T.",
-    },
-    {
-      question: "Apakah ada minimum pembelian?",
-      answer:
-        "Tidak ada minimum pembelian. Namun untuk pembelian di atas Rp 250.000, Anda mendapat free shipping ke seluruh Indonesia.",
-    },
-    {
-      question: "Metode pembayaran apa saja yang tersedia?",
-      answer:
-        "Kami menerima transfer bank (BCA, Mandiri, BRI, BNI), e-wallet (GoPay, OVO, DANA, ShopeePay), dan virtual account. Semua pembayaran diproses melalui Midtrans yang aman.",
-    },
-    {
-      question: "Bisakah mengubah atau membatalkan pesanan?",
-      answer:
-        "Pesanan dapat diubah atau dibatalkan dalam 1 jam setelah pembayaran dikonfirmasi. Setelah itu, pesanan akan masuk proses packing dan tidak dapat diubah.",
-    },
-    {
-      question: "Bagaimana jika produk rusak atau salah?",
-      answer:
-        "Kami menyediakan garansi 30 hari untuk produk rusak atau salah kirim. Hubungi customer service kami dengan foto produk untuk proses penggantian.",
-    },
-    {
-      question: "Apakah ada program loyalitas?",
-      answer:
-        "Ya! Setiap pembelian akan mendapat poin COLORE yang bisa ditukar dengan diskon atau produk gratis. Bergabunglah dengan COLORE Club untuk benefit eksklusif.",
-    },
-  ];
+  const orderSteps: Step[] = orderStepsTranslation[lang];
+
+  const faqsTranslation: Record<"en" | "id", FAQ[]> = {
+    id: [
+      {
+        question: "Berapa lama proses pengiriman?",
+        answer:
+          "Estimasi pengiriman 3-7 hari kerja untuk wilayah Jabodetabek, dan 7-14 hari kerja untuk luar kota. Kami menggunakan ekspedisi terpercaya seperti JNE, TIKI, dan J&T.",
+      },
+      {
+        question: "Apakah ada minimum pembelian?",
+        answer:
+          "Tidak ada minimum pembelian. Namun untuk pembelian di atas Rp 250.000, Anda mendapat free shipping ke seluruh Indonesia.",
+      },
+      {
+        question: "Metode pembayaran apa saja yang tersedia?",
+        answer:
+          "Kami menerima transfer bank (BCA, Mandiri, BRI, BNI), e-wallet (GoPay, OVO, DANA, ShopeePay), dan virtual account. Semua pembayaran diproses melalui Midtrans yang aman.",
+      },
+      {
+        question: "Bisakah mengubah atau membatalkan pesanan?",
+        answer:
+          "Pesanan dapat diubah atau dibatalkan dalam 1 jam setelah pembayaran dikonfirmasi. Setelah itu, pesanan akan masuk proses packing dan tidak dapat diubah.",
+      },
+      {
+        question: "Bagaimana jika produk rusak atau salah?",
+        answer:
+          "Kami menyediakan garansi 30 hari untuk produk rusak atau salah kirim. Hubungi customer service kami dengan foto produk untuk proses penggantian.",
+      },
+      {
+        question: "Apakah ada program loyalitas?",
+        answer:
+          "Ya! Setiap pembelian akan mendapat poin COLORE yang bisa ditukar dengan diskon atau produk gratis. Bergabunglah dengan COLORE Club untuk benefit eksklusif.",
+      },
+    ],
+    en: [
+      {
+        question: "How long is the shipping process?",
+        answer:
+          "Estimated delivery is 3–7 business days for Jabodetabek area, and 7–14 business days for other cities. We use trusted couriers such as JNE, TIKI, and J&T.",
+      },
+      {
+        question: "Is there a minimum purchase?",
+        answer:
+          "There is no minimum purchase. However, for orders above Rp 250,000, you will get free shipping across Indonesia.",
+      },
+      {
+        question: "What payment methods are available?",
+        answer:
+          "We accept bank transfers (BCA, Mandiri, BRI, BNI), e-wallets (GoPay, OVO, DANA, ShopeePay), and virtual accounts. All payments are securely processed via Midtrans.",
+      },
+      {
+        question: "Can I change or cancel my order?",
+        answer:
+          "Orders can be changed or canceled within 1 hour after payment confirmation. After that, the order will proceed to packing and can no longer be modified.",
+      },
+      {
+        question: "What if the product is damaged or incorrect?",
+        answer:
+          "We provide a 30-day guarantee for damaged or incorrect products. Contact our customer service with product photos for a replacement process.",
+      },
+      {
+        question: "Is there a loyalty program?",
+        answer:
+          "Yes! Every purchase earns COLORE points that can be redeemed for discounts or free products. Join COLORE Club for exclusive benefits.",
+      },
+    ],
+  };
+
+  const faqs: FAQ[] = faqsTranslation[lang];
 
   const paymentMethods = [
     {
@@ -216,20 +376,20 @@ export default function HowToOrderPage() {
   const benefits = [
     {
       icon: <Shield className="w-6 h-6" style={{ color: THEME.primary }} />,
-      title: "Pembayaran Aman",
-      description: "Dilindungi enkripsi SSL dan gateway Midtrans",
+      title: t["hero-item-1-title"],
+      description: t["hero-item-1-content"],
     },
     {
       icon: <Truck className="w-6 h-6" style={{ color: THEME.primary }} />,
-      title: "Pengiriman Cepat",
-      description: "3-7 hari kerja dengan tracking real-time",
+      title: t["hero-item-2-title"],
+      description: t["hero-item-2-content"],
     },
     {
       icon: (
         <HeadphonesIcon className="w-6 h-6" style={{ color: THEME.primary }} />
       ),
-      title: "Customer Support",
-      description: "Tim support siap membantu 24/7",
+      title: t["hero-item-3-title"],
+      description: t["hero-item-3-content"],
     },
   ];
 
@@ -280,7 +440,7 @@ export default function HowToOrderPage() {
               className={cn(fredoka.className, "text-sm font-medium")}
               style={{ color: THEME.primary }}
             >
-              Panduan Pemesanan
+              {t["hero-badge"]}
             </span>
           </div>
 
@@ -290,9 +450,9 @@ export default function HowToOrderPage() {
               "text-4xl lg:text-6xl font-bold text-gray-900 mb-6"
             )}
           >
-            Cara Pesan di
+            {t["hero-title-1"]}
             <span className="block" style={{ color: THEME.primary }}>
-              COLORE
+              {t["hero-title-2"]}
             </span>
           </h1>
 
@@ -302,8 +462,7 @@ export default function HowToOrderPage() {
               "text-xl text-gray-700 max-w-3xl mx-auto mb-8"
             )}
           >
-            Ikuti 6 langkah mudah untuk mendapatkan produk seni ramah lingkungan
-            terbaik untuk anak Anda. Proses yang simple, aman, dan menyenangkan!
+            {t["hero-subtitle"]}
           </p>
 
           {/* Quick Stats */}
@@ -336,8 +495,10 @@ export default function HowToOrderPage() {
                 "text-3xl lg:text-4xl font-bold text-gray-900 mb-4"
               )}
             >
-              Langkah-langkah{" "}
-              <span style={{ color: THEME.primary }}>Pemesanan</span>
+              {t["nav-step-title-1"]}{" "}
+              <span style={{ color: THEME.primary }}>
+                {t["nav-step-title-2"]}
+              </span>
             </h2>
             <p
               className={cn(
@@ -345,8 +506,7 @@ export default function HowToOrderPage() {
                 "text-gray-600 max-w-2xl mx-auto"
               )}
             >
-              Proses pemesanan yang simple dan user-friendly, dirancang untuk
-              kemudahan Anda
+              {t["nav-step-subtitle"]}
             </p>
           </div>
 
@@ -429,7 +589,7 @@ export default function HowToOrderPage() {
                             className="font-semibold text-sm"
                             style={{ color: THEME.primary }}
                           >
-                            Langkah {step.id}
+                            {t["nav-step-header-1"]} {step.id}
                           </div>
                           <h3 className="text-2xl font-bold text-gray-900">
                             {step.title}
@@ -443,7 +603,7 @@ export default function HowToOrderPage() {
 
                       <div className="space-y-4 mb-8">
                         <h4 className="font-semibold text-gray-900">
-                          Detail Langkah:
+                          {t["nav-step-header-2"]}
                         </h4>
                         {step.details.map((detail, index) => (
                           <div key={index} className="flex items-start gap-3">
@@ -471,7 +631,7 @@ export default function HowToOrderPage() {
                               className="w-5 h-5"
                               style={{ color: THEME.primary }}
                             />
-                            Tips Berguna:
+                            {t["nav-step-header-3"]}
                           </h4>
                           <ul className="space-y-2">
                             {step.tips.map((tip, index) => (
@@ -535,7 +695,7 @@ export default function HowToOrderPage() {
               }}
             >
               <ArrowLeft className="w-5 h-5" />
-              Langkah Sebelumnya
+              {t["nav-step-prev"]}
             </button>
 
             <button
@@ -544,7 +704,7 @@ export default function HowToOrderPage() {
               className="flex items-center gap-2 px-6 py-3 text-white rounded-2xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: THEME.primary }}
             >
-              Langkah Selanjutnya
+              {t["nav-step-next"]}
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
@@ -562,7 +722,10 @@ export default function HowToOrderPage() {
                   "text-3xl font-bold text-gray-900 mb-4"
                 )}
               >
-                Metode <span style={{ color: THEME.primary }}>Pembayaran</span>
+                {t["payment-title-1"]}{" "}
+                <span style={{ color: THEME.primary }}>
+                  {t["payment-title-2"]}
+                </span>
               </h2>
               <p
                 className={cn(
@@ -570,8 +733,7 @@ export default function HowToOrderPage() {
                   "text-gray-600 max-w-2xl mx-auto"
                 )}
               >
-                Kami menyediakan berbagai metode pembayaran yang aman dan
-                terpercaya melalui gateway Midtrans
+                {t["payment-subtitle"]}
               </p>
             </div>
 
@@ -604,11 +766,10 @@ export default function HowToOrderPage() {
                   "font-semibold text-gray-900 mb-2 text-lg"
                 )}
               >
-                Keamanan Terjamin
+                {t["payment-info-title"]}
               </h3>
               <p className={cn(sniglet.className, "text-gray-600")}>
-                Semua transaksi dilindungi enkripsi SSL 256-bit dan diproses
-                melalui Midtrans yang telah tersertifikasi PCI DSS Level 1
+                {t["payment-info-subtitle"]}
               </p>
             </div>
           </div>
@@ -627,7 +788,7 @@ export default function HowToOrderPage() {
           >
             <div className="text-center mb-8">
               <h2 className={cn(fredoka.className, "text-3xl font-bold mb-4")}>
-                Butuh Bantuan?
+                {t["help-title"]}
               </h2>
               <p
                 className={cn(
@@ -635,9 +796,7 @@ export default function HowToOrderPage() {
                   "text-white/90 max-w-2xl mx-auto"
                 )}
               >
-                Tim Customer Services akan siap membantu fast response hari
-                Senin - Jumat jam 08.00 - 17.00 WIB. Jangan ragu untuk
-                menghubungi kami!
+                {t["help-subtitle"]}
               </p>
             </div>
 
@@ -649,9 +808,7 @@ export default function HowToOrderPage() {
                 </div>
                 <h3 className="font-semibold mb-2">WhatsApp</h3>
                 <p className="text-white/90">+62 817 694 2128</p>
-                <p className="text-sm text-white/70">
-                  Respon cepat dalam 5 menit
-                </p>
+                <p className="text-sm text-white/70">{t["help-content-1"]}</p>
               </div>
 
               <div className="text-center">
@@ -660,7 +817,7 @@ export default function HowToOrderPage() {
                 </div>
                 <h3 className="font-semibold mb-2">Email</h3>
                 <p className="text-white/90">help@coloreartcrafts.com</p>
-                <p className="text-sm text-white/70">Respon dalam 2 jam</p>
+                <p className="text-sm text-white/70"> {t["help-content-2"]}</p>
               </div>
 
               <div className="text-center">
@@ -669,7 +826,7 @@ export default function HowToOrderPage() {
                 </div>
                 <h3 className="font-semibold mb-2">Customer Support</h3>
                 <p className="text-white/90">24/7 Online</p>
-                <p className="text-sm text-white/70">Live chat tersedia</p>
+                <p className="text-sm text-white/70">{t["help-content-3"]}</p>
               </div>
             </div>
           </div>
@@ -686,7 +843,7 @@ export default function HowToOrderPage() {
                 "text-3xl lg:text-4xl font-bold text-gray-900 mb-4"
               )}
             >
-              Yuk Mulai Belanja Sekarang
+              {t["cta-title"]}
             </h2>
             <p
               className={cn(
@@ -694,8 +851,7 @@ export default function HowToOrderPage() {
                 "text-gray-600 mb-8 max-w-2xl mx-auto"
               )}
             >
-              Jelajahi koleksi produk ramah lingkungan kami dan berikan yang
-              terbaik untuk perkembangan kreativitas anak Anda.
+              {t["cta-subtitle"]}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -704,14 +860,14 @@ export default function HowToOrderPage() {
                 style={{ backgroundColor: THEME.primary }}
               >
                 <ShoppingCart className="w-5 h-5" />
-                Mulai Berbelanja
+                {t["cta-btn-1"]}
               </button>
               <button
                 className="px-8 py-4 rounded-2xl font-semibold transition-colors flex items-center justify-center gap-2 border"
                 style={{ color: THEME.primary, borderColor: THEME.primary }}
               >
                 <Play className="w-5 h-5" />
-                Lihat Video Tutorial
+                {t["cta-btn-2"]}
               </button>
             </div>
           </div>
@@ -728,7 +884,8 @@ export default function HowToOrderPage() {
                 "text-3xl lg:text-4xl font-bold text-gray-900 mb-4"
               )}
             >
-              Pertanyaan <span style={{ color: THEME.primary }}>Umum</span>
+              {t["faq-title-1"]}{" "}
+              <span style={{ color: THEME.primary }}>{t["faq-title-2"]}</span>
             </h2>
             <p
               className={cn(
@@ -736,8 +893,7 @@ export default function HowToOrderPage() {
                 "text-gray-600 max-w-2xl mx-auto"
               )}
             >
-              Temukan jawaban untuk pertanyaan yang sering ditanyakan tentang
-              proses pemesanan
+              {t["faq-subtitle"]}
             </p>
           </div>
 

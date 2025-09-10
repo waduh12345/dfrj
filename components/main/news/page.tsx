@@ -2,6 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import { useTranslation } from "@/hooks/use-translation";
+import id from "@/translations/news/id";
+import en from "@/translations/news/en";
 import {
   Calendar,
   Clock,
@@ -48,6 +51,8 @@ const estimateReadTime = (content: string) => {
 };
 
 export default function NewsPage() {
+  const t = useTranslation({ id, en });
+
   // ===== list state
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,11 +80,12 @@ export default function NewsPage() {
   const categories = useMemo(
     () => [
       {
-        name: "Semua",
+        name: t["search-button"],
         icon: <BookOpen className="w-4 h-4" />,
         count: listResp?.total ?? listItems.length ?? 0,
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [listResp, listItems.length]
   );
 
@@ -346,18 +352,17 @@ export default function NewsPage() {
           <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-6">
             <Sparkles className="w-4 h-4 text-[#A3B18A]" />
             <span className="text-sm font-medium text-[#A3B18A]">
-              Berita & Artikel
+              {t["hero-badge"]}
             </span>
           </div>
 
           <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
-            Inspirasi Kreatif
-            <span className="block text-[#A3B18A]">untuk Keluarga</span>
+            {t["hero-title-1"]}
+            <span className="block text-[#A3B18A]">{t["hero-title-2"]}</span>
           </h1>
 
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Temukan tips parenting, update produk terbaru, dan cerita inspiratif
-            tentang perkembangan kreativitas anak bersama COLORE.
+            {t["hero-subtitle"]}
           </p>
         </div>
       </section>
@@ -372,7 +377,7 @@ export default function NewsPage() {
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Cari artikel, tips, atau topik..."
+                  placeholder={t["search-placehilder"]}
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -468,7 +473,7 @@ export default function NewsPage() {
                     </div>
                   </div>
                   <button className="self-start bg-[#A3B18A] text-white px-6 py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center gap-2">
-                    Baca Selengkapnya
+                    {t["main-card-cta"]}
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
@@ -504,11 +509,11 @@ export default function NewsPage() {
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-2xl font-bold text-gray-900">
                 {selectedCategory === "Semua"
-                  ? "Semua Artikel"
+                  ? t["header-title"]
                   : selectedCategory}
               </h3>
               <p className="text-gray-600">
-                {filteredArticles.length} artikel ditemukan
+                {filteredArticles.length} {t["heeader-item-found"]}
               </p>
             </div>
 
@@ -597,11 +602,9 @@ export default function NewsPage() {
                   <BookOpen className="w-12 h-12 text-[#A3B18A]" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  Artikel tidak ditemukan
+                  {t["empty-title"]}
                 </h3>
-                <p className="text-gray-600 mb-6">
-                  Coba ubah filter atau kata kunci pencarian Anda.
-                </p>
+                <p className="text-gray-600 mb-6">{t["empty-subtitle"]}</p>
                 <button
                   onClick={() => {
                     setSearchTerm("");
@@ -610,7 +613,7 @@ export default function NewsPage() {
                   }}
                   className="bg-[#A3B18A] text-white px-6 py-3 rounded-2xl hover:bg-[#A3B18A]/90 transition-colors"
                 >
-                  Reset Filter
+                  {t["empty-reset"]}
                 </button>
               </div>
             )}
@@ -628,7 +631,7 @@ export default function NewsPage() {
                 onClick={() => setCurrentPage((prev) => prev - 1)}
                 className="px-6 py-3 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Previous
+                {t["paginate-prev"]}
               </button>
 
               <div className="flex gap-2">
@@ -654,7 +657,7 @@ export default function NewsPage() {
                 onClick={() => setCurrentPage((prev) => prev + 1)}
                 className="px-6 py-3 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
+                {t["paginate-next"]}
               </button>
             </div>
           </div>
@@ -666,21 +669,20 @@ export default function NewsPage() {
         <div className="container mx-auto">
           <div className="bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80 rounded-3xl p-8 lg:p-12 text-white text-center">
             <h3 className="text-3xl lg:text-4xl font-bold mb-4">
-              Jangan Lewatkan Update Terbaru
+              {t["nl-title"]}
             </h3>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Dapatkan tips parenting, info produk terbaru, dan artikel
-              inspiratif langsung di inbox Anda setiap minggu.
+              {t["nl-subtitle"]}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
               <input
                 type="email"
-                placeholder="Masukkan email Anda"
+                placeholder={t["nl-input-placeholder"]}
                 className="flex-1 px-6 py-4 rounded-2xl text-gray-900 outline-none ring-2 ring-white focus:outline-none focus:ring-2 focus:ring-white"
               />
               <button className="bg-white text-[#A3B18A] px-8 py-4 rounded-2xl font-semibold hover:bg-gray-100 transition-colors">
-                Subscribe
+                {t["nl-cta"]}
               </button>
             </div>
           </div>
