@@ -24,6 +24,7 @@ import {
   useGetNewsBySlugQuery,
 } from "@/services/public-news.service";
 import DotdLoader from "@/components/loader/3dot";
+import { sniglet } from "@/lib/fonts";
 
 // ==== Utils ====
 const getImageUrl = (img: File | string) =>
@@ -351,7 +352,7 @@ export default function NewsPage() {
         <div className="container mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-6">
             <Sparkles className="w-4 h-4 text-[#A3B18A]" />
-            <span className="text-sm font-medium text-[#A3B18A]">
+            <span className={`text-sm font-medium text-[#A3B18A] ${sniglet.className}`}>
               {t["hero-badge"]}
             </span>
           </div>

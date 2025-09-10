@@ -14,10 +14,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PPM Shop",
-  description: "Website PPM Shop",
+  title: "Colore Art Crafts",
+  description: "Marketplace Colore Art Crafts",
   icons: {
-    icon: "/icon-merah-putih.png",
+    icon: "/favicon.ico",
   },
 };
 
