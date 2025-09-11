@@ -8,7 +8,6 @@ import {
   Package,
   Tag,
   BookDashed,
-  Wallet,
 } from "lucide-react";
 import Header from "@/components/admin-components/header";
 import Sidebar from "@/components/admin-components/sidebar";
@@ -47,7 +46,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       id: "master",
       label: "Master",
       icon: <Database className="h-5 w-5" />,
-      href: "#", 
+      href: "#",
       children: [
         {
           id: "master-product-category",
@@ -65,31 +64,25 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       id: "product",
       label: "Produk",
       icon: <Package className="h-5 w-5" />,
-      href: "/admin/product-list", 
+      href: "/admin/product-list",
     },
     {
       id: "gallery",
       label: "Galeri",
       icon: <IconLibraryPhoto className="h-5 w-5" />,
-      href: "/admin/gallery", 
+      href: "/admin/gallery",
     },
     {
       id: "news",
       label: "Berita",
       icon: <IconNews className="h-5 w-5" />,
-      href: "/admin/news", 
+      href: "/admin/news",
     },
     {
       id: "voucher",
       label: "Voucher",
       icon: <Tag className="h-5 w-5" />,
-      href: "/admin/voucher", 
-    },
-    {
-      id: "saldo",
-      label: "Saldo",
-      icon: <Wallet className="h-5 w-5" />,
-      href: "/admin/saldo", 
+      href: "/admin/voucher",
     },
     {
       id: "transaction",

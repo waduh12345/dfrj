@@ -327,9 +327,9 @@ export default function ProfilePage() {
     birthDate: "1990-05-15", // default birth date
     image: session?.user?.image || "/api/placeholder/150/150",
     joinDate: "",
-    totalOrders: 12,
-    totalSpent: 1_450_000,
-    loyaltyPoints: 2500,
+    totalOrders: 0,
+    totalSpent: 0,
+    loyaltyPoints: 0,
   });
 
   useEffect(() => {

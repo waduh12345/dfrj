@@ -95,7 +95,7 @@ export default function ProductCategoryPage() {
 
     if (confirm.isConfirmed) {
       try {
-        await deleteCategory(item.id.toString()).unwrap();
+        await deleteCategory(item.slug.toString()).unwrap();
         await refetch();
         Swal.fire("Berhasil", "Kategori dihapus", "success");
       } catch (error) {

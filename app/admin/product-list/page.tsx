@@ -45,14 +45,13 @@ export default function ProductPage() {
       const payload = new FormData();
 
       // === REQUIRED FIELDS ===
-      // Shop ID dari session
       if (session?.user.shop?.id) {
         payload.append("shop_id", `${session.user.shop.id}`);
       } else {
         throw new Error("Session shop ID not found");
       }
 
-      // Pastikan semua data numeric disiapkan dan valid (default ke 0 kalau undefined)
+      // Numeric fields
       payload.append("price", form.price ? `${form.price}` : "0");
       payload.append("stock", form.stock ? `${form.stock}` : "0");
       payload.append("weight", form.weight ? `${form.weight}` : "0");
@@ -70,33 +69,52 @@ export default function ProductPage() {
       if (typeof form.status === "boolean") {
         payload.append("status", form.status ? "1" : "0");
       }
-      if (form.image instanceof File) {
-        payload.append("image", form.image);
-      }
-      if (form.image_2 instanceof File) {
-        payload.append("image_2", form.image_2);
-      }
-      if (form.image_3 instanceof File) {
-        payload.append("image_3", form.image_3);
-      }
-      if (form.image_4 instanceof File) {
-        payload.append("image_4", form.image_4);
-      }
-      if (form.image_5 instanceof File) {
-        payload.append("image_5", form.image_5);
-      }
-      if (form.image_6 instanceof File) {
-        payload.append("image_6", form.image_6);
-      }
-      if (form.image_7 instanceof File) {
-        payload.append("image_7", form.image_7);
-      }
 
-      // === SUBMIT ===
+      // === IMAGE HANDLING ===
+      const imageFields = [
+        "image",
+        "image_2",
+        "image_3",
+        "image_4",
+        "image_5",
+        "image_6",
+        "image_7",
+      ];
+
       if (editingSlug) {
+        // === MODE EDIT ===
+        // Kirim method override untuk PATCH/PUT
+        payload.append("_method", "PUT"); // atau "PATCH"
+
+        imageFields.forEach((fieldName) => {
+          const imageValue = form[fieldName as keyof Product];
+
+          if (imageValue instanceof File) {
+            // Upload gambar baru
+            payload.append(fieldName, imageValue);
+          } else if (typeof imageValue === "string" && imageValue) {
+            // Pertahankan gambar lama dengan mengirim URL-nya
+            payload.append(`${fieldName}`, imageValue);
+          }
+          // Jika undefined/null = hapus gambar
+        });
+
         await updateProduct({ slug: editingSlug, payload }).unwrap();
         Swal.fire("Sukses", "Produk diperbarui", "success");
       } else {
+        // === MODE CREATE ===
+        // Validasi minimal gambar utama untuk create
+        if (!(form.image instanceof File)) {
+          throw new Error("Gambar utama wajib diisi untuk produk baru");
+        }
+
+        imageFields.forEach((fieldName) => {
+          const imageValue = form[fieldName as keyof Product];
+          if (imageValue instanceof File) {
+            payload.append(fieldName, imageValue);
+          }
+        });
+
         await createProduct(payload).unwrap();
         Swal.fire("Sukses", "Produk ditambahkan", "success");
       }
@@ -106,8 +124,9 @@ export default function ProductPage() {
       await refetch();
       closeModal();
     } catch (error) {
-      console.error(error);
-      Swal.fire("Gagal", "Gagal menyimpan data", "error");
+      console.error("Submit error:", error);
+
+      Swal.fire("Gagal", "error");
     }
   };
 
@@ -126,7 +145,7 @@ export default function ProductPage() {
 
   const handleDelete = async (item: Product) => {
     const confirm = await Swal.fire({
-      title: "Yakin hapus kategori?",
+      title: "Yakin hapus Produk?",
       text: item.name,
       icon: "warning",
       showCancelButton: true,
@@ -135,11 +154,11 @@ export default function ProductPage() {
 
     if (confirm.isConfirmed) {
       try {
-        await deleteProduct(item.id.toString()).unwrap();
+        await deleteProduct(item.slug.toString()).unwrap();
         await refetch();
         Swal.fire("Berhasil", "Produk dihapus", "success");
       } catch (error) {
-        Swal.fire("Gagal", "Gagal menghapus kategori", "error");
+        Swal.fire("Gagal", "Gagal menghapus Produk", "error");
         console.error(error);
       }
     }

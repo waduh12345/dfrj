@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,14 +29,50 @@ export default function FormProduct({
   readonly = false,
   isLoading = false,
 }: FormProductProps) {
+  // ✅ Gunakan lazy initial state untuk menghindari hydration mismatch
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // ✅ Pastikan komponen hanya render setelah mounted di client
   useEffect(() => {
-    if (!form.id) {
-      setForm({
-        ...form,
-        status: true,
-      });
+    setMounted(true);
+  }, []);
+
+  // ✅ Inisialisasi form hanya sekali setelah komponen mounted
+  useEffect(() => {
+    if (mounted && !isInitialized) {
+      // Set default values hanya jika form kosong (mode tambah)
+      if (!form.id) {
+        setForm({
+          ...form,
+          status: form.status ?? true, // Default status true jika belum ada
+        });
+      }
+      setIsInitialized(true);
     }
-  }, [form, setForm]);
+  }, [mounted, form, setForm, isInitialized]);
+
+  // ✅ Cleanup URL objects untuk menghindari memory leak
+  useEffect(() => {
+    return () => {
+      // Cleanup semua URL objects yang dibuat
+      const imageFields = [
+        "image",
+        "image_2",
+        "image_3",
+        "image_4",
+        "image_5",
+        "image_6",
+        "image_7",
+      ];
+      imageFields.forEach((field) => {
+        const value = form[field as keyof Product];
+        if (value && typeof value !== "string" && value instanceof File) {
+          URL.revokeObjectURL(URL.createObjectURL(value));
+        }
+      });
+    };
+  }, [form]);
 
   const { data: categoryResponse, isLoading: categoryLoading } =
     useGetProductCategoryListQuery({
@@ -52,6 +88,27 @@ export default function FormProduct({
 
   const categoryData = categoryResponse?.data ?? [];
   const merkData = merkResponse?.data ?? [];
+
+  // ✅ Jangan render komponen sebelum mounted untuk menghindari hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="bg-white dark:bg-zinc-900 rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-zinc-700 flex-shrink-0">
+          <h2 className="text-lg font-semibold">Loading...</h2>
+          <Button variant="ghost" onClick={onCancel}>
+            ✕
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
@@ -83,6 +140,7 @@ export default function FormProduct({
                 }
               />
             ) : (
+              // ✅ Pastikan nilai yang dikirim ke Combobox konsisten
               <Combobox
                 value={form.product_category_id ?? null}
                 onChange={(val) =>
@@ -92,6 +150,7 @@ export default function FormProduct({
                 isLoading={categoryLoading}
                 getOptionLabel={(item) => item.name}
                 placeholder="Pilih Kategori Produk"
+                key={`category-${mounted}`} // ✅ Key untuk memastikan re-render setelah mounted
               />
             )}
           </div>
@@ -107,6 +166,7 @@ export default function FormProduct({
                 }
               />
             ) : (
+              // ✅ Pastikan nilai yang dikirim ke Combobox konsisten
               <Combobox
                 value={form.product_merk_id ?? null}
                 onChange={(val) => setForm({ ...form, product_merk_id: val })}
@@ -114,6 +174,7 @@ export default function FormProduct({
                 isLoading={merkLoading}
                 getOptionLabel={(item) => item.name}
                 placeholder="Pilih Merk Produk"
+                key={`merk-${mounted}`} // ✅ Key untuk memastikan re-render setelah mounted
               />
             )}
           </div>
@@ -143,7 +204,11 @@ export default function FormProduct({
             <Input
               type="text"
               inputMode="numeric"
-              value={form.price !== undefined ? formatNumber(form.price) : ""}
+              value={
+                form.price !== undefined && form.price !== null
+                  ? formatNumber(form.price)
+                  : ""
+              }
               onChange={(e) => {
                 const raw = e.target.value.replace(/\./g, ""); // hapus titik
                 const numberValue = Number(raw);
@@ -262,187 +327,42 @@ export default function FormProduct({
             </select>
           </div>
 
-          <div className="flex flex-col gap-y-1 col-span-1">
-            <Label>Gambar 1</Label>
-            {readonly ? (
-              form.image && typeof form.image === "string" ? (
-                <Image
-                  src={form.image}
-                  alt="Preview"
-                  className="h-20 object-contain border rounded"
-                  width={200}
-                  height={200}
-                />
-              ) : (
-                <span className="text-sm text-gray-500">Tidak ada gambar</span>
-              )
-            ) : (
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setForm({ ...form, image: file });
-                }}
-              />
-            )}
-          </div>
+          {/* Image Upload Fields */}
+          {[1, 2, 3, 4, 5, 6, 7].map((imageNum) => {
+            const imageKey =
+              imageNum === 1 ? "image" : (`image_${imageNum}` as keyof Product);
+            const imageValue = form[imageKey];
 
-          <div className="flex flex-col gap-y-1 col-span-1">
-            <Label>Gambar 2</Label>
-            {readonly ? (
-              form.image_2 && typeof form.image_2 === "string" ? (
-                <Image
-                  src={form.image_2}
-                  alt="Preview"
-                  className="h-20 object-contain border rounded"
-                  width={200}
-                  height={200}
-                />
-              ) : (
-                <span className="text-sm text-gray-500">Tidak ada gambar</span>
-              )
-            ) : (
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setForm({ ...form, image_2: file });
-                }}
-              />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-y-1 col-span-1">
-            <Label>Gambar 3</Label>
-            {readonly ? (
-              form.image_3 && typeof form.image_3 === "string" ? (
-                <Image
-                  src={form.image_3}
-                  alt="Preview"
-                  className="h-20 object-contain border rounded"
-                  width={200}
-                  height={200}
-                />
-              ) : (
-                <span className="text-sm text-gray-500">Tidak ada gambar</span>
-              )
-            ) : (
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setForm({ ...form, image_3: file });
-                }}
-              />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-y-1 col-span-1">
-            <Label>Gambar 4</Label>
-            {readonly ? (
-              form.image_4 && typeof form.image_4 === "string" ? (
-                <Image
-                  src={form.image_4}
-                  alt="Preview"
-                  className="h-20 object-contain border rounded"
-                  width={200}
-                  height={200}
-                />
-              ) : (
-                <span className="text-sm text-gray-500">Tidak ada gambar</span>
-              )
-            ) : (
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setForm({ ...form, image_4: file });
-                }}
-              />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-y-1 col-span-1">
-            <Label>Gambar 5</Label>
-            {readonly ? (
-              form.image_5 && typeof form.image_5 === "string" ? (
-                <Image
-                  src={form.image_5}
-                  alt="Preview"
-                  className="h-20 object-contain border rounded"
-                  width={200}
-                  height={200}
-                />
-              ) : (
-                <span className="text-sm text-gray-500">Tidak ada gambar</span>
-              )
-            ) : (
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setForm({ ...form, image_5: file });
-                }}
-              />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-y-1 col-span-1">
-            <Label>Gambar 6</Label>
-            {readonly ? (
-              form.image_6 && typeof form.image_6 === "string" ? (
-                <Image
-                  src={form.image_6}
-                  alt="Preview"
-                  className="h-20 object-contain border rounded"
-                  width={200}
-                  height={200}
-                />
-              ) : (
-                <span className="text-sm text-gray-500">Tidak ada gambar</span>
-              )
-            ) : (
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setForm({ ...form, image_6: file });
-                }}
-              />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-y-1 col-span-1">
-            <Label>Gambar 7</Label>
-            {readonly ? (
-              form.image_7 && typeof form.image_7 === "string" ? (
-                <Image
-                  src={form.image_7}
-                  alt="Preview"
-                  className="h-20 object-contain border rounded"
-                  width={200}
-                  height={200}
-                />
-              ) : (
-                <span className="text-sm text-gray-500">Tidak ada gambar</span>
-              )
-            ) : (
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setForm({ ...form, image_7: file });
-                }}
-              />
-            )}
-          </div>
+            return (
+              <div key={imageKey} className="flex flex-col gap-y-1 col-span-1">
+                <Label>Gambar {imageNum}</Label>
+                {readonly ? (
+                  imageValue && typeof imageValue === "string" ? (
+                    <Image
+                      src={imageValue}
+                      alt="Preview"
+                      className="h-20 object-contain border rounded"
+                      width={200}
+                      height={200}
+                    />
+                  ) : (
+                    <span className="text-sm text-gray-500">
+                      Tidak ada gambar
+                    </span>
+                  )
+                ) : (
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) setForm({ ...form, [imageKey]: file });
+                    }}
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 

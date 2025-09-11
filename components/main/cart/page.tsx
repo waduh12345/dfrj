@@ -23,7 +23,7 @@ import { Product } from "@/types/admin/product";
 import { useGetProductListQuery } from "@/services/product.service";
 import DotdLoader from "@/components/loader/3dot";
 
-// === Tambahan import logic checkout (tidak mengubah warna UI) ===
+// === Import logic checkout ===
 import { Combobox } from "@/components/ui/combo-box";
 import {
   Select,
@@ -37,12 +37,13 @@ import {
   useGetCitiesQuery,
   useGetDistrictsQuery,
 } from "@/services/shop/open-shop/open-shop.service";
+import {
+  useGetCurrentUserQuery,
+  useCheckShippingCostQuery,
+} from "@/services/auth.service"; // ✅ Imported new hook
 import { useCreateTransactionMutation } from "@/services/admin/transaction.service";
 import { useRouter } from "next/navigation";
-// SweetAlert
 import Swal from "sweetalert2";
-
-// ==== [TAMBAHAN] Prefill dari session & user-address ====
 import { useSession } from "next-auth/react";
 import { useGetUserAddressListQuery } from "@/services/address.service";
 import type { Address } from "@/types/address";
@@ -73,6 +74,15 @@ interface RelatedProductView {
   rating: number;
   category: string;
   __raw: Product;
+}
+
+interface ShippingCostOption {
+  name: string;
+  code: string;
+  service: string;
+  description: string;
+  cost: number;
+  etd: string;
 }
 
 function parseStorage(): StoredCartItem[] {
@@ -131,21 +141,19 @@ type ErrorBag = Record<string, string[] | string>;
 
 export default function CartPage() {
   const router = useRouter();
-
-  // ==== [TAMBAHAN] ambil session untuk nama user ====
   const { data: session } = useSession();
   const sessionName = useMemo(() => session?.user?.name ?? "", [session]);
 
-  // ===== Cart from localStorage (sinkron)
   const [cartItems, setCartItems] = useState<CartItemView[]>([]);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
 
-  // === STATE Tambahan untuk logic checkout ===
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [shippingMethod, setShippingMethod] = useState("");
-  const [isCheckingOut, setIsCheckingOut] = useState(false); // spinner tombol
-  const [isSubmitting, setIsSubmitting] = useState(false); // status request API
+  const [shippingCourier, setShippingCourier] = useState<string | null>(null);
+  const [shippingMethod, setShippingMethod] =
+    useState<ShippingCostOption | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [shippingInfo, setShippingInfo] = useState({
     fullName: "",
@@ -159,11 +167,21 @@ export default function CartPage() {
     rajaongkir_district_id: 0,
   });
 
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
+  const validatePhone = (phone: string) => {
+    const regex = /^(?:\+62|62|0)8\d{8,11}$/;
+    return regex.test(phone);
+  };
+  const { data: currentUserResp } = useGetCurrentUserQuery();
+  const currentUser = useMemo(() => currentUserResp || null, [currentUserResp]);
+  useEffect(() => {
+    setIsPhoneValid(validatePhone(shippingInfo.phone));
+  }, [shippingInfo.phone]);
+
   const handleInputChange = (field: string, value: string) => {
     setShippingInfo((prev) => ({ ...prev, [field]: value }));
   };
 
-  // ==== [TAMBAHAN] Prefill dari user-address (default) ====
   const { data: userAddressList } = useGetUserAddressListQuery({
     page: 1,
     paginate: 100,
@@ -173,7 +191,6 @@ export default function CartPage() {
   );
   const didPrefill = useRef(false);
 
-  // ==== [TAMBAHAN] Prefill nama dari session (editable) ====
   useEffect(() => {
     if (didPrefill.current) return;
     if (sessionName) {
@@ -181,12 +198,12 @@ export default function CartPage() {
     }
   }, [sessionName]);
 
-  // ==== [TAMBAHAN] Prefill alamat dari default address (editable) ====
   useEffect(() => {
     if (didPrefill.current) return;
     if (defaultAddress) {
       setShippingInfo((prev) => ({
         ...prev,
+        phone: currentUser?.phone || "",
         address_line_1: defaultAddress.address_line_1 ?? prev.address_line_1,
         postal_code: defaultAddress.postal_code ?? prev.postal_code,
         rajaongkir_province_id:
@@ -196,11 +213,10 @@ export default function CartPage() {
         rajaongkir_district_id:
           defaultAddress.rajaongkir_district_id ?? prev.rajaongkir_district_id,
       }));
-      didPrefill.current = true; // hanya sekali agar tetap bisa diedit user
+      didPrefill.current = true;
     }
-  }, [defaultAddress]);
+  }, [defaultAddress, currentUser]);
 
-  // === Data wilayah (provinsi/kota/kecamatan) ===
   const { data: provinces = [], isLoading: loadingProvince } =
     useGetProvincesQuery();
   const { data: cities = [], isLoading: loadingCity } = useGetCitiesQuery(
@@ -212,10 +228,41 @@ export default function CartPage() {
       skip: !shippingInfo.rajaongkir_city_id,
     });
 
-  // === Mutation transaksi ===
   const [createTransaction] = useCreateTransactionMutation();
 
-  // initial load + listen to changes from other tabs/pages
+  // ✅ New RTK Query hook for fetching shipping costs
+  const {
+    data: shippingOptions = [],
+    isLoading: isShippingLoading,
+    isError: isShippingError,
+  } = useCheckShippingCostQuery(
+    {
+      shop_id: 1, // Assuming shop ID is 1 for this example
+      destination: String(shippingInfo.rajaongkir_district_id),
+      weight: 1000,
+      height: 10,
+      length: 10,
+      width: 10,
+      diameter: 10,
+      courier: shippingCourier ?? "",
+    },
+    {
+      skip: !shippingInfo.rajaongkir_district_id || !shippingCourier,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+  // Reset shipping method when options change
+  useEffect(() => {
+    if (!isShippingLoading && shippingOptions.length > 0) {
+      // You can set a default option here, e.g., the cheapest one
+      setShippingMethod(shippingOptions[0]);
+    } else {
+      setShippingMethod(null);
+    }
+  }, [shippingOptions, isShippingLoading]);
+
+  // Initial load + listen to changes
   useEffect(() => {
     const sync = () => setCartItems(mapStoredToView(parseStorage()));
     sync();
@@ -227,7 +274,6 @@ export default function CartPage() {
     };
   }, []);
 
-  // helpers untuk update storage dan state tampilan
   const updateStorageAndState = (
     updater: (items: StoredCartItem[]) => StoredCartItem[]
   ) => {
@@ -265,7 +311,6 @@ export default function CartPage() {
 
   const removeCoupon = () => setAppliedCoupon(null);
 
-  // ===== Related products via service
   const {
     data: relatedResp,
     isLoading: isRelLoading,
@@ -305,7 +350,6 @@ export default function CartPage() {
     });
   };
 
-  // ===== Calculations
   const subtotal = cartItems.reduce(
     (sum, it) => sum + it.price * it.quantity,
     0
@@ -313,115 +357,23 @@ export default function CartPage() {
   const discount =
     appliedCoupon === "COLORE10" ? Math.round(subtotal * 0.1) : 0;
 
-  // === Shipping cost now mengikuti pilihan metode (sesuai contoh) ===
-  const shippingCost =
-    shippingMethod === "express"
-      ? 15000
-      : shippingMethod === "regular"
-      ? 10000
-      : shippingMethod === "pickup"
-      ? 0
-      : 0;
-
+  const shippingCost = shippingMethod?.cost ?? 0;
   const total = subtotal - discount + shippingCost;
 
-  // === Mapping courier info (mengikuti contoh: lowercase "jne" | "pickup") ===
-  const getCourierInfo = () => {
-    switch (shippingMethod) {
-      case "express":
-        return {
-          courier: "jne", // backend expects: jne, pos, tiki
-          parameter: JSON.stringify({
-            destination: String(shippingInfo.rajaongkir_district_id || "486"),
-            weight: 1000,
-            height: 0,
-            length: 0,
-            width: 0,
-            diameter: 0,
-            courier: "jne",
-          }),
-          shipment_detail: JSON.stringify({
-            name: "Jalur Nugraha Ekakurir (JNE)",
-            code: "jne",
-            service: "YES",
-            description: "JNE Yakin Esok Sampai",
-            cost: 15000,
-            etd: "1 day",
-          }),
-        };
-      case "regular":
-        return {
-          courier: "jne", // backend expects: jne, pos, tiki
-          parameter: JSON.stringify({
-            destination: String(shippingInfo.rajaongkir_district_id || "486"),
-            weight: 1000,
-            height: 0,
-            length: 0,
-            width: 0,
-            diameter: 0,
-            courier: "jne",
-          }),
-          shipment_detail: JSON.stringify({
-            name: "Jalur Nugraha Ekakurir (JNE)",
-            code: "jne",
-            service: "CTC",
-            description: "JNE City Courier",
-            cost: 10000,
-            etd: "2-3 days",
-          }),
-        };
-      case "pickup":
-        // For pickup, we still need to use a valid courier value
-        // You might want to discuss with backend team about handling pickup
-        return {
-          courier: "jne", // Use valid courier even for pickup
-          parameter: JSON.stringify({
-            destination: "0", // or use actual destination
-            weight: 0,
-            height: 0,
-            length: 0,
-            width: 0,
-            diameter: 0,
-            courier: "jne", // Keep consistent with courier field
-          }),
-          shipment_detail: JSON.stringify({
-            name: "Ambil di Tempat",
-            code: "PICKUP", // Custom code for pickup
-            service: "PICKUP",
-            description: "Ambil langsung di toko",
-            cost: 0,
-            etd: "0 day",
-          }),
-        };
-      default:
-        return null;
-    }
-  };
   const handleCheckout = async () => {
     setIsCheckingOut(true);
 
     if (
-      !paymentMethod ||
       !shippingMethod ||
       !shippingInfo.fullName ||
       !shippingInfo.address_line_1 ||
-      !shippingInfo.postal_code
+      !shippingInfo.postal_code ||
+      !isPhoneValid
     ) {
       await Swal.fire({
         icon: "warning",
         title: "Lengkapi Data",
-        text: "Harap lengkapi semua informasi yang diperlukan termasuk kode pos",
-      });
-      setIsCheckingOut(false);
-      return;
-    }
-
-    const courierInfo = getCourierInfo();
-    if (!courierInfo) {
-      await Swal.fire({
-        icon: "error",
-        title: "Metode Pengiriman",
-        text: "Metode pengiriman tidak valid",
+        text: "Harap lengkapi semua informasi yang diperlukan untuk melanjutkan.",
       });
       setIsCheckingOut(false);
       return;
@@ -441,18 +393,24 @@ export default function CartPage() {
               quantity: item.quantity ?? 1,
             })),
             shipment: {
-              parameter: courierInfo.parameter,
-              shipment_detail: courierInfo.shipment_detail,
-              courier: courierInfo.courier,
-              cost: shippingCost,
+              parameter: JSON.stringify({
+                destination: String(shippingInfo.rajaongkir_district_id),
+                weight: 1000,
+                height: 0,
+                length: 0,
+                width: 0,
+                diameter: 0,
+                courier: shippingCourier ?? "",
+              }),
+              shipment_detail: JSON.stringify(shippingMethod),
+              courier: shippingCourier ?? "",
+              cost: shippingMethod.cost,
             },
-            // Tambahkan informasi alamat yang sesuai dengan API
             customer_info: {
               name: shippingInfo.fullName,
               phone: shippingInfo.phone,
               address_line_1: shippingInfo.address_line_1,
               postal_code: shippingInfo.postal_code,
-              city: shippingInfo.city || "Unknown",
               province_id: shippingInfo.rajaongkir_province_id,
               city_id: shippingInfo.rajaongkir_city_id,
               district_id: shippingInfo.rajaongkir_district_id,
@@ -473,9 +431,7 @@ export default function CartPage() {
         await Swal.fire({
           icon: "success",
           title: "Pesanan Berhasil Dibuat",
-          text: `Reference: ${
-            (result.data as { reference?: string }).reference || "N/A"
-          }`,
+          text: "Silakan lanjutkan ke halaman pembayaran.",
           confirmButtonText: "Lanjut ke Pembayaran",
         });
         window.open(
@@ -539,11 +495,10 @@ export default function CartPage() {
     }
   };
 
-  // ===== Empty cart
   if (cartItems.length === 0) {
     return (
       <div
-        className={`min-h-screen w-full bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24 ${sniglet.className}`}
+        className={`min-h-screen w-full bg-gradient-to-br from-white to-[#A3B18A]/10 pt-24 ${sniglet.className}`}
       >
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-2xl mx-auto text-center py-20">
@@ -564,10 +519,10 @@ export default function CartPage() {
               <ArrowLeft className="w-5 h-5" />
               Mulai Berbelanja
             </a>
-
-            {/* Related section tetap tampil saat kosong */}
             <div className="mt-16">
-              <h2 className={`text-2xl font-bold text-gray-900 mb-6 ${fredoka.className}`}>
+              <h2
+                className={`text-2xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
+              >
                 Produk Rekomendasi
               </h2>
               {isRelLoading && (
@@ -630,13 +585,15 @@ export default function CartPage() {
                             </span>
                           )}
                         </div>
-                        <button
-                          onClick={() => addRelatedToCart(product.__raw)}
-                          className="w-full bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Plus className="w-4 h-4" />
-                          Tambah ke Keranjang
-                        </button>
+                        <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
+                          <button
+                            onClick={() => addRelatedToCart(product.__raw)}
+                            className="w-full bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Tambah ke Keranjang
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -649,13 +606,11 @@ export default function CartPage() {
     );
   }
 
-  // ===== Main cart page
   return (
     <div
       className={`min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24 ${sniglet.className}`}
     >
       <div className="container mx-auto px-6 lg:px-12 pb-12">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
             <a
@@ -666,7 +621,6 @@ export default function CartPage() {
               Lanjut Belanja
             </a>
           </div>
-
           <div className="text-center">
             <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-4">
               <Sparkles className="w-4 h-4 text-[#A3B18A]" />
@@ -674,7 +628,9 @@ export default function CartPage() {
                 Keranjang Belanja
               </span>
             </div>
-            <h1 className={`text-4xl lg:text-5xl font-bold text-gray-900 mb-4 ${fredoka.className}`}>
+            <h1
+              className={`text-4xl lg:text-5xl font-bold text-gray-900 mb-4 ${fredoka.className}`}
+            >
               Produk <span className="text-[#A3B18A]">Pilihan Anda</span>
             </h1>
             <p className="text-gray-600 max-w-2xl mx-auto">
@@ -685,7 +641,6 @@ export default function CartPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
           <div className="lg:col-span-2 space-y-6">
             {cartItems.map((item) => (
               <div
@@ -693,7 +648,6 @@ export default function CartPage() {
                 className="bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow"
               >
                 <div className="flex flex-col sm:flex-row gap-6">
-                  {/* Image */}
                   <div className="relative w-full sm:w-32 h-48 sm:h-32 flex-shrink-0">
                     <Image
                       src={item.image}
@@ -716,7 +670,6 @@ export default function CartPage() {
                     )}
                   </div>
 
-                  {/* Detail */}
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4">
                       <div>
@@ -749,7 +702,6 @@ export default function CartPage() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      {/* Price */}
                       <div className="flex items-center gap-3">
                         <span className="text-2xl font-bold text-[#A3B18A]">
                           Rp {item.price.toLocaleString("id-ID")}
@@ -761,7 +713,6 @@ export default function CartPage() {
                         )}
                       </div>
 
-                      {/* Quantity */}
                       <div className="flex items-center gap-3">
                         <div className="flex items-center bg-gray-100 rounded-2xl">
                           <button
@@ -807,14 +758,13 @@ export default function CartPage() {
               </div>
             ))}
 
-            {/* Informasi Pengiriman (baru, warna tetap konsisten) */}
             <div className="bg-white rounded-3xl p-6 shadow-lg">
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <Truck className="w-5 h-5 text-[#A3B18A]" />
                 Informasi Pengiriman
               </h3>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Nama Lengkap *
@@ -841,9 +791,14 @@ export default function CartPage() {
                     placeholder="08xxxxxxxxxx"
                     className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
                   />
+                  {!isPhoneValid && shippingInfo.phone && (
+                    <p className="text-sm text-red-500 mt-0.5">
+                      Nomor telepon tidak valid
+                    </p>
+                  )}
                 </div>
 
-                <div className="col-span-2">
+                <div className="col-span-1 sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Alamat Lengkap *
                   </label>
@@ -871,6 +826,8 @@ export default function CartPage() {
                         rajaongkir_city_id: 0,
                         rajaongkir_district_id: 0,
                       }));
+                      setShippingCourier(null);
+                      setShippingMethod(null);
                     }}
                     data={provinces}
                     isLoading={loadingProvince}
@@ -884,13 +841,15 @@ export default function CartPage() {
                   </label>
                   <Combobox
                     value={shippingInfo.rajaongkir_city_id}
-                    onChange={(id) =>
+                    onChange={(id) => {
                       setShippingInfo((prev) => ({
                         ...prev,
                         rajaongkir_city_id: id,
                         rajaongkir_district_id: 0,
-                      }))
-                    }
+                      }));
+                      setShippingCourier(null);
+                      setShippingMethod(null);
+                    }}
                     data={cities}
                     isLoading={loadingCity}
                     getOptionLabel={(item) => item.name}
@@ -904,12 +863,14 @@ export default function CartPage() {
                   </label>
                   <Combobox
                     value={shippingInfo.rajaongkir_district_id}
-                    onChange={(id) =>
+                    onChange={(id) => {
                       setShippingInfo((prev) => ({
                         ...prev,
                         rajaongkir_district_id: id,
-                      }))
-                    }
+                      }));
+                      setShippingCourier(null);
+                      setShippingMethod(null);
+                    }}
                     data={districts}
                     isLoading={loadingDistrict}
                     getOptionLabel={(item) => item.name}
@@ -935,66 +896,93 @@ export default function CartPage() {
             </div>
           </div>
 
-          {/* Right Column */}
           <div className="space-y-6">
-            {/* Metode Pengiriman (radio) */}
             <div className="bg-white rounded-3xl p-6 shadow-lg">
               <h3 className="font-bold text-gray-900 mb-4">
                 Metode Pengiriman
               </h3>
-
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Pilih Kurir
+                </label>
+                <Select
+                  value={shippingCourier ?? ""}
+                  onValueChange={(val) => {
+                    setShippingCourier(val);
+                  }}
+                  disabled={!shippingInfo.rajaongkir_district_id}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Kurir" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="jne">JNE</SelectItem>
+                    <SelectItem value="pos">POS</SelectItem>
+                    <SelectItem value="tiki">TIKI</SelectItem>
+                  </SelectContent>
+                </Select>
+                {!shippingInfo.rajaongkir_district_id && (
+                  <p className="text-sm text-red-500 mt-1">
+                    Pilih kecamatan untuk melihat opsi kurir.
+                  </p>
+                )}
+              </div>
               <div className="space-y-3">
-                <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-neutral-50 transition-colors">
-                  <input
-                    type="radio"
-                    name="shipping"
-                    value="regular"
-                    checked={shippingMethod === "regular"}
-                    onChange={(e) => setShippingMethod(e.target.value)}
-                  />
-                  <div className="flex-1">
-                    <p className="font-medium">Reguler (2-3 hari)</p>
-                    <p className="text-sm text-neutral-500">Rp 10.000</p>
+                {isShippingLoading ? (
+                  <div className="flex justify-center items-center py-4">
+                    <DotdLoader />
                   </div>
-                </label>
-
-                <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-neutral-50 transition-colors">
-                  <input
-                    type="radio"
-                    name="shipping"
-                    value="express"
-                    checked={shippingMethod === "express"}
-                    onChange={(e) => setShippingMethod(e.target.value)}
-                  />
-                  <div className="flex-1">
-                    <p className="font-medium">Express (1 hari)</p>
-                    <p className="text-sm text-neutral-500">Rp 15.000</p>
-                  </div>
-                </label>
-
-                <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-neutral-50 transition-colors">
-                  <input
-                    type="radio"
-                    name="shipping"
-                    value="pickup"
-                    checked={shippingMethod === "pickup"}
-                    onChange={(e) => setShippingMethod(e.target.value)}
-                  />
-                  <div className="flex-1">
-                    <p className="font-medium">Ambil di Tempat</p>
-                    <p className="text-sm text-neutral-500">Gratis</p>
-                  </div>
-                </label>
+                ) : isShippingError ? (
+                  <p className="text-center text-red-500">
+                    Gagal memuat opsi pengiriman.
+                  </p>
+                ) : shippingOptions.length > 0 ? (
+                  shippingOptions.map((option, index) => (
+                    <label
+                      key={index}
+                      className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                        shippingMethod?.service === option.service
+                          ? "border-[#A3B18A] bg-[#DFF19D]/30"
+                          : "border-gray-200 hover:bg-neutral-50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="shipping-service"
+                        checked={shippingMethod?.service === option.service}
+                        onChange={() => setShippingMethod(option)}
+                        className="form-radio text-[#A3B18A] h-4 w-4"
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium">{option.service}</p>
+                        <p className="text-sm text-neutral-500">
+                          {option.description}
+                        </p>
+                        <p className="text-sm font-semibold">
+                          Rp {option.cost.toLocaleString("id-ID")}
+                        </p>
+                        <p className="text-xs text-neutral-400">
+                          Estimasi: {option.etd}
+                        </p>
+                      </div>
+                    </label>
+                  ))
+                ) : (
+                  shippingInfo.rajaongkir_district_id &&
+                  shippingCourier && (
+                    <p className="text-center text-gray-500">
+                      Tidak ada opsi pengiriman tersedia.
+                    </p>
+                  )
+                )}
               </div>
             </div>
 
-            {/* Kode Promo */}
-            <div className="bg-white rounded-3xl p-6 shadow-lg">
+            <div className="bg-white rounded-3xl p-6 shadow-lg hidden">
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <Tag className="w-5 h-5 text-[#A3B18A]" />
                 Kode Promo
               </h3>
-
               {appliedCoupon ? (
                 <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -1028,7 +1016,6 @@ export default function CartPage() {
                   </button>
                 </div>
               )}
-
               <div className="mt-4 text-sm text-gray-600">
                 <p>
                   💡 Coba kode: <strong>COLORE10</strong> untuk diskon 10%
@@ -1036,8 +1023,7 @@ export default function CartPage() {
               </div>
             </div>
 
-            {/* Metode Pembayaran */}
-            <div className="bg-white rounded-3xl p-6 shadow-lg">
+            <div className="bg-white rounded-3xl p-6 shadow-lg hidden">
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-[#A3B18A]" />
                 Metode Pembayaran
@@ -1060,12 +1046,10 @@ export default function CartPage() {
               </Select>
             </div>
 
-            {/* Ringkasan Pesanan */}
             <div className="bg-white rounded-3xl p-6 shadow-lg">
               <h3 className="font-bold text-gray-900 mb-4">
                 Ringkasan Pesanan
               </h3>
-
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-gray-600">
@@ -1075,27 +1059,18 @@ export default function CartPage() {
                     Rp {subtotal.toLocaleString("id-ID")}
                   </span>
                 </div>
-
                 {discount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Diskon Promo</span>
                     <span>- Rp {discount.toLocaleString("id-ID")}</span>
                   </div>
                 )}
-
                 <div className="flex justify-between">
                   <span className="text-gray-600">Ongkos Kirim</span>
-                  <span
-                    className={`font-semibold ${
-                      shippingCost === 0 ? "text-green-600" : ""
-                    }`}
-                  >
-                    {shippingCost === 0
-                      ? "GRATIS"
-                      : `Rp ${shippingCost.toLocaleString("id-ID")}`}
+                  <span className="font-semibold">
+                    Rp {shippingCost.toLocaleString("id-ID")}
                   </span>
                 </div>
-
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
@@ -1105,8 +1080,6 @@ export default function CartPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Benefits */}
               <div className="space-y-3 mb-6 text-sm">
                 <div className="flex items-center gap-2 text-gray-600">
                   <Shield className="w-4 h-4 text-[#A3B18A]" />
@@ -1121,18 +1094,17 @@ export default function CartPage() {
                   <span>Garansi 30 hari</span>
                 </div>
               </div>
-
               <button
                 onClick={handleCheckout}
                 disabled={
                   isCheckingOut ||
                   isSubmitting ||
                   cartItems.some((it) => !it.inStock) ||
-                  !paymentMethod ||
                   !shippingMethod ||
                   !shippingInfo.fullName ||
                   !shippingInfo.address_line_1 ||
-                  !shippingInfo.postal_code
+                  !shippingInfo.postal_code ||
+                  !isPhoneValid
                 }
                 className="w-full bg-[#A3B18A] text-white py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -1148,7 +1120,6 @@ export default function CartPage() {
                   </>
                 )}
               </button>
-
               {(!paymentMethod ||
                 !shippingMethod ||
                 !shippingInfo.fullName ||
@@ -1157,7 +1128,6 @@ export default function CartPage() {
                   * Harap lengkapi semua informasi yang diperlukan
                 </p>
               )}
-
               {cartItems.some((it) => !it.inStock) && (
                 <p className="text-red-500 text-sm text-center mt-3">
                   Beberapa produk tidak tersedia. Hapus untuk melanjutkan.
@@ -1166,8 +1136,6 @@ export default function CartPage() {
             </div>
           </div>
         </div>
-
-        {/* Related Products (TIDAK DIUBAH tampilannya) */}
         <div className="mt-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -1177,7 +1145,6 @@ export default function CartPage() {
               Lengkapi koleksi kreatif si kecil dengan produk pilihan lainnya
             </p>
           </div>
-
           {isRelLoading && (
             <div className="text-center text-gray-600">
               <DotdLoader />
@@ -1188,7 +1155,6 @@ export default function CartPage() {
               Gagal memuat rekomendasi.
             </div>
           )}
-
           {!isRelLoading && !isRelError && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {relatedProducts.map((product) => (
@@ -1207,7 +1173,6 @@ export default function CartPage() {
                       <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
                     </button>
                   </div>
-
                   <div className="p-6">
                     <span className="text-sm text-[#A3B18A] font-medium">
                       {product.category}
@@ -1215,7 +1180,6 @@ export default function CartPage() {
                     <h3 className="text-lg font-bold text-gray-900 mt-1 mb-3">
                       {product.name}
                     </h3>
-
                     <div className="flex items-center gap-2 mb-4">
                       <div className="flex items-center gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -1233,7 +1197,6 @@ export default function CartPage() {
                         ({product.rating.toFixed(1)})
                       </span>
                     </div>
-
                     <div className="flex items-center gap-3 mb-4">
                       <span className="text-xl font-bold text-[#A3B18A]">
                         Rp {product.price.toLocaleString("id-ID")}
@@ -1244,14 +1207,15 @@ export default function CartPage() {
                         </span>
                       )}
                     </div>
-
-                    <button
-                      onClick={() => addRelatedToCart(product.__raw)}
-                      className="w-full bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Tambah ke Keranjang
-                    </button>
+                    <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
+                      <button
+                        onClick={() => addRelatedToCart(product.__raw)}
+                        className="w-full bg-black/50 text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Tambah ke Keranjang
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
