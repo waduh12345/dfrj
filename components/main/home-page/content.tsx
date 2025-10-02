@@ -356,14 +356,14 @@ export default function HomePage() {
                         <div
                           className={`bg-gradient-to-br ${gradientByIndex(
                             index
-                          )} h-48 flex items-center justify-center`}
+                          )} h-48 flex items-center justify-center overflow-hidden`}
                         >
                           <Image
                             src={safeCategoryImg(category.image)}
                             alt={category.name}
                             width={220}
                             height={220}
-                            className="rounded-lg object-cover opacity-80 max-h-40 group-hover:opacity-100 transition-all group-hover:scale-110 transform duration-500"
+                            className="rounded-lg object-cover w-full opacity-80 max-h-48 group-hover:opacity-100 transition-all group-hover:scale-110 transform duration-500"
                           />
                         </div>
 

@@ -7,7 +7,7 @@ const translations = {
   "hero-cta": "Belanja Sekarang",
   "hero-other-1": "Keluarga Puas",
   "hero-other-2": "Produk Kreatif",
-  "sec-2-title-1": "Jelajahi Merk",
+  "sec-2-title-1": "Jelajahi Kategori",
   "sec-2-title-2": "Produk",
   "sec-2-subtitle":
     "Temukan beragam produk seni dan kerajinan yang dirancang khusus untuk mengembangkan kreativitas anak dengan cara yang menyenangkan dan ramah lingkungan.",
