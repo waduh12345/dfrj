@@ -10,12 +10,7 @@ import {
   Heart,
   ArrowLeft,
   CreditCard,
-  Tag,
-  X,
-  CheckCircle,
   Sparkles,
-  Package,
-  Shield,
   Truck,
   Star,
 } from "lucide-react";
@@ -48,6 +43,9 @@ import { useSession } from "next-auth/react";
 import { useGetUserAddressListQuery } from "@/services/address.service";
 import type { Address } from "@/types/address";
 import { fredoka, sniglet } from "@/lib/fonts";
+import { Voucher } from "@/types/voucher";
+import PaymentMethod from "@/components/payment-method";
+import VoucherPicker from "@/components/voucher-picker";
 
 const STORAGE_KEY = "cart-storage";
 
@@ -138,6 +136,7 @@ function mapStoredToView(items: StoredCartItem[]): CartItemView[] {
 }
 
 type ErrorBag = Record<string, string[] | string>;
+type PaymentType = "midtrans" | "manual" | "cod";
 
 export default function CartPage() {
   const router = useRouter();
@@ -145,15 +144,15 @@ export default function CartPage() {
   const sessionName = useMemo(() => session?.user?.name ?? "", [session]);
 
   const [cartItems, setCartItems] = useState<CartItemView[]>([]);
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
 
-  const [paymentMethod, setPaymentMethod] = useState("");
   const [shippingCourier, setShippingCourier] = useState<string | null>(null);
   const [shippingMethod, setShippingMethod] =
     useState<ShippingCostOption | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [paymentMethod, setPaymentMethod] = useState<PaymentType>("manual");
+  const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
 
   const [shippingInfo, setShippingInfo] = useState({
     fullName: "",
@@ -302,15 +301,6 @@ export default function CartPage() {
     setCartItems([]);
   };
 
-  const applyCoupon = () => {
-    if (couponCode.trim().toLowerCase() === "colore10") {
-      setAppliedCoupon("COLORE10");
-      setCouponCode("");
-    }
-  };
-
-  const removeCoupon = () => setAppliedCoupon(null);
-
   const {
     data: relatedResp,
     isLoading: isRelLoading,
@@ -350,12 +340,29 @@ export default function CartPage() {
     });
   };
 
+  // const discount =
+  //   appliedCoupon === "COLORE10" ? Math.round(subtotal * 0.1) : 0;
+
+  // const shippingCost = shippingMethod?.cost ?? 0;
+  // const total = subtotal - discount + shippingCost;
+
   const subtotal = cartItems.reduce(
     (sum, it) => sum + it.price * it.quantity,
     0
   );
-  const discount =
-    appliedCoupon === "COLORE10" ? Math.round(subtotal * 0.1) : 0;
+
+  // Diskon dari voucher terpilih
+  const voucherDiscount = useMemo(() => {
+    if (!selectedVoucher) return 0;
+    if (selectedVoucher.type === "fixed") {
+      const cut = Math.max(0, selectedVoucher.fixed_amount);
+      return Math.min(cut, subtotal);
+    }
+    const pct = Math.max(0, selectedVoucher.percentage_amount);
+    return Math.round((subtotal * pct) / 100);
+  }, [selectedVoucher, subtotal]);
+
+  const discount = voucherDiscount;
 
   const shippingCost = shippingMethod?.cost ?? 0;
   const total = subtotal - discount + shippingCost;
@@ -640,8 +647,8 @@ export default function CartPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 gap-8">
+          <div className="space-y-6">
             {cartItems.map((item) => (
               <div
                 key={item.id}
@@ -897,155 +904,99 @@ export default function CartPage() {
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white rounded-3xl p-6 shadow-lg">
-              <h3 className="font-bold text-gray-900 mb-4">
-                Metode Pengiriman
-              </h3>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Pilih Kurir
-                </label>
-                <Select
-                  value={shippingCourier ?? ""}
-                  onValueChange={(val) => {
-                    setShippingCourier(val);
-                  }}
-                  disabled={!shippingInfo.rajaongkir_district_id}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih Kurir" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="jne">JNE</SelectItem>
-                    <SelectItem value="pos">POS</SelectItem>
-                    <SelectItem value="tiki">TIKI</SelectItem>
-                  </SelectContent>
-                </Select>
-                {!shippingInfo.rajaongkir_district_id && (
-                  <p className="text-sm text-red-500 mt-1">
-                    Pilih kecamatan untuk melihat opsi kurir.
-                  </p>
-                )}
-              </div>
-              <div className="space-y-3">
-                {isShippingLoading ? (
-                  <div className="flex justify-center items-center py-4">
-                    <DotdLoader />
-                  </div>
-                ) : isShippingError ? (
-                  <p className="text-center text-red-500">
-                    Gagal memuat opsi pengiriman.
-                  </p>
-                ) : shippingOptions.length > 0 ? (
-                  shippingOptions.map((option, index) => (
-                    <label
-                      key={index}
-                      className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                        shippingMethod?.service === option.service
-                          ? "border-[#A3B18A] bg-[#DFF19D]/30"
-                          : "border-gray-200 hover:bg-neutral-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="shipping-service"
-                        checked={shippingMethod?.service === option.service}
-                        onChange={() => setShippingMethod(option)}
-                        className="form-radio text-[#A3B18A] h-4 w-4"
-                      />
-                      <div className="flex-1">
-                        <p className="font-medium">{option.service}</p>
-                        <p className="text-sm text-neutral-500">
-                          {option.description}
-                        </p>
-                        <p className="text-sm font-semibold">
-                          Rp {option.cost.toLocaleString("id-ID")}
-                        </p>
-                        <p className="text-xs text-neutral-400">
-                          Estimasi: {option.etd}
-                        </p>
-                      </div>
-                    </label>
-                  ))
-                ) : (
-                  shippingInfo.rajaongkir_district_id &&
-                  shippingCourier && (
-                    <p className="text-center text-gray-500">
-                      Tidak ada opsi pengiriman tersedia.
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-3xl p-6 shadow-lg">
+                <h3 className="font-bold text-gray-900 mb-4">
+                  Metode Pengiriman
+                </h3>
+                <div className="mb-4">
+                  <label className="block  w-full text-sm font-medium text-gray-700 mb-2">
+                    Pilih Kurir
+                  </label>
+                  <Select
+                    value={shippingCourier ?? ""}
+                    onValueChange={(val) => {
+                      setShippingCourier(val);
+                    }}
+                    disabled={!shippingInfo.rajaongkir_district_id}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih Kurir" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="jne">JNE</SelectItem>
+                      <SelectItem value="pos">POS</SelectItem>
+                      <SelectItem value="tiki">TIKI</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {!shippingInfo.rajaongkir_district_id && (
+                    <p className="text-sm text-red-500 mt-1">
+                      Pilih kecamatan untuk melihat opsi kurir.
                     </p>
-                  )
-                )}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-3xl p-6 shadow-lg hidden">
-              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Tag className="w-5 h-5 text-[#A3B18A]" />
-                Kode Promo
-              </h3>
-              {appliedCoupon ? (
-                <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span className="font-semibold text-green-800">
-                      {appliedCoupon}
-                    </span>
-                    <span className="text-sm text-green-600">- 10% Diskon</span>
-                  </div>
-                  <button
-                    onClick={removeCoupon}
-                    className="text-green-600 hover:text-green-800"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  )}
                 </div>
-              ) : (
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Masukkan kode promo"
-                    className="flex-1 px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                  />
-                  <button
-                    onClick={applyCoupon}
-                    className="px-6 py-3 bg-[#A3B18A] text-white rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors"
-                  >
-                    Pakai
-                  </button>
+                <div className="space-y-3">
+                  {isShippingLoading ? (
+                    <div className="flex justify-center items-center py-4">
+                      <DotdLoader />
+                    </div>
+                  ) : isShippingError ? (
+                    <p className="text-center text-red-500">
+                      Gagal memuat opsi pengiriman.
+                    </p>
+                  ) : shippingOptions.length > 0 ? (
+                    shippingOptions.map((option, index) => (
+                      <label
+                        key={index}
+                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                          shippingMethod?.service === option.service
+                            ? "border-[#A3B18A] bg-[#DFF19D]/30"
+                            : "border-gray-200 hover:bg-neutral-50"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="shipping-service"
+                          checked={shippingMethod?.service === option.service}
+                          onChange={() => setShippingMethod(option)}
+                          className="form-radio text-[#A3B18A] h-4 w-4"
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium">{option.service}</p>
+                          <p className="text-sm text-neutral-500">
+                            {option.description}
+                          </p>
+                          <p className="text-sm font-semibold">
+                            Rp {option.cost.toLocaleString("id-ID")}
+                          </p>
+                          <p className="text-xs text-neutral-400">
+                            Estimasi: {option.etd}
+                          </p>
+                        </div>
+                      </label>
+                    ))
+                  ) : (
+                    shippingInfo.rajaongkir_district_id &&
+                    shippingCourier && (
+                      <p className="text-center text-gray-500">
+                        Tidak ada opsi pengiriman tersedia.
+                      </p>
+                    )
+                  )}
                 </div>
-              )}
-              <div className="mt-4 text-sm text-gray-600">
-                <p>
-                  💡 Coba kode: <strong>COLORE10</strong> untuk diskon 10%
-                </p>
               </div>
-            </div>
 
-            <div className="bg-white rounded-3xl p-6 shadow-lg hidden">
-              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-[#A3B18A]" />
-                Metode Pembayaran
-              </h3>
-              <Select
-                value={paymentMethod}
-                onValueChange={(val) => setPaymentMethod(val)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih Metode Pembayaran" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cod">Bayar di Tempat (COD)</SelectItem>
-                  <SelectItem value="transfer">Transfer Bank</SelectItem>
-                  <SelectItem value="ewallet">
-                    E-Wallet (GoPay/OVO/Dana)
-                  </SelectItem>
-                  <SelectItem value="qris">QRIS</SelectItem>
-                </SelectContent>
-              </Select>
+              <VoucherPicker
+                selected={selectedVoucher}
+                onChange={setSelectedVoucher}
+              />
             </div>
+            <PaymentMethod
+              value={paymentMethod}
+              onChange={(val) => setPaymentMethod(val)}
+            />
 
+            {/* === Ringkasan Pesanan (update baris diskon) === */}
             <div className="bg-white rounded-3xl p-6 shadow-lg">
               <h3 className="font-bold text-gray-900 mb-4">
                 Ringkasan Pesanan
@@ -1059,18 +1010,26 @@ export default function CartPage() {
                     Rp {subtotal.toLocaleString("id-ID")}
                   </span>
                 </div>
+
                 {discount > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Diskon Promo</span>
+                    <span>
+                      Diskon{" "}
+                      {selectedVoucher?.code
+                        ? `(${selectedVoucher.code})`
+                        : "Voucher"}
+                    </span>
                     <span>- Rp {discount.toLocaleString("id-ID")}</span>
                   </div>
                 )}
+
                 <div className="flex justify-between">
                   <span className="text-gray-600">Ongkos Kirim</span>
                   <span className="font-semibold">
                     Rp {shippingCost.toLocaleString("id-ID")}
                   </span>
                 </div>
+
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
@@ -1080,20 +1039,7 @@ export default function CartPage() {
                   </div>
                 </div>
               </div>
-              <div className="space-y-3 mb-6 text-sm">
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Shield className="w-4 h-4 text-[#A3B18A]" />
-                  <span>Pembayaran 100% aman</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Truck className="w-4 h-4 text-[#A3B18A]" />
-                  <span>Gratis ongkir untuk belanja di atas 250k</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Package className="w-4 h-4 text-[#A3B18A]" />
-                  <span>Garansi 30 hari</span>
-                </div>
-              </div>
+
               <button
                 onClick={handleCheckout}
                 disabled={
@@ -1120,6 +1066,7 @@ export default function CartPage() {
                   </>
                 )}
               </button>
+
               {(!paymentMethod ||
                 !shippingMethod ||
                 !shippingInfo.fullName ||
@@ -1128,6 +1075,7 @@ export default function CartPage() {
                   * Harap lengkapi semua informasi yang diperlukan
                 </p>
               )}
+
               {cartItems.some((it) => !it.inStock) && (
                 <p className="text-red-500 text-sm text-center mt-3">
                   Beberapa produk tidak tersedia. Hapus untuk melanjutkan.

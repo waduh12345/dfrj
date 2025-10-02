@@ -193,7 +193,7 @@ export default function VoucherPage() {
               ) : (
                 filteredList.map((item, idx) => (
                   <tr key={item.id} className="border-t">
-                    <td className="px-4 py-2 space-x-2">
+                    <td className="px-4 py-2 space-x-2 whitespace-nowrap">
                       <Button size="sm" onClick={() => handleEdit(item)}>
                         Edit
                       </Button>

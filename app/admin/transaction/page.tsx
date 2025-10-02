@@ -24,39 +24,50 @@ import {
 } from "@/services/admin/transaction.service";
 import { Transaction } from "@/types/admin/transaction";
 import { Badge } from "@/components/ui/badge";
+import TransactionDetailModal from "@/components/form-modal/admin/transaction-detail-modal";
 
 // Status enum mapping
 type TransactionStatusKey = 0 | 1 | 2 | -1 | -2 | -3;
-type TransactionStatusInfo = { label: string; variant: "secondary" | "default" | "success" | "destructive" };
-
-const TRANSACTION_STATUS: Record<TransactionStatusKey, TransactionStatusInfo> = {
-  0: { label: "PENDING", variant: "secondary" },
-  1: { label: "CAPTURED", variant: "default" },
-  2: { label: "SETTLEMENT", variant: "success" },
-  [-1]: { label: "DENY", variant: "destructive" },
-  [-2]: { label: "EXPIRED", variant: "destructive" },
-  [-3]: { label: "CANCEL", variant: "destructive" },
+type TransactionStatusInfo = {
+  label: string;
+  variant: "secondary" | "default" | "success" | "destructive";
 };
+
+const TRANSACTION_STATUS: Record<TransactionStatusKey, TransactionStatusInfo> =
+  {
+    0: { label: "PENDING", variant: "secondary" },
+    1: { label: "CAPTURED", variant: "default" },
+    2: { label: "SETTLEMENT", variant: "success" },
+    [-1]: { label: "DENY", variant: "destructive" },
+    [-2]: { label: "EXPIRED", variant: "destructive" },
+    [-3]: { label: "CANCEL", variant: "destructive" },
+  };
 
 export default function TransactionPage() {
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailTx, setDetailTx] = useState<Transaction | null>(null);
+
   // Helper function to format currency in Rupiah
   const formatRupiah = (amount: number | string) => {
-    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    if (isNaN(numAmount)) return 'Rp 0';
-    
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
+    const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+    if (isNaN(numAmount)) return "Rp 0";
+
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(numAmount).replace('IDR', 'Rp');
+    })
+      .format(numAmount)
+      .replace("IDR", "Rp");
   };
 
   // Helper function to format datetime to Indonesian format
@@ -64,13 +75,13 @@ export default function TransactionPage() {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return dateString;
-      
-      return new Intl.DateTimeFormat('id-ID', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
+
+      return new Intl.DateTimeFormat("id-ID", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
         hour12: false,
       }).format(date);
     } catch (error) {
@@ -81,7 +92,7 @@ export default function TransactionPage() {
   // Helper function to handle payment link click
   const handlePaymentLinkClick = (paymentLink: string) => {
     if (paymentLink && paymentLink.trim()) {
-      window.open(paymentLink, '_blank', 'noopener,noreferrer');
+      window.open(paymentLink, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -146,7 +157,12 @@ export default function TransactionPage() {
   };
 
   const getStatusInfo = (status: number) => {
-    return TRANSACTION_STATUS[status as TransactionStatusKey] || { label: "UNKNOWN", variant: "secondary" };
+    return (
+      TRANSACTION_STATUS[status as TransactionStatusKey] || {
+        label: "UNKNOWN",
+        variant: "secondary",
+      }
+    );
   };
 
   return (
@@ -165,7 +181,9 @@ export default function TransactionPage() {
                 <th className="px-4 py-2 whitespace-nowrap">Customer</th>
                 <th className="px-4 py-2 whitespace-nowrap">Harga</th>
                 <th className="px-4 py-2 whitespace-nowrap">Diskon</th>
-                <th className="px-4 py-2 whitespace-nowrap">Biaya Pengiriman</th>
+                <th className="px-4 py-2 whitespace-nowrap">
+                  Biaya Pengiriman
+                </th>
                 <th className="px-4 py-2 whitespace-nowrap">Total harga</th>
                 <th className="px-4 py-2 whitespace-nowrap">Payment Link</th>
                 <th className="px-4 py-2 whitespace-nowrap">Tanggal</th>
@@ -194,6 +212,17 @@ export default function TransactionPage() {
                         <div className="flex gap-2">
                           <Button
                             size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setDetailTx(item);
+                              setDetailOpen(true);
+                            }}
+                          >
+                            Detail
+                          </Button>
+
+                          <Button
+                            size="sm"
                             variant="destructive"
                             onClick={() => handleDelete(item)}
                           >
@@ -201,7 +230,9 @@ export default function TransactionPage() {
                           </Button>
                         </div>
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap">{item.reference}</td>
+                      <td className="px-4 py-2 whitespace-nowrap">
+                        {item.reference}
+                      </td>
                       <td className="px-4 py-2">{item.user_name}</td>
                       <td className="px-4 py-2 font-medium text-green-600">
                         {formatRupiah(item.total)}
@@ -221,7 +252,9 @@ export default function TransactionPage() {
                             size="sm"
                             variant="outline"
                             className="text-xs px-2 py-1 h-auto"
-                            onClick={() => handlePaymentLinkClick(item.payment_link)}
+                            onClick={() =>
+                              handlePaymentLinkClick(item.payment_link)
+                            }
                           >
                             Buka Link
                           </Button>
@@ -235,7 +268,7 @@ export default function TransactionPage() {
                         {formatDateTime(item.created_at)}
                       </td>
                       <td className="px-4 py-2">
-                        <Badge 
+                        <Badge
                           variant={statusInfo.variant}
                           className="cursor-pointer hover:opacity-80"
                           onClick={() => handleStatusClick(item)}
@@ -290,7 +323,7 @@ export default function TransactionPage() {
                 Customer: {selectedTransaction?.user_name}
               </p>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium mb-2 block">
                 Pilih Status Baru:
@@ -318,16 +351,22 @@ export default function TransactionPage() {
               >
                 Batal
               </Button>
-              <Button
-                onClick={handleStatusUpdate}
-                disabled={isUpdatingStatus}
-              >
+              <Button onClick={handleStatusUpdate} disabled={isUpdatingStatus}>
                 {isUpdatingStatus ? "Memperbarui..." : "Simpan"}
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      <TransactionDetailModal
+        open={detailOpen}
+        onClose={() => {
+          setDetailOpen(false);
+          setDetailTx(null);
+        }}
+        transaction={detailTx}
+      />
     </div>
   );
 }
