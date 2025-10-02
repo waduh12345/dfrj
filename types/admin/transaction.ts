@@ -1,3 +1,5 @@
+import { Voucher } from "../voucher";
+
 // Base Transaction interface (for responses)
 export interface Transaction {
   id: number;
@@ -64,7 +66,7 @@ export interface TransactionData {
 // Create transaction request payload
 export interface CreateTransactionRequest {
   data: TransactionData[];
-  voucher?: any[]; // Add proper voucher type if needed
+  voucher?: Voucher[]; // Add proper voucher type if needed
 }
 
 // Create transaction response
@@ -75,7 +77,7 @@ export interface CreateTransactionResponse {
 }
 
 // For API service typing
-export interface TransactionApiResponse<T = any> {
+export interface TransactionApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data: T;

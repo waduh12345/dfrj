@@ -24,6 +24,7 @@ import id from "@/translations/auth/id";
 import en from "@/translations/auth/en";
 import { useRegisterMutation } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface LoginFormData {
   email: string;
@@ -245,7 +246,12 @@ export default function LoginPage() {
             </Button>
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center">
-                <span className="text-[#A3B18A] font-bold text-xl">C</span>
+                <Image
+                  src="/favicon.ico"
+                  alt="Colore Logo"
+                  width={48}
+                  height={48}
+                />
               </div>
               <div>
                 <h1 className="text-2xl font-bold">COLORE</h1>
