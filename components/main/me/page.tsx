@@ -1,6 +1,6 @@
 "use client";
 
-import { JSX,useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
   User as UserIcon,
@@ -8,14 +8,19 @@ import {
   Package,
   BarChart3,
   LogOut,
+  Edit3,
+  Plus,
+  Trash2,
   Eye,
   Star,
   Calendar,
+  Phone,
+  Mail,
+  CheckCircle,
   Camera,
   CreditCard,
   Truck,
   Download,
-  X,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -39,41 +44,45 @@ import { useGetTransactionListQuery } from "@/services/admin/transaction.service
 import Swal from "sweetalert2";
 import { mapTxnStatusToOrderStatus, OrderStatus } from "@/lib/status-order";
 import type { Address as UserAddress } from "@/types/address";
-import { ROResponse, toList  } from "@/types/geo";
+import { ROResponse, toList, findName } from "@/types/geo";
 import { Region } from "@/types/shop";
 import ProfileEditModal from "../profile-page/edit-modal";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-/* ======================= Types untuk Orders ======================= */
+interface UserProfile {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  birthDate: string;
+  image: string;
+  joinDate: string;
+  totalOrders: number;
+  totalSpent: number;
+  loyaltyPoints: number;
+}
+
 interface OrderItem {
   id: string;
   name: string;
   image: string;
   quantity: number;
   price: number;
-  total?: number;
 }
 interface Order {
   id: string;
   orderNumber: string;
   date: string;
   status: OrderStatus;
-  total: number; // subtotal (tanpa ongkir/diskon)
-  grand_total?: number; // jika backend sediakan
-  discount_total?: number; // jika backend sediakan
-  shipment_cost?: number; // jika backend sediakan
+  total: number;
   items: OrderItem[];
   trackingNumber?: string;
-  payment_method?: string;
 }
-
-/* ======================= Helper gambar produk ======================= */
-interface ApiTransactionDetailShape {
+interface ApiTransactionDetail {
   id?: number | string;
   product_id?: number;
   quantity?: number;
   price?: number;
-  total?: number;
   product_name?: string;
   product?: {
     name?: string;
@@ -82,7 +91,17 @@ interface ApiTransactionDetailShape {
   } | null;
   image?: string | null;
 }
-const pickImageUrl = (d?: ApiTransactionDetailShape): string => {
+interface ApiTransaction {
+  id: number | string;
+  reference?: string;
+  status?: number;
+  total: number;
+  discount_total?: number;
+  created_at?: string;
+  details?: ApiTransactionDetail[];
+  tracking_number?: string;
+}
+const pickImageUrl = (d?: ApiTransactionDetail): string => {
   if (!d) return "/api/placeholder/80/80";
   if (typeof d.image === "string" && d.image) return d.image;
   const prod = d.product;
@@ -92,8 +111,9 @@ const pickImageUrl = (d?: ApiTransactionDetailShape): string => {
   return "/api/placeholder/80/80";
 };
 
-/* ======================= Komponen Halaman ======================= */
-export default function ProfilePage(): JSX.Element {
+/* ======================================================================= */
+
+export default function ProfilePage() {
   const { data: session } = useSession();
   const [logoutReq, { isLoading: isLoggingOut }] = useLogoutMutation();
   const [updateCurrentUser, { isLoading: isUpdatingProfile }] =
@@ -117,10 +137,6 @@ export default function ProfilePage(): JSX.Element {
     imageFile: null,
   });
 
-  // === NEW: modal detail pesanan
-  const [orderDetailModalOpen, setOrderDetailModalOpen] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "profile" | "addresses" | "orders"
   >("dashboard");
@@ -134,57 +150,35 @@ export default function ProfilePage(): JSX.Element {
   );
   const sessionId = (session?.user as { id?: number } | undefined)?.id;
 
-  /* --------------------- Transaksi --------------------- */
+  /* --------------------- Transaksi (tetap) --------------------- */
   const { data: txnResp } = useGetTransactionListQuery(
     { page: 1, paginate: 10, user_id: sessionId },
     { skip: !sessionId }
   );
-
-  // NOTE:
-  // Di beberapa backend, list transaction bisa menyertakan details produk.
-  // Jika tidak ada, items akan kosong tapi UI tetap aman.
+  const transactions: ApiTransaction[] = useMemo(
+    () => (txnResp?.data as ApiTransaction[]) || [],
+    [txnResp]
+  );
   const orders: Order[] = useMemo(() => {
-    type Txn = {
-      id: number | string;
-      reference?: string;
-      status?: number;
-      total: number;
-      grand_total?: number;
-      discount_total?: number;
-      shipment_cost?: number;
-      created_at?: string;
-      tracking_number?: string;
-      payment_method?: string;
-      details?: ApiTransactionDetailShape[];
-    };
-
-    const txns: ReadonlyArray<Txn> = (txnResp?.data as unknown as Txn[]) ?? [];
-
-    return txns.map((t) => {
+    return transactions.map((t) => {
       const items: OrderItem[] = (t.details || []).map((det, idx) => ({
         id: String(det.id ?? `${t.id}-${idx}`),
         name: det.product?.name ?? det.product_name ?? "Produk",
         image: pickImageUrl(det),
         quantity: det.quantity ?? 1,
         price: det.price ?? 0,
-        total: det.total,
       }));
-
       return {
         id: String(t.id),
         orderNumber: t.reference || `REF-${String(t.id)}`,
         date: t.created_at || new Date().toISOString(),
         status: mapTxnStatusToOrderStatus(t.status),
         total: t.total ?? 0,
-        grand_total: t.grand_total,
-        discount_total: t.discount_total,
-        shipment_cost: t.shipment_cost,
         items,
-        trackingNumber: t.tracking_number,
-        payment_method: t.payment_method,
+        trackingNumber: (t as { tracking_number?: string }).tracking_number,
       };
     });
-  }, [txnResp]);
+  }, [transactions]);
 
   /* --------------------- Address via SERVICE --------------------- */
   const [addrModalOpen, setAddrModalOpen] = useState(false);
@@ -323,25 +317,14 @@ export default function ProfilePage(): JSX.Element {
   };
 
   /* --------------------- Profil/dsb (tetap) --------------------- */
-  const [userProfile, setUserProfile] = useState<{
-    id: string;
-    fullName: string;
-    email: string;
-    phone: string;
-    birthDate: string;
-    image: string;
-    joinDate: string;
-    totalOrders: number;
-    totalSpent: number;
-    loyaltyPoints: number;
-  }>({
+  const [userProfile, setUserProfile] = useState<UserProfile>({
     id:
       (session?.user as { id?: number } | undefined)?.id?.toString?.() ??
       "user-id",
     fullName: sessionName,
     email: sessionEmail,
     phone: "",
-    birthDate: "1990-05-15",
+    birthDate: "1990-05-15", // default birth date
     image: session?.user?.image || "/api/placeholder/150/150",
     joinDate: "",
     totalOrders: 0,
@@ -362,11 +345,11 @@ export default function ProfilePage(): JSX.Element {
   }, [sessionName, sessionEmail, session]);
 
   useEffect(() => {
-    if (!orders.length) return;
-    const totalOrders = orders.length;
-    const totalSpent = orders.reduce((acc, t) => acc + (t.total ?? 0), 0);
+    if (!transactions.length) return;
+    const totalOrders = transactions.length;
+    const totalSpent = transactions.reduce((acc, t) => acc + (t.total ?? 0), 0);
     setUserProfile((prev) => ({ ...prev, totalOrders, totalSpent }));
-  }, [orders]);
+  }, [transactions]);
 
   const { data: currentUserResp, refetch: refetchCurrentUser } =
     useGetCurrentUserQuery();
@@ -377,7 +360,7 @@ export default function ProfilePage(): JSX.Element {
 
     const apiImage =
       (u as { image?: string }).image ||
-      (u as { media?: Array<{ original_url: string }> }).media?.[0]
+      (u as { media?: Array<{ original_url?: string }> }).media?.[0]
         ?.original_url ||
       "";
 
@@ -441,6 +424,7 @@ export default function ProfilePage(): JSX.Element {
     try {
       const result = await refetchCurrentUser();
       const u = result.data ?? currentUserResp;
+
       setProfileForm({
         name: u?.name ?? userProfile.fullName ?? "",
         email: u?.email ?? userProfile.email ?? "",
@@ -449,6 +433,7 @@ export default function ProfilePage(): JSX.Element {
         password_confirmation: "",
         imageFile: null,
       });
+
       setProfileModalOpen(true);
     } finally {
       setIsPrefillingProfile(false);
@@ -458,9 +443,11 @@ export default function ProfilePage(): JSX.Element {
   const handleSubmitProfile = async () => {
     try {
       const fd = new FormData();
+      // wajib/umum
       fd.append("name", profileForm.name ?? "");
       fd.append("email", profileForm.email ?? "");
       fd.append("phone", profileForm.phone ?? "");
+      // password opsional (hanya kirim jika diisi)
       if (profileForm.password) {
         fd.append("password", profileForm.password);
         fd.append(
@@ -468,17 +455,23 @@ export default function ProfilePage(): JSX.Element {
           profileForm.password_confirmation || ""
         );
       }
+      // image opsional
       if (profileForm.imageFile) {
         fd.append("image", profileForm.imageFile);
       }
+
       await updateCurrentUser(fd).unwrap();
       await refetchCurrentUser();
+
+      // sinkronkan tampilan lokal
       setUserProfile((prev) => ({
         ...prev,
         fullName: profileForm.name || prev.fullName,
         email: profileForm.email || prev.email,
         phone: profileForm.phone || prev.phone,
+        // avatar akan ikut dari current user ketika di-SSR/CSR fetch; di sini cukup refetch
       }));
+
       setProfileModalOpen(false);
       await Swal.fire("Berhasil", "Profil berhasil diperbarui.", "success");
     } catch (err: unknown) {
@@ -518,36 +511,25 @@ export default function ProfilePage(): JSX.Element {
   const normalizeUrl = (u?: string) => {
     if (!u) return "";
     try {
+      // encode karakter spesial, tapi tetap pertahankan slash
       return encodeURI(u);
     } catch {
       return u;
     }
   };
+  // Avatar source dengan fallback otomatis
   const rawAvatar = (userProfile.image ?? "").trim();
   const wantedAvatar = normalizeUrl(rawAvatar);
+
+  // pegang src di state supaya bisa diganti saat onError
   const [imgSrc, setImgSrc] = useState<string>(
     wantedAvatar ? wantedAvatar : DEFAULT_AVATAR
   );
+
+  // update kalau userProfile.image berubah
   useEffect(() => {
     setImgSrc(wantedAvatar ? wantedAvatar : DEFAULT_AVATAR);
   }, [wantedAvatar]);
-
-  // ======== NEW: handler modal detail
-  const selectedOrder = useMemo(
-    () =>
-      selectedOrderId
-        ? orders.find((o) => o.id === selectedOrderId) ?? null
-        : null,
-    [selectedOrderId, orders]
-  );
-  const openOrderDetailModal = (orderId: string) => {
-    setSelectedOrderId(orderId);
-    setOrderDetailModalOpen(true);
-  };
-  const closeOrderDetailModal = () => {
-    setOrderDetailModalOpen(false);
-    setSelectedOrderId(null);
-  };
 
   /* --------------------- UI --------------------- */
   return (
@@ -748,14 +730,501 @@ export default function ProfilePage(): JSX.Element {
 
               {/* Profile */}
               {activeTab === "profile" && (
-                /* ... (bagian profile tetap seperti sebelumnya) ... */
-                <div className="space-y-8">{/* dipertahankan */}</div>
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#A3B18A] rounded-2xl flex items-center justify-center text-white">
+                        <UserIcon className="w-5 h-5" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        Informasi Profil
+                      </h2>
+                    </div>
+                    <button
+                      onClick={openEditProfileModal}
+                      disabled={isPrefillingProfile}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#A3B18A] text-white rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors disabled:opacity-60"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      {isPrefillingProfile ? "Memuat..." : "Edit"}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Nama Lengkap
+                      </label>
+                      <div className="relative">
+                        <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="text"
+                          value={userProfile.fullName}
+                          onChange={(e) =>
+                            setUserProfile((prev) => ({
+                              ...prev,
+                              fullName: e.target.value,
+                            }))
+                          }
+                          disabled={!isEditing}
+                          className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent disabled:bg-gray-50"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Email
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="email"
+                          value={userProfile.email}
+                          onChange={(e) =>
+                            setUserProfile((prev) => ({
+                              ...prev,
+                              email: e.target.value,
+                            }))
+                          }
+                          disabled={!isEditing}
+                          className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent disabled:bg-gray-50"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Nomor Telepon
+                      </label>
+                      <div className="relative">
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="tel"
+                          value={userProfile.phone}
+                          onChange={(e) =>
+                            setUserProfile((prev) => ({
+                              ...prev,
+                              phone: e.target.value,
+                            }))
+                          }
+                          disabled={!isEditing}
+                          className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent disabled:bg-gray-50"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Tanggal Lahir
+                      </label>
+                      <div className="relative">
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="date"
+                          value={userProfile.birthDate}
+                          onChange={(e) =>
+                            setUserProfile((prev) => ({
+                              ...prev,
+                              birthDate: e.target.value,
+                            }))
+                          }
+                          disabled={!isEditing}
+                          className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent disabled:bg-gray-50"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#A3B18A]/5 rounded-2xl p-6">
+                    <h3 className="font-semibold text-gray-900 mb-4">
+                      Informasi Akun
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Bergabung sejak:</span>
+                        <div className="font-semibold text-gray-900">
+                          {new Date(userProfile.joinDate).toLocaleDateString(
+                            "id-ID",
+                            { year: "numeric", month: "long", day: "numeric" }
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Status Akun:</span>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <span className="font-semibold text-green-600">
+                            Terverifikasi
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
 
               {/* Addresses */}
               {activeTab === "addresses" && (
-                /* ... (bagian addresses tetap seperti sebelumnya) ... */
-                <div className="space-y-8">{/* dipertahankan */}</div>
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#A3B18A] rounded-2xl flex items-center justify-center text-white">
+                        <MapPin className="w-5 h-5" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        Alamat Pengiriman
+                      </h2>
+                    </div>
+                    <button
+                      onClick={openCreateAddress}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#A3B18A] text-white rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Tambah Alamat
+                    </button>
+                  </div>
+
+                  {isFetchingAddressList ? (
+                    <div className="text-gray-600">Memuat alamat...</div>
+                  ) : (
+                    (() => {
+                      const addressData: ReadonlyArray<UserAddress> =
+                        userAddressList?.data ?? [];
+                      if (addressData.length === 0) {
+                        return (
+                          <div className="text-gray-600">Belum ada alamat.</div>
+                        );
+                      }
+                      return (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {addressData.map((a) => {
+                            const provName = findName(
+                              provinceList,
+                              a.rajaongkir_province_id
+                            );
+                            const cityName = findName(
+                              cityList,
+                              a.rajaongkir_city_id
+                            );
+                            const distName = findName(
+                              districtList,
+                              a.rajaongkir_district_id
+                            );
+                            return (
+                              <div
+                                key={a.id}
+                                className={`border-2 rounded-2xl p-6 transition-all ${
+                                  a.is_default
+                                    ? "border-[#A3B18A] bg-[#A3B18A]/5"
+                                    : "border-gray-200 hover:border-[#A3B18A]/50"
+                                }`}
+                              >
+                                <div className="flex items-start justify-between mb-4">
+                                  <div>
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <h3 className="font-bold text-gray-900">
+                                        Alamat
+                                      </h3>
+                                      {a.is_default && (
+                                        <span className="px-2 py-1 bg-[#A3B18A] text-white text-xs font-semibold rounded-full">
+                                          Default
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() =>
+                                        openEditAddress(Number(a.id))
+                                      }
+                                      className="p-2 text-gray-400 hover:text-[#A3B18A] transition-colors"
+                                      title="Edit alamat"
+                                    >
+                                      <Edit3 className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteAddressApi(Number(a.id))
+                                      }
+                                      className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                      title={
+                                        isDeletingAddr
+                                          ? "Menghapus..."
+                                          : "Hapus alamat"
+                                      }
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="text-sm text-gray-600 mb-4">
+                                  <p className="text-gray-800 font-medium">
+                                    {a.address_line_1}
+                                  </p>
+                                  {a.address_line_2 && (
+                                    <p>{a.address_line_2}</p>
+                                  )}
+                                  <p>
+                                    {distName ? `${distName}, ` : ""}
+                                    {cityName ? `${cityName}, ` : ""}
+                                    {provName
+                                      ? provName
+                                      : `Prov ID ${a.rajaongkir_province_id}`}
+                                    {a.postal_code ? `, ${a.postal_code}` : ""}
+                                  </p>
+                                </div>
+
+                                {!a.is_default && (
+                                  <button
+                                    onClick={async () => {
+                                      try {
+                                        await updateUserAddress({
+                                          id: Number(a.id),
+                                          payload: { is_default: true },
+                                        }).unwrap();
+                                        await refetchUserAddressList();
+                                      } catch {
+                                        Swal.fire(
+                                          "Gagal",
+                                          "Tidak dapat menjadikan default.",
+                                          "error"
+                                        );
+                                      }
+                                    }}
+                                    className="text-[#A3B18A] text-sm font-semibold hover:underline"
+                                  >
+                                    Jadikan Default
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()
+                  )}
+
+                  {/* Modal Create / Edit */}
+                  {addrModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center">
+                      <div
+                        className="absolute inset-0 bg-black/50"
+                        onClick={() => {
+                          setAddrModalOpen(false);
+                          setAddrEditId(null);
+                        }}
+                      />
+                      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-xl font-bold text-gray-900">
+                            {addrEditId ? "Edit Alamat" : "Tambah Alamat"}
+                          </h3>
+                          <button
+                            onClick={() => {
+                              setAddrModalOpen(false);
+                              setAddrEditId(null);
+                            }}
+                            className="text-gray-400 hover:text-gray-600"
+                          >
+                            ✕
+                          </button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {/* Province */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Provinsi
+                            </label>
+                            <select
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.rajaongkir_province_id ?? ""}
+                              onChange={(e) => {
+                                const v = e.target.value
+                                  ? Number(e.target.value)
+                                  : null;
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  rajaongkir_province_id: v,
+                                  rajaongkir_city_id: null,
+                                  rajaongkir_district_id: null,
+                                }));
+                              }}
+                            >
+                              <option value="">-- Pilih Provinsi --</option>
+                              {provinceList.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* City */}
+                          <div>
+                            <label className="block text sm font-semibold text-gray-900 mb-2">
+                              Kota/Kabupaten
+                            </label>
+                            <select
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.rajaongkir_city_id ?? ""}
+                              onChange={(e) => {
+                                const v = e.target.value
+                                  ? Number(e.target.value)
+                                  : null;
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  rajaongkir_city_id: v,
+                                  rajaongkir_district_id: null,
+                                }));
+                              }}
+                              disabled={!addrForm.rajaongkir_province_id}
+                            >
+                              <option value="">
+                                -- Pilih Kota/Kabupaten --
+                              </option>
+                              {cityList.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                  {c.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* District */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Kecamatan
+                            </label>
+                            <select
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.rajaongkir_district_id ?? ""}
+                              onChange={(e) =>
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  rajaongkir_district_id: e.target.value
+                                    ? Number(e.target.value)
+                                    : null,
+                                }))
+                              }
+                              disabled={!addrForm.rajaongkir_city_id}
+                            >
+                              <option value="">-- Pilih Kecamatan --</option>
+                              {districtList.map((d) => (
+                                <option key={d.id} value={d.id}>
+                                  {d.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Address line 1 */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Alamat (Baris 1)
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.address_line_1 ?? ""}
+                              onChange={(e) =>
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  address_line_1: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+
+                          {/* Address line 2 */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Alamat (Baris 2) – opsional
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.address_line_2 ?? ""}
+                              onChange={(e) =>
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  address_line_2: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+
+                          {/* Postal code */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Kode Pos
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full border border-gray-200 rounded-2xl px-3 py-2"
+                              value={addrForm.postal_code ?? ""}
+                              onChange={(e) =>
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  postal_code: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+
+                          {/* Default */}
+                          <div className="flex items-center gap-2">
+                            <input
+                              id="is_default"
+                              type="checkbox"
+                              className="w-4 h-4"
+                              checked={Boolean(addrForm.is_default)}
+                              onChange={(e) =>
+                                setAddrForm((p) => ({
+                                  ...p,
+                                  is_default: e.target.checked,
+                                }))
+                              }
+                            />
+                            <label
+                              htmlFor="is_default"
+                              className="text-sm text-gray-800"
+                            >
+                              Jadikan alamat default
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 flex items-center justify-end gap-3">
+                          <button
+                            onClick={() => {
+                              setAddrModalOpen(false);
+                              setAddrEditId(null);
+                            }}
+                            className="px-4 py-2 rounded-2xl border border-gray-200 text-gray-700 hover:bg-gray-50"
+                          >
+                            Batal
+                          </button>
+                          <button
+                            onClick={handleSubmitAddress}
+                            disabled={isCreatingAddr || isUpdatingAddr}
+                            className="px-4 py-2 rounded-2xl bg-[#A3B18A] text-white font-semibold hover:bg-[#A3B18A]/90 disabled:opacity-60"
+                          >
+                            {addrEditId
+                              ? isUpdatingAddr
+                                ? "Menyimpan..."
+                                : "Simpan Perubahan"
+                              : isCreatingAddr
+                              ? "Menyimpan..."
+                              : "Simpan"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
 
               {/* Orders */}
@@ -839,9 +1308,9 @@ export default function ProfilePage(): JSX.Element {
                               <div className="text-right">
                                 <div className="font-semibold text-gray-900">
                                   Rp{" "}
-                                  {(
-                                    item.total ?? item.price * item.quantity
-                                  ).toLocaleString("id-ID")}
+                                  {(item.price * item.quantity).toLocaleString(
+                                    "id-ID"
+                                  )}
                                 </div>
                                 <div className="text-sm text-gray-500">
                                   @Rp {item.price.toLocaleString("id-ID")}
@@ -852,10 +1321,7 @@ export default function ProfilePage(): JSX.Element {
                         </div>
 
                         <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
-                          <button
-                            onClick={() => openOrderDetailModal(order.id)}
-                            className="flex items-center gap-2 px-4 py-2 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors"
-                          >
+                          <button className="flex items-center gap-2 px-4 py-2 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors">
                             <Eye className="w-4 h-4" />
                             Detail
                           </button>
@@ -905,207 +1371,6 @@ export default function ProfilePage(): JSX.Element {
           </div>
         </div>
       </div>
-
-      {/* ======= NEW: Order Detail Modal ======= */}
-      {orderDetailModalOpen && selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={closeOrderDetailModal}
-          />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">
-                Detail Pesanan #{selectedOrder.orderNumber}
-              </h3>
-              <button
-                onClick={closeOrderDetailModal}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              {/* Order Info */}
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">
-                    Informasi Pesanan
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Nomor Pesanan:</span>
-                      <span className="font-medium">
-                        #{selectedOrder.orderNumber}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Tanggal:</span>
-                      <span className="font-medium">
-                        {new Date(selectedOrder.date).toLocaleDateString(
-                          "id-ID",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Status:</span>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                          selectedOrder.status
-                        )}`}
-                      >
-                        {getStatusText(selectedOrder.status)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Metode Pembayaran:</span>
-                      <span className="font-medium uppercase">
-                        {selectedOrder.payment_method || "N/A"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Info */}
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">
-                    Rincian Pembayaran
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Subtotal:</span>
-                      <span className="font-medium">
-                        Rp {selectedOrder.total.toLocaleString("id-ID")}
-                      </span>
-                    </div>
-                    {typeof selectedOrder.shipment_cost === "number" && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Ongkos Kirim:</span>
-                        <span className="font-medium">
-                          Rp{" "}
-                          {selectedOrder.shipment_cost.toLocaleString("id-ID")}
-                        </span>
-                      </div>
-                    )}
-                    {typeof selectedOrder.discount_total === "number" &&
-                      selectedOrder.discount_total > 0 && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Diskon:</span>
-                          <span className="font-medium text-green-600">
-                            -Rp{" "}
-                            {selectedOrder.discount_total.toLocaleString(
-                              "id-ID"
-                            )}
-                          </span>
-                        </div>
-                      )}
-                    <div className="border-t pt-2">
-                      <div className="flex justify-between">
-                        <span className="font-semibold text-gray-900">
-                          Total:
-                        </span>
-                        <span className="font-bold text-[#6B6B6B]">
-                          Rp{" "}
-                          {(
-                            selectedOrder.grand_total ?? selectedOrder.total
-                          ).toLocaleString("id-ID")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Shipping Info (jika ada tracking number) */}
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">
-                    Pengiriman
-                  </h4>
-                  <div className="text-sm">
-                    {selectedOrder.trackingNumber ? (
-                      <div className="flex items-center gap-2">
-                        <Truck className="w-4 h-4 text-green-600" />
-                        <span className="font-medium text-green-600">
-                          {selectedOrder.trackingNumber}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Truck className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-500">
-                          Belum ada nomor resi
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Order Items */}
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">
-                Produk Pesanan
-              </h4>
-              <div className="space-y-4">
-                {selectedOrder.items.length ? (
-                  selectedOrder.items.map((detail, index) => {
-                    const productName = detail.name || "Produk";
-                    return (
-                      <div
-                        key={`${detail.id}-${index}`}
-                        className="flex items-center gap-4 p-4 border rounded-lg"
-                      >
-                        <div className="w-16 h-16 relative rounded-lg overflow-hidden">
-                          <Image
-                            src={detail.image}
-                            alt={productName}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <h5 className="font-semibold text-gray-900">
-                            {productName}
-                          </h5>
-                          <p className="text-sm text-gray-600">
-                            Qty: {detail.quantity}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-semibold text-gray-900">
-                            Rp{" "}
-                            {(
-                              detail.total ?? detail.price * detail.quantity
-                            ).toLocaleString("id-ID")}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            @Rp {detail.price.toLocaleString("id-ID")}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <Package className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                    <p>Tidak ada produk ditemukan</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Profile Edit Modal */}
       {profileModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
