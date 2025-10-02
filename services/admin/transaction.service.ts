@@ -24,7 +24,8 @@ export const transactionApi = apiSlice.injectEndpoints({
         params: {
           page,
           paginate,
-          user_id
+          user_id,
+          include: "details.product", // atau with: "details.product"
         },
       }),
       transformResponse: (response: {
@@ -32,7 +33,7 @@ export const transactionApi = apiSlice.injectEndpoints({
         message: string;
         data: {
           current_page: number;
-          data: Transaction[];
+          data: Transaction[]; // pastikan tipe Transaction kamu punya optional `details`
           last_page: number;
           total: number;
           per_page: number;
@@ -69,7 +70,7 @@ export const transactionApi = apiSlice.injectEndpoints({
         method: "POST",
         body: payload, // Send JSON object instead of FormData
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }),
       transformResponse: (response: {

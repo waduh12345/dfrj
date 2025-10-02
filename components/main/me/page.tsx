@@ -48,6 +48,7 @@ import { ROResponse, toList, findName } from "@/types/geo";
 import { Region } from "@/types/shop";
 import ProfileEditModal from "../profile-page/edit-modal";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import OrderDetailModal from "./order-detail-modal";
 
 interface UserProfile {
   id: string;
@@ -77,8 +78,15 @@ interface Order {
   total: number;
   items: OrderItem[];
   trackingNumber?: string;
+  payment_method?: string;
+  grand_total?: number;
+  discount_total?: number;
+  shipment_cost?: number;
+  cod?: number;
+  address_line_1?: string;
+  postal_code?: string;
 }
-interface ApiTransactionDetail {
+export interface ApiTransactionDetail {
   id?: number | string;
   product_id?: number;
   quantity?: number;
@@ -91,6 +99,7 @@ interface ApiTransactionDetail {
   } | null;
   image?: string | null;
 }
+
 interface ApiTransaction {
   id: number | string;
   reference?: string;
@@ -176,6 +185,15 @@ export default function ProfilePage() {
         total: t.total ?? 0,
         items,
         trackingNumber: (t as { tracking_number?: string }).tracking_number,
+
+        // ⬇️ TAMBAHAN – diteruskan ke modal
+        payment_method: (t as { payment_method?: string }).payment_method,
+        grand_total: (t as { grand_total?: number }).grand_total,
+        discount_total: (t as { discount_total?: number }).discount_total,
+        shipment_cost: (t as { shipment_cost?: number }).shipment_cost,
+        cod: (t as { cod?: number }).cod,
+        address_line_1: (t as { address_line_1?: string }).address_line_1,
+        postal_code: (t as { postal_code?: string }).postal_code,
       };
     });
   }, [transactions]);
@@ -315,6 +333,17 @@ export default function ProfilePage() {
       Swal.fire("Gagal", "Tidak dapat menyimpan alamat.", "error");
     }
   };
+
+  const [orderDetailOpen, setOrderDetailOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+
+  const selectedOrder = useMemo(
+    () =>
+      selectedOrderId
+        ? orders.find((o) => o.id === selectedOrderId) ?? null
+        : null,
+    [selectedOrderId, orders]
+  );
 
   /* --------------------- Profil/dsb (tetap) --------------------- */
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -1321,7 +1350,13 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
-                          <button className="flex items-center gap-2 px-4 py-2 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors">
+                          <button
+                            onClick={() => {
+                              setSelectedOrderId(order.id);
+                              setOrderDetailOpen(true);
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors"
+                          >
                             <Eye className="w-4 h-4" />
                             Detail
                           </button>
@@ -1388,6 +1423,17 @@ export default function ProfilePage() {
             isSubmitting={isUpdatingProfile}
           />
         </div>
+      )}
+
+      {orderDetailOpen && selectedOrder && (
+        <OrderDetailModal
+          open={orderDetailOpen}
+          onClose={() => {
+            setOrderDetailOpen(false);
+            setSelectedOrderId(null);
+          }}
+          order={selectedOrder}
+        />
       )}
     </div>
   );
