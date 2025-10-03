@@ -25,15 +25,33 @@ type Props = {
   onChange: (v: Voucher | null) => void;
 };
 
+const MIN_CHARS = 3;
+const DEBOUNCE_MS = 350;
+
 export default function VoucherPicker({ selected, onChange }: Props) {
-  const { data, isLoading, isError, refetch } = useGetVoucherListQuery({
-    page: 1,
-    paginate: 200,
-  });
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState<string>("");
+  const [debouncedQuery, setDebouncedQuery] = useState<string>("");
+
+  // Debounce input agar tidak spam request
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query.trim()), DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  const shouldFetch = debouncedQuery.length >= MIN_CHARS;
+  const { data, isLoading, isError, refetch } = useGetVoucherListQuery(
+    { page: 1, paginate: 200, _q: debouncedQuery } as {
+      page: number;
+      paginate: number;
+      _q?: string; // hanya untuk cache key RTK Query
+    },
+    { skip: !shouldFetch, refetchOnMountOrArgChange: true }
+  );
 
   // Voucher aktif (status true & dalam rentang tanggal)
   const activeVouchers: Voucher[] = useMemo(() => {
-    const list: Voucher[] = (data?.data ?? []) as Voucher[];
+    const list: Voucher[] = ((data?.data ?? []) as Voucher[]) || [];
     const now = new Date();
     return list.filter((v) => {
       if (!v.status) return false;
@@ -43,14 +61,10 @@ export default function VoucherPicker({ selected, onChange }: Props) {
     });
   }, [data]);
 
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState<string>("");
-
   // Saat modal buka, langsung fokus ke input
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (open) {
-      // timeout kecil agar element sudah ter-mount
       const t = setTimeout(() => inputRef.current?.focus(), 10);
       return () => clearTimeout(t);
     }
@@ -62,31 +76,35 @@ export default function VoucherPicker({ selected, onChange }: Props) {
     else setQuery("");
   }, [selected]);
 
+  // Filter lokal di frontend (bukan lewat params)
   const filtered: Voucher[] = useMemo(() => {
-    if (!query.trim()) return activeVouchers;
-    const q = query.toLowerCase();
+    // Belum cukup karakter → kosong (tidak tampilkan list)
+    if (debouncedQuery.length < MIN_CHARS) return [];
+    const q = debouncedQuery.toLowerCase();
     return activeVouchers.filter((v) => {
       const code = (v.code ?? "").toLowerCase();
       const name = (v.name ?? "").toLowerCase();
       return code.includes(q) || name.includes(q);
     });
-  }, [activeVouchers, query]);
+  }, [activeVouchers, debouncedQuery]);
 
   const formatVoucherLabel = (v: Voucher) =>
     v.type === "fixed"
       ? `${v.code} — ${v.name} • Rp ${v.fixed_amount.toLocaleString("id-ID")}`
       : `${v.code} — ${v.name} • ${v.percentage_amount}%`;
 
+  const basePlaceholder =
+    debouncedQuery.length < MIN_CHARS
+      ? `Ketik minimal ${MIN_CHARS} karakter…`
+      : "Ketik untuk cari voucher…";
+
   const placeholder = isLoading
     ? "Memuat voucher…"
     : isError
     ? "Gagal memuat voucher"
-    : activeVouchers.length === 0
-    ? "Tidak ada voucher aktif"
-    : "Ketik untuk cari voucher…";
+    : basePlaceholder;
 
-  const disabledTrigger =
-    isLoading || (activeVouchers.length === 0 && !selected);
+  const disabledTrigger = false; // tetap bisa dibuka, tapi list baru tampil setelah 3 char
 
   const pick = (v: Voucher | null) => {
     onChange(v);
@@ -110,7 +128,7 @@ export default function VoucherPicker({ selected, onChange }: Props) {
         <h3 className="text-sm font-semibold text-neutral-900">Voucher</h3>
       </div>
 
-      {/* Trigger SELALU responsif (button), 1x klik buka */}
+      {/* Trigger */}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -153,54 +171,70 @@ export default function VoucherPicker({ selected, onChange }: Props) {
             </div>
           ) : (
             <Command shouldFilter={false}>
-              {/* Input pencarian yang SELALU fokus saat popover terbuka */}
+              {/* Input */}
               <div className="p-2">
                 <CommandInput
                   ref={inputRef}
                   value={query}
                   onValueChange={setQuery}
                   onKeyDown={onEnter}
-                  placeholder="Cari berdasarkan kode atau nama…"
+                  placeholder={`Cari kode/nama (min ${MIN_CHARS} karakter)…`}
                 />
               </div>
 
               <CommandList className="max-h-72">
                 <div className="px-3 py-2 text-xs text-neutral-500">
-                  {isLoading ? "Memuat…" : `${filtered.length} hasil`}
+                  {debouncedQuery.length < MIN_CHARS
+                    ? `Ketik minimal ${MIN_CHARS} karakter untuk mulai mencari`
+                    : isLoading
+                    ? "Memuat…"
+                    : `${filtered.length} hasil`}
                 </div>
 
-                <CommandEmpty>Tidak ada hasil untuk “{query}”.</CommandEmpty>
-
-                {!isLoading && (
+                {/* Instruksi sebelum 3 karakter */}
+                {debouncedQuery.length < MIN_CHARS ? (
+                  <div className="px-3 pb-3 text-sm text-neutral-600">
+                    Contoh: <span className="font-medium">POTONGAN</span>,{" "}
+                    <span className="font-medium">HEMAT10</span>, dst.
+                  </div>
+                ) : (
                   <>
-                    <CommandGroup heading="Voucher Aktif">
-                      {filtered.map((v) => (
-                        <CommandItem
-                          key={v.id}
-                          value={v.code}
-                          onSelect={() => pick(v)}
-                          className="cursor-pointer"
-                        >
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium">
-                              {formatVoucherLabel(v)}
-                            </span>
-                            {v.description && (
-                              <span className="text-xs text-neutral-500">
-                                {v.description}
-                              </span>
-                            )}
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
+                    <CommandEmpty>
+                      Tidak ada hasil untuk “{debouncedQuery}”.
+                    </CommandEmpty>
 
-                    <CommandSeparator />
-                    <CommandGroup>
-                      <CommandItem value="none" onSelect={() => pick(null)}>
-                        Tanpa Voucher
-                      </CommandItem>
-                    </CommandGroup>
+                    {!isLoading && (
+                      <>
+                        <CommandGroup heading="Voucher Aktif">
+                          {filtered.map((v) => (
+                            <CommandItem
+                              key={v.id}
+                              value={v.code}
+                              onSelect={() => pick(v)}
+                              className="cursor-pointer"
+                            >
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">
+                                  {formatVoucherLabel(v)}
+                                </span>
+                                {v.description && (
+                                  <span className="text-xs text-neutral-500">
+                                    {v.description}
+                                  </span>
+                                )}
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+
+                        <CommandSeparator />
+                        <CommandGroup>
+                          <CommandItem value="none" onSelect={() => pick(null)}>
+                            Tanpa Voucher
+                          </CommandItem>
+                        </CommandGroup>
+                      </>
+                    )}
                   </>
                 )}
               </CommandList>
