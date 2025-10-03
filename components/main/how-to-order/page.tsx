@@ -54,6 +54,7 @@ export default function HowToOrderPage() {
     primary: "#F6CCD0", // warna halaman ini
     bubbleA: "#DFF19D",
     bubbleB: "#BFF0F5",
+    COCOA: "#7F1D1D",
   };
 
   const orderStepsTranslation: Record<"id" | "en", Step[]> = {
@@ -675,8 +676,8 @@ export default function HowToOrderPage() {
               disabled={activeStep === 1}
               className="flex items-center gap-2 px-6 py-3 rounded-2xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed border"
               style={{
-                color: THEME.primary,
-                borderColor: THEME.primary,
+                color: THEME.COCOA,
+                borderColor: THEME.COCOA,
               }}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -687,7 +688,7 @@ export default function HowToOrderPage() {
               onClick={() => setActiveStep(Math.min(6, activeStep + 1))}
               disabled={activeStep === 6}
               className="flex items-center gap-2 px-6 py-3 text-white rounded-2xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: THEME.primary }}
+              style={{ backgroundColor: THEME.COCOA }}
             >
               {t["nav-step-next"]}
               <ArrowRight className="w-5 h-5" />
