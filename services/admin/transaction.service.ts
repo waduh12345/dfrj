@@ -47,6 +47,22 @@ export const transactionApi = apiSlice.injectEndpoints({
       }),
     }),
 
+    // 🔍 Get Transaction by ID
+    getTransactionById: builder.query<Transaction, number | string>({
+      query: (id) => ({
+        url: `/transaction/${id}`,
+        method: "GET",
+        params: {
+          include: "details.product",
+        },
+      }),
+      transformResponse: (response: {
+        code: number;
+        message: string;
+        data: Transaction;
+      }) => response.data,
+    }),
+
     // 🔍 Get Transaction Category by Slug
     getTransactionBySlug: builder.query<Transaction, string>({
       query: (slug) => ({
@@ -155,6 +171,7 @@ export const transactionApi = apiSlice.injectEndpoints({
 
 export const {
   useGetTransactionListQuery,
+  useGetTransactionByIdQuery,
   useGetTransactionBySlugQuery,
   useCreateTransactionMutation,
   useCreateTransactionFormDataMutation, // New export for FormData version

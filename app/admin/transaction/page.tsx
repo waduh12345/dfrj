@@ -53,7 +53,7 @@ export default function TransactionPage() {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   const [detailOpen, setDetailOpen] = useState(false);
-  const [detailTx, setDetailTx] = useState<Transaction | null>(null);
+  const [detailId, setDetailId] = useState<number | null>(null);
 
   // Helper function to format currency in Rupiah
   const formatRupiah = (amount: number | string) => {
@@ -214,13 +214,12 @@ export default function TransactionPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              setDetailTx(item);
+                              setDetailId(item.id);
                               setDetailOpen(true);
                             }}
                           >
                             Detail
                           </Button>
-
                           <Button
                             size="sm"
                             variant="destructive"
@@ -363,9 +362,9 @@ export default function TransactionPage() {
         open={detailOpen}
         onClose={() => {
           setDetailOpen(false);
-          setDetailTx(null);
+          setDetailId(null);
         }}
-        transaction={detailTx}
+        transactionId={detailId}
       />
     </div>
   );

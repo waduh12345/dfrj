@@ -9,14 +9,16 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Transaction } from "@/types/admin/transaction";
+import { useGetTransactionByIdQuery } from "@/services/admin/transaction.service";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  transaction: Transaction | null;
+  transactionId: number | null; // ⬅️ terima ID
 };
 
-type DetailItem = {
+// Bentuk item detail di response detail (stores[].details[])
+type StoreDetailItem = {
   id?: number | string;
   product_id?: number;
   quantity?: number;
@@ -25,23 +27,20 @@ type DetailItem = {
   image?: string | null;
   product?: {
     name?: string;
-    image?: string;
+    image?: string | null;
     media?: Array<{ original_url: string }>;
   } | null;
 };
 
-const pickImage = (d?: DetailItem): string => {
-  if (!d) return "/api/placeholder/64/64";
-  if (typeof d.image === "string" && d.image) return d.image;
-  if (d.product?.image) return d.product.image;
-  const media0 = d.product?.media?.[0]?.original_url;
-  if (media0) return media0;
-  return "/api/placeholder/64/64";
-};
-
-const pickName = (d?: DetailItem): string => {
-  if (!d) return "Produk";
-  return d.product?.name ?? d.product_name ?? "Produk";
+type StoreItem = {
+  id: number;
+  details?: StoreDetailItem[];
+  shop?: {
+    name?: string;
+  } | null;
+  courier?: string | null;
+  shipment_cost?: number | null;
+  shipment_detail?: string | null;
 };
 
 const formatIDR = (n: number | string) => {
@@ -52,7 +51,7 @@ const formatIDR = (n: number | string) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })
-    .format(isNaN(v) ? 0 : v)
+    .format(Number.isFinite(v) ? v : 0)
     .replace("IDR", "Rp");
 };
 
@@ -67,15 +66,70 @@ const formatDate = (iso?: string) => {
   }).format(d);
 };
 
+const pickImage = (d?: StoreDetailItem): string => {
+  if (!d) return "/api/placeholder/64/64";
+  if (d.image) return d.image;
+  if (d.product?.image) return d.product.image || "/api/placeholder/64/64";
+  const media0 = d.product?.media?.[0]?.original_url;
+  return media0 ?? "/api/placeholder/64/64";
+};
+
+const pickName = (d?: StoreDetailItem): string => {
+  if (!d) return "Produk";
+  return d.product?.name ?? d.product_name ?? "Produk";
+};
+
 export default function TransactionDetailModal({
   open,
   onClose,
-  transaction,
+  transactionId,
 }: Props) {
-  if (!transaction) return null;
+  // Fetch detail by ID (skip kalau null)
+  const { data, isLoading, isError } = useGetTransactionByIdQuery(
+    transactionId ?? 0,
+    { skip: transactionId == null }
+  );
 
-  const details =
-    (transaction as unknown as { details?: DetailItem[] }).details ?? [];
+  if (!open) return null;
+
+  // Saat loading / error
+  if (isLoading) {
+    return (
+      <Dialog open={open} onOpenChange={(v) => (!v ? onClose() : null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Memuat detail transaksi...</DialogTitle>
+          </DialogHeader>
+          <div className="text-sm text-muted-foreground">Mohon tunggu.</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <Dialog open={open} onOpenChange={(v) => (!v ? onClose() : null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Gagal memuat detail</DialogTitle>
+          </DialogHeader>
+          <div className="text-sm text-muted-foreground">
+            Terjadi kesalahan saat mengambil data transaksi.
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // `data` adalah Transaction dari transformResponse
+  const tx: Transaction & { stores?: StoreItem[] } = data as Transaction & {
+    stores?: StoreItem[];
+  };
+
+  // Kumpulkan semua detail produk dari tiap store
+  const details: StoreDetailItem[] =
+    tx.stores?.flatMap((s) => s.details ?? []) ?? [];
+
   const subtotal = details.reduce((acc, it) => {
     const qty = it.quantity ?? 0;
     const price = it.price ?? 0;
@@ -91,7 +145,7 @@ export default function TransactionDetailModal({
     [-3]: { text: "CANCEL", className: "bg-red-100 text-red-700" },
   };
 
-  const st = statusInfo[transaction.status] ?? {
+  const st = statusInfo[tx.status] ?? {
     text: "UNKNOWN",
     className: "bg-neutral-100 text-neutral-700",
   };
@@ -100,18 +154,16 @@ export default function TransactionDetailModal({
     <Dialog open={open} onOpenChange={(v) => (!v ? onClose() : null)}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Detail Pesanan #{transaction.reference}</DialogTitle>
+          <DialogTitle>Detail Pesanan #{tx.reference}</DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <div className="text-sm text-muted-foreground">Nomor Pesanan</div>
-            <div className="font-medium">#{transaction.reference}</div>
+            <div className="font-medium">#{tx.reference}</div>
 
             <div className="text-sm text-muted-foreground mt-3">Tanggal</div>
-            <div className="font-medium">
-              {formatDate(transaction.created_at)}
-            </div>
+            <div className="font-medium">{formatDate(tx.created_at)}</div>
 
             <div className="text-sm text-muted-foreground mt-3">Status</div>
             <Badge className={st.className}>{st.text}</Badge>
@@ -120,8 +172,22 @@ export default function TransactionDetailModal({
               Metode Pembayaran
             </div>
             <div className="font-medium">
-              {transaction.payment_link ? "MIDTRANS" : "-"}
+              {tx.payment_link ? "MIDTRANS" : "-"}
             </div>
+
+            {tx.address_line_1 && (
+              <>
+                <div className="text-sm text-muted-foreground mt-3">
+                  Alamat Pengiriman
+                </div>
+                <div className="font-medium">{tx.address_line_1}</div>
+                {tx.postal_code && (
+                  <div className="text-sm text-muted-foreground">
+                    Kode Pos: {tx.postal_code}
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -129,24 +195,53 @@ export default function TransactionDetailModal({
             <div className="font-medium">{formatIDR(subtotal)}</div>
 
             <div className="text-sm text-muted-foreground mt-3">Diskon</div>
-            <div className="font-medium">
-              {formatIDR(transaction.discount_total)}
-            </div>
+            <div className="font-medium">{formatIDR(tx.discount_total)}</div>
 
             <div className="text-sm text-muted-foreground mt-3">
               Ongkos Kirim
             </div>
-            <div className="font-medium">
-              {formatIDR(transaction.shipment_cost)}
-            </div>
+            <div className="font-medium">{formatIDR(tx.shipment_cost)}</div>
 
             <div className="border-t pt-3 mt-3" />
             <div className="text-sm text-muted-foreground">Total</div>
             <div className="text-lg font-bold text-green-700">
-              {formatIDR(transaction.grand_total)}
+              {formatIDR(tx.grand_total)}
             </div>
           </div>
         </div>
+
+        {/* Tampilkan per-store info (opsional, berguna kalau multi toko) */}
+        {tx.stores && tx.stores.length > 0 && (
+          <div className="mt-6 space-y-4">
+            {tx.stores.map((s) => {
+              const storeSubtotal =
+                (s.details ?? []).reduce((acc, it) => {
+                  const qty = it.quantity ?? 0;
+                  const price = it.price ?? 0;
+                  return acc + qty * price;
+                }, 0) ?? 0;
+
+              return (
+                <div key={s.id} className="p-3 rounded-xl border">
+                  <div className="flex items-center justify-between">
+                    <div className="font-semibold">
+                      Toko: {s.shop?.name ?? "-"}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Kurir: {s.courier ?? "-"}
+                    </div>
+                  </div>
+                  <div className="text-sm">
+                    Ongkir Toko: {formatIDR(s.shipment_cost ?? 0)}
+                  </div>
+                  <div className="text-sm">
+                    Subtotal Toko: {formatIDR(storeSubtotal)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="mt-6">
           <div className="font-semibold mb-3">Produk Pesanan</div>
@@ -164,7 +259,7 @@ export default function TransactionDetailModal({
               const price = d.price ?? 0;
               return (
                 <div
-                  key={`${transaction.id}-${i}`}
+                  key={`${tx.id}-${i}`}
                   className="flex items-center gap-3 p-3 border rounded-xl"
                 >
                   <div className="w-14 h-14 relative rounded-lg overflow-hidden">

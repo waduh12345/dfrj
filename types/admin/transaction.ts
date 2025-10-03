@@ -19,6 +19,8 @@ export interface Transaction {
   updated_at: string;
   user_name: string;
   user_email: string;
+  address_line_1: string;
+  postal_code: string;
 }
 
 // Transaction Detail (for individual products in the transaction)
