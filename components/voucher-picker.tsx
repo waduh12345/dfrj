@@ -1,14 +1,22 @@
 "use client";
 
-import { Tag } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Tag, Loader2, Search, ChevronDown } from "lucide-react";
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import { useMemo } from "react";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandSeparator,
+} from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
 import { useGetVoucherListQuery } from "@/services/voucher.service";
 import type { Voucher } from "@/types/voucher";
 
@@ -18,12 +26,13 @@ type Props = {
 };
 
 export default function VoucherPicker({ selected, onChange }: Props) {
-  const { data, isLoading, isError } = useGetVoucherListQuery({
+  const { data, isLoading, isError, refetch } = useGetVoucherListQuery({
     page: 1,
-    paginate: 50,
+    paginate: 200,
   });
 
-  const vouchers: Voucher[] = useMemo(() => {
+  // Voucher aktif (status true & dalam rentang tanggal)
+  const activeVouchers: Voucher[] = useMemo(() => {
     const list: Voucher[] = (data?.data ?? []) as Voucher[];
     const now = new Date();
     return list.filter((v) => {
@@ -34,22 +43,66 @@ export default function VoucherPicker({ selected, onChange }: Props) {
     });
   }, [data]);
 
-  const placeholder = isLoading
-    ? "Memuat voucher…"
-    : isError
-    ? "Gagal memuat voucher"
-    : vouchers.length === 0
-    ? "Tidak ada voucher aktif"
-    : "Pilih voucher";
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState<string>("");
+
+  // Saat modal buka, langsung fokus ke input
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (open) {
+      // timeout kecil agar element sudah ter-mount
+      const t = setTimeout(() => inputRef.current?.focus(), 10);
+      return () => clearTimeout(t);
+    }
+  }, [open]);
+
+  // Sinkronkan query ketika ada voucher terpilih
+  useEffect(() => {
+    if (selected) setQuery(selected.code ?? "");
+    else setQuery("");
+  }, [selected]);
+
+  const filtered: Voucher[] = useMemo(() => {
+    if (!query.trim()) return activeVouchers;
+    const q = query.toLowerCase();
+    return activeVouchers.filter((v) => {
+      const code = (v.code ?? "").toLowerCase();
+      const name = (v.name ?? "").toLowerCase();
+      return code.includes(q) || name.includes(q);
+    });
+  }, [activeVouchers, query]);
 
   const formatVoucherLabel = (v: Voucher) =>
     v.type === "fixed"
       ? `${v.code} — ${v.name} • Rp ${v.fixed_amount.toLocaleString("id-ID")}`
       : `${v.code} — ${v.name} • ${v.percentage_amount}%`;
 
+  const placeholder = isLoading
+    ? "Memuat voucher…"
+    : isError
+    ? "Gagal memuat voucher"
+    : activeVouchers.length === 0
+    ? "Tidak ada voucher aktif"
+    : "Ketik untuk cari voucher…";
+
+  const disabledTrigger =
+    isLoading || (activeVouchers.length === 0 && !selected);
+
+  const pick = (v: Voucher | null) => {
+    onChange(v);
+    setOpen(false);
+  };
+
+  const onEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (filtered.length > 0) pick(filtered[0]);
+    }
+  };
+
   return (
     <div className="w-full">
-      {/* Header ringkas & menarik */}
+      {/* Header */}
       <div className="mb-2 flex items-center gap-2">
         <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-100">
           <Tag className="h-4 w-4 text-neutral-700" />
@@ -57,41 +110,106 @@ export default function VoucherPicker({ selected, onChange }: Props) {
         <h3 className="text-sm font-semibold text-neutral-900">Voucher</h3>
       </div>
 
-      {/* Select full width */}
-      <Select
-        value={selected ? String(selected.id) : "none"}
-        onValueChange={(val) => {
-          if (val === "none") return onChange(null);
-          const found = vouchers.find((v) => String(v.id) === val) ?? null;
-          onChange(found);
-        }}
-        disabled={isLoading || isError || vouchers.length === 0}
-      >
-        <SelectTrigger
-          className="w-full h-12 rounded-2xl border-neutral-200 bg-white px-4 text-left shadow-sm hover:bg-neutral-50 focus:ring-2 focus:ring-neutral-300"
-          aria-label="Pilih voucher"
-        >
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
+      {/* Trigger SELALU responsif (button), 1x klik buka */}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={disabledTrigger}
+            className="w-full h-12 justify-between rounded-2xl border-neutral-200 bg-white px-3 shadow-sm hover:bg-neutral-50"
+            onClick={() => setOpen((o) => !o)}
+          >
+            <span className="flex items-center gap-2 truncate text-left">
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin text-neutral-400" />
+                  <span className="text-neutral-500">{placeholder}</span>
+                </>
+              ) : selected ? (
+                <span className="truncate">{formatVoucherLabel(selected)}</span>
+              ) : (
+                <>
+                  <Search className="h-4 w-4 text-neutral-400" />
+                  <span className="text-neutral-500">{placeholder}</span>
+                </>
+              )}
+            </span>
+            <ChevronDown className="h-4 w-4 text-neutral-400" />
+          </Button>
+        </PopoverTrigger>
 
-        {/* Dropdown selalu ke bawah, lebar mengikuti trigger, tinggi menyesuaikan */}
-        <SelectContent
-          position="popper"
-          side="bottom"
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0 rounded-xl shadow-xl"
           align="start"
-          avoidCollisions={false}
-          className="w-[var(--radix-select-trigger-width)] max-h-64 overflow-auto rounded-xl shadow-xl"
+          side="bottom"
         >
-          <SelectItem value="none">Tanpa Voucher</SelectItem>
-          {vouchers.map((v) => (
-            <SelectItem key={v.id} value={String(v.id)}>
-              {formatVoucherLabel(v)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          {isError ? (
+            <div className="p-3 text-sm">
+              <div className="mb-2 text-red-600">Gagal memuat voucher.</div>
+              <Button size="sm" variant="outline" onClick={() => refetch()}>
+                Coba lagi
+              </Button>
+            </div>
+          ) : (
+            <Command shouldFilter={false}>
+              {/* Input pencarian yang SELALU fokus saat popover terbuka */}
+              <div className="p-2">
+                <CommandInput
+                  ref={inputRef}
+                  value={query}
+                  onValueChange={setQuery}
+                  onKeyDown={onEnter}
+                  placeholder="Cari berdasarkan kode atau nama…"
+                />
+              </div>
 
-      {/* Detail voucher — hanya muncul saat ada pilihan, jadi tidak ada space kosong */}
+              <CommandList className="max-h-72">
+                <div className="px-3 py-2 text-xs text-neutral-500">
+                  {isLoading ? "Memuat…" : `${filtered.length} hasil`}
+                </div>
+
+                <CommandEmpty>Tidak ada hasil untuk “{query}”.</CommandEmpty>
+
+                {!isLoading && (
+                  <>
+                    <CommandGroup heading="Voucher Aktif">
+                      {filtered.map((v) => (
+                        <CommandItem
+                          key={v.id}
+                          value={v.code}
+                          onSelect={() => pick(v)}
+                          className="cursor-pointer"
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">
+                              {formatVoucherLabel(v)}
+                            </span>
+                            {v.description && (
+                              <span className="text-xs text-neutral-500">
+                                {v.description}
+                              </span>
+                            )}
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+
+                    <CommandSeparator />
+                    <CommandGroup>
+                      <CommandItem value="none" onSelect={() => pick(null)}>
+                        Tanpa Voucher
+                      </CommandItem>
+                    </CommandGroup>
+                  </>
+                )}
+              </CommandList>
+            </Command>
+          )}
+        </PopoverContent>
+      </Popover>
+
+      {/* Detail voucher terpilih */}
       {selected && (
         <div className="mt-3 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
           <div className="flex flex-wrap items-center gap-2">
@@ -101,6 +219,14 @@ export default function VoucherPicker({ selected, onChange }: Props) {
             <span className="text-sm font-semibold text-neutral-900">
               {selected.name}
             </span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="ml-auto h-7 text-xs"
+              onClick={() => pick(null)}
+            >
+              Hapus Voucher
+            </Button>
           </div>
 
           {selected.description && (

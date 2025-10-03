@@ -358,21 +358,6 @@ export default function HowToOrderPage() {
 
   const faqs: FAQ[] = faqsTranslation[lang];
 
-  const paymentMethods = [
-    {
-      name: "Transfer Bank",
-      icon: "🏦",
-      description: "BCA, Mandiri, BRI, BNI",
-    },
-    {
-      name: "E-Wallet",
-      icon: "📱",
-      description: "GoPay, OVO, DANA, ShopeePay",
-    },
-    { name: "Virtual Account", icon: "💳", description: "VA Bank & Retail" },
-    { name: "Credit Card", icon: "💳", description: "Visa, Mastercard, JCB" },
-  ];
-
   const benefits = [
     {
       icon: <Shield className="w-6 h-6" style={{ color: THEME.primary }} />,
@@ -486,7 +471,7 @@ export default function HowToOrderPage() {
       </section>
 
       {/* ============== STEP NAV + CONTENT (section putih) ============== */}
-      <section className="px-6 lg:px-12 mb-16">
+      <section className="p-6 lg:px-12 mb-16">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2
@@ -711,71 +696,6 @@ export default function HowToOrderPage() {
         </div>
       </section>
 
-      {/* ============== PAYMENT (section putih) ============== */}
-      <section className="px-6 lg:px-12 mb-16">
-        <div className="container mx-auto">
-          <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-lg">
-            <div className="text-center mb-12">
-              <h2
-                className={cn(
-                  fredoka.className,
-                  "text-3xl font-bold text-gray-900 mb-4"
-                )}
-              >
-                {t["payment-title-1"]}{" "}
-                <span style={{ color: THEME.primary }}>
-                  {t["payment-title-2"]}
-                </span>
-              </h2>
-              <p
-                className={cn(
-                  sniglet.className,
-                  "text-gray-600 max-w-2xl mx-auto"
-                )}
-              >
-                {t["payment-subtitle"]}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {paymentMethods.map((method, index) => (
-                <div
-                  key={index}
-                  className="text-center p-6 rounded-2xl transition-all duration-300 border"
-                  style={{ borderColor: "#E5E7EB" }}
-                >
-                  <div className="text-4xl mb-4">{method.icon}</div>
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    {method.name}
-                  </h3>
-                  <p className="text-sm text-gray-600">{method.description}</p>
-                </div>
-              ))}
-            </div>
-
-            <div
-              className="rounded-2xl p-6 text-center"
-              style={{ backgroundColor: `${THEME.primary}1A` }}
-            >
-              <div className="flex justify-center mb-4">
-                <Shield className="w-8 h-8" style={{ color: THEME.primary }} />
-              </div>
-              <h3
-                className={cn(
-                  fredoka.className,
-                  "font-semibold text-gray-900 mb-2 text-lg"
-                )}
-              >
-                {t["payment-info-title"]}
-              </h3>
-              <p className={cn(sniglet.className, "text-gray-600")}>
-                {t["payment-info-subtitle"]}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ============== CONTACT (section berwarna) ============== */}
       <section className="px-6 lg:px-12 mb-16">
         <div className="container mx-auto">
@@ -783,7 +703,7 @@ export default function HowToOrderPage() {
             className="rounded-3xl p-8 lg:p-12 text-gray-900"
             style={{
               background: `linear-gradient(90deg, ${THEME.primary} 0%, ${THEME.primary}CC 100%)`,
-              color: "#fff",
+              color: "#8F5D73",
             }}
           >
             <div className="text-center mb-8">
@@ -793,7 +713,7 @@ export default function HowToOrderPage() {
               <p
                 className={cn(
                   sniglet.className,
-                  "text-white/90 max-w-2xl mx-auto"
+                  "text-rose-900 max-w-2xl mx-auto"
                 )}
               >
                 {t["help-subtitle"]}
@@ -802,31 +722,38 @@ export default function HowToOrderPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-[#6B4F4F]/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   {/* phone icon replaced with Mail & MessageCircle above; keeping consistent */}
-                  <MessageCircle className="w-8 h-8 text-white" />
+                  <MessageCircle className="w-8 h-8 text-[#6B4F4F]" />
                 </div>
                 <h3 className="font-semibold mb-2">WhatsApp</h3>
-                <p className="text-white/90">+62 817 694 2128</p>
-                <p className="text-sm text-white/70">{t["help-content-1"]}</p>
+                <p className="text-rose-900">+62 817 694 2128</p>
+                <p className="text-sm text-rose-900/80">
+                  {t["help-content-1"]}
+                </p>
               </div>
 
               <div className="text-center">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 bg-[#6B4F4F]/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-8 h-8 text-[#6B4F4F]" />
                 </div>
                 <h3 className="font-semibold mb-2">Email</h3>
-                <p className="text-white/90">help@coloreartcrafts.com</p>
-                <p className="text-sm text-white/70"> {t["help-content-2"]}</p>
+                <p className="text-rose-900">help@coloreartcrafts.com</p>
+                <p className="text-sm text-rose-900/80">
+                  {" "}
+                  {t["help-content-2"]}
+                </p>
               </div>
 
               <div className="text-center">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <HeadphonesIcon className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 bg-[#6B4F4F]/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <HeadphonesIcon className="w-8 h-8 text-[#6B4F4F]" />
                 </div>
                 <h3 className="font-semibold mb-2">Customer Support</h3>
-                <p className="text-white/90">24/7 Online</p>
-                <p className="text-sm text-white/70">{t["help-content-3"]}</p>
+                <p className="text-rose-900">24/7 Online</p>
+                <p className="text-sm text-rose-900/80">
+                  {t["help-content-3"]}
+                </p>
               </div>
             </div>
           </div>

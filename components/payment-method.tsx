@@ -55,23 +55,6 @@ export default function PaymentType({
                 <p className="text-sm text-gray-500">Transfer bank manual</p>
               </div>
             </label>
-
-            <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors hover:bg-neutral-50">
-              <input
-                type="radio"
-                name="payment-type"
-                value="cod"
-                checked={value === "cod"}
-                onChange={() => onChange("cod")}
-                className="form-radio text-[#6B6B6B] h-4 w-4"
-              />
-              <div>
-                <p className="font-medium">COD</p>
-                <p className="text-sm text-gray-500">
-                  +Fee 2% terhadap nilai pesanan
-                </p>
-              </div>
-            </label>
           </div>
         </div>
 
@@ -85,23 +68,13 @@ export default function PaymentType({
                     Rekening Tujuan Transfer
                   </h4>
 
-                  <div className="bg-white p-3 rounded-lg mb-3">
-                    <p className="font-semibold text-gray-900">
-                      Jhon Doe
-                    </p>
-                    <p className="text-sm text-gray-600">Bank Mandiri</p>
-                    <p className="font-mono text-lg font-bold text-gray-900">
-                      13403284924143
-                    </p>
-                  </div>
-
                   <div className="bg-white p-3 rounded-lg">
                     <p className="font-semibold text-gray-900">
-                      Baeksongmin
+                      Warna Kreasi Alam PT
                     </p>
                     <p className="text-sm text-gray-600">Bank BCA</p>
                     <p className="font-mono text-lg font-bold text-gray-900">
-                      30303240034
+                      7311087405
                     </p>
                   </div>
 

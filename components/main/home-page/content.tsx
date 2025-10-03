@@ -7,8 +7,6 @@ import {
   Heart,
   ShoppingBag,
   ArrowRight,
-  TreePine,
-  Shield,
   CheckCircle,
 } from "lucide-react";
 import { useTranslation } from "@/hooks/use-translation";
@@ -713,30 +711,6 @@ export default function HomePage() {
               >
                 {t["sec-5-cta-2"]}
               </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center text-gray-600">
-              <div className="flex flex-col items-center bg-white/60 backdrop-blur-sm rounded-2xl p-6">
-                <TreePine className="w-12 h-12 mb-4 text-emerald-600" />
-                <h3 className="text-xl font-bold mb-2">
-                  {t["sec-5-item-1-title"]}
-                </h3>
-                <p className="">{t["sec-5-item-1-content"]}</p>
-              </div>
-              <div className="flex flex-col items-center bg-white/60 backdrop-blur-sm rounded-2xl p-6">
-                <Shield className="w-12 h-12 mb-4 text-amber-600" />
-                <h3 className="text-xl font-bold mb-2">
-                  {t["sec-5-item-2-title"]}
-                </h3>
-                <p className="">{t["sec-5-item-2-content"]}</p>
-              </div>
-              <div className="flex flex-col items-center bg-white/60 backdrop-blur-sm rounded-2xl p-6">
-                <Heart className="w-12 h-12 mb-4 text-pink-600" />
-                <h3 className="text-xl font-bold mb-2">
-                  {t["sec-5-item-3-title"]}
-                </h3>
-                <p className="">{t["sec-5-item-3-content"]}</p>
-              </div>
             </div>
           </div>
         </div>

@@ -304,33 +304,31 @@ export default function GaleriPage() {
           {/* Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {(isLoading ? [] : filteredList).map((item, index) => {
-              const patterns = [
-                "aspect-square",
-                "aspect-[4/3]",
-                "aspect-[3/4]",
-                "aspect-square",
-              ];
-              const aspectClass = patterns[index % patterns.length];
+              const isWide = index % 6 === 0 || index % 6 === 3;
+              // tinggi gambar dibuat tetap agar tidak mempengaruhi kartu lain
+              const fixedImgHeight = "h-44 sm:h-48 lg:h-56 xl:h-60"; // boleh disesuaikan
 
               return (
                 <div
                   key={item.id}
                   onClick={() => handleClick(item)}
-                  className={`relative overflow-hidden rounded-3xl cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white ${
-                    index % 6 === 0 || index % 6 === 3 ? "sm:col-span-2" : ""
+                  className={`relative overflow-hidden rounded-2xl cursor-pointer group shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-white ${
+                    isWide ? "sm:col-span-2" : ""
                   }`}
                 >
-                  <div className={`relative ${aspectClass} overflow-hidden`}>
+                  {/* ⬇️ Tidak lagi pakai aspect-*, pakai tinggi tetap */}
+                  <div className={`relative ${fixedImgHeight} overflow-hidden`}>
                     <Image
                       src={item.image_url}
                       alt={item.title}
                       fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      className="object-cover will-change-transform group-hover:scale-[1.03] transition-transform duration-300"
+                      sizes="(min-width:1280px) 25vw, (min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
                     />
 
                     {/* Category Badge */}
-                    <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="bg-white/90 backdrop-blur-sm text-[#A3B18A] px-3 py-1 rounded-full text-xs font-semibold">
+                    <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <span className="bg-white/90 backdrop-blur-sm text-[#A3B18A] px-2.5 py-0.5 rounded-full text-[11px] font-semibold">
                         {item.category}
                       </span>
                     </div>
@@ -338,28 +336,28 @@ export default function GaleriPage() {
                     {/* Play Icon for Workshop/Events */}
                     {(item.category === "Workshop" ||
                       item.category === "Event") && (
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-                          <Play className="w-6 h-6 text-[#A3B18A] ml-1" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md">
+                          <Play className="w-5 h-5 text-[#A3B18A] ml-0.5" />
                         </div>
                       </div>
                     )}
 
                     {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
                     {/* Content Overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                      <h3 className="font-bold text-lg mb-2 line-clamp-2">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 text-white transform translate-y-3 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                      <h3 className="font-bold text-base mb-1.5 line-clamp-2">
                         {item.title}
                       </h3>
                       {item.__raw.description && (
-                        <p className="text-sm text-white/90 line-clamp-2">
+                        <p className="text-xs text-white/90 line-clamp-2">
                           {item.__raw.description}
                         </p>
                       )}
                       {item.date && (
-                        <p className="text-xs text-white/70 mt-2">
+                        <p className="text-[11px] text-white/70 mt-1.5">
                           {item.date}
                         </p>
                       )}
@@ -367,11 +365,11 @@ export default function GaleriPage() {
                   </div>
 
                   {/* Mobile Title */}
-                  <div className="p-4 sm:hidden">
-                    <h3 className="font-semibold text-gray-900 text-center">
+                  <div className="p-3 sm:hidden">
+                    <h3 className="font-semibold text-gray-900 text-center text-sm">
                       {item.title}
                     </h3>
-                    <p className="text-sm text-gray-600 text-center mt-1">
+                    <p className="text-xs text-gray-600 text-center mt-0.5">
                       {item.category}
                     </p>
                   </div>
@@ -440,7 +438,9 @@ export default function GaleriPage() {
       <section className="px-6 lg:px-12 mb-12">
         <div className="container mx-auto">
           <div className="bg-white rounded-3xl p-8 text-center shadow-lg border border-[#A3B18A]/10">
-            <h3 className={`text-4xl font-bold text-gray-900 mb-4 ${fredoka.className}`}>
+            <h3
+              className={`text-4xl font-bold text-gray-900 mb-4 ${fredoka.className}`}
+            >
               {t["cta-title"]}
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">

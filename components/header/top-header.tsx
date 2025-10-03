@@ -10,7 +10,6 @@ import { useTranslation } from "@/hooks/use-translation";
 import id from "@/translations/header/id";
 import en from "@/translations/header/en";
 import useCart from "@/hooks/use-cart";
-import Image from "next/image";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -118,7 +117,7 @@ export default function Header() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative">
+              {/* <div className="relative">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110">
                   <Image
                     src="/favicon.ico"
@@ -127,7 +126,7 @@ export default function Header() {
                     height={48}
                   />
                 </div>
-              </div>
+              </div> */}
               <div className="hidden sm:block">
                 <h1 className="text-2xl font-bold transition-all duration-300">
                   <span className="text-[#B8D68C]">C</span>

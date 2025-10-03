@@ -135,65 +135,6 @@ export default function DashboardPage() {
           );
         })}
       </div>
-
-      {/* Additional Summary Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Status Pesanan</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Pesanan Aktif</span>
-                <span className="font-semibold">
-                  {formatNumber(mockDashboardData.pendingOrders + mockDashboardData.shippedOrders)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Tingkat Penyelesaian</span>
-                <span className="font-semibold text-green-600">
-                  {((mockDashboardData.completedOrders / mockDashboardData.totalOrders) * 100).toFixed(1)}%
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Rata-rata Penjualan per Pesanan</span>
-                <span className="font-semibold">
-                  {formatRupiah(mockDashboardData.totalSales / mockDashboardData.totalOrders)}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Statistik Produk</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Total Klik Produk</span>
-                <span className="font-semibold">
-                  {formatNumber(mockDashboardData.totalProductClicks)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Konversi Klik ke Pesanan</span>
-                <span className="font-semibold text-blue-600">
-                  {((mockDashboardData.totalOrders / mockDashboardData.totalProductClicks) * 100).toFixed(2)}%
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Nilai per Klik</span>
-                <span className="font-semibold">
-                  {formatRupiah(mockDashboardData.totalSales / mockDashboardData.totalProductClicks)}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
