@@ -29,50 +29,30 @@ export default function FormProduct({
   readonly = false,
   isLoading = false,
 }: FormProductProps) {
-  // ✅ Gunakan lazy initial state untuk menghindari hydration mismatch
-  const [isInitialized, setIsInitialized] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // ✅ Pastikan komponen hanya render setelah mounted di client
+  // Effect to handle client-side mounting
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // ✅ Inisialisasi form hanya sekali setelah komponen mounted
+  // Effect to initialize default form values once on the client
   useEffect(() => {
-    if (mounted && !isInitialized) {
-      // Set default values hanya jika form kosong (mode tambah)
-      if (!form.id) {
-        setForm({
-          ...form,
-          status: form.status ?? true, // Default status true jika belum ada
-        });
-      }
-      setIsInitialized(true);
-    }
-  }, [mounted, form, setForm, isInitialized]);
-
-  // ✅ Cleanup URL objects untuk menghindari memory leak
-  useEffect(() => {
-    return () => {
-      // Cleanup semua URL objects yang dibuat
-      const imageFields = [
-        "image",
-        "image_2",
-        "image_3",
-        "image_4",
-        "image_5",
-        "image_6",
-        "image_7",
-      ];
-      imageFields.forEach((field) => {
-        const value = form[field as keyof Product];
-        if (value && typeof value !== "string" && value instanceof File) {
-          URL.revokeObjectURL(URL.createObjectURL(value));
-        }
+    // We only want this to run once after mounting, for new products
+    if (mounted && !form.id && form.status === undefined) {
+      setForm({
+        ...form,
+        status: true, // Default status to active for new products
       });
-    };
-  }, [form]);
+    }
+    // This effect should only run when `mounted` changes.
+    // The other dependencies can cause re-initialization loops.
+  }, [mounted]);
+
+  // ✨ IMPROVEMENT: This useEffect was creating a memory leak by generating
+  // URLs inside the cleanup function. Since no preview URLs are being created
+  // in the first place, this entire effect can be safely removed.
+  // useEffect(() => { ... });
 
   const { data: categoryResponse, isLoading: categoryLoading } =
     useGetProductCategoryListQuery({
@@ -89,21 +69,18 @@ export default function FormProduct({
   const categoryData = categoryResponse?.data ?? [];
   const merkData = merkResponse?.data ?? [];
 
-  // ✅ Jangan render komponen sebelum mounted untuk menghindari hydration mismatch
+  // Show a loading skeleton before the component is mounted on the client
   if (!mounted) {
     return (
       <div className="bg-white dark:bg-zinc-900 rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-zinc-700 flex-shrink-0">
           <h2 className="text-lg font-semibold">Loading...</h2>
-          <Button variant="ghost" onClick={onCancel}>
-            ✕
-          </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-6">
-          <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded w-1/2"></div>
+            <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded w-5/6"></div>
           </div>
         </div>
       </div>
@@ -112,7 +89,7 @@ export default function FormProduct({
 
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
-      {/* Header - Fixed */}
+      {/* Header */}
       <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-zinc-700 flex-shrink-0">
         <h2 className="text-lg font-semibold">
           {readonly
@@ -121,12 +98,12 @@ export default function FormProduct({
             ? "Edit Produk"
             : "Tambah Produk"}
         </h2>
-        <Button variant="ghost" onClick={onCancel}>
+        <Button variant="ghost" size="icon" onClick={onCancel}>
           ✕
         </Button>
       </div>
 
-      {/* Content - Scrollable */}
+      {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-y-1">
@@ -140,7 +117,6 @@ export default function FormProduct({
                 }
               />
             ) : (
-              // ✅ Pastikan nilai yang dikirim ke Combobox konsisten
               <Combobox
                 value={form.product_category_id ?? null}
                 onChange={(val) =>
@@ -150,7 +126,7 @@ export default function FormProduct({
                 isLoading={categoryLoading}
                 getOptionLabel={(item) => item.name}
                 placeholder="Pilih Kategori Produk"
-                key={`category-${mounted}`} // ✅ Key untuk memastikan re-render setelah mounted
+                // ✨ IMPROVEMENT: The key prop is no longer needed.
               />
             )}
           </div>
@@ -166,7 +142,6 @@ export default function FormProduct({
                 }
               />
             ) : (
-              // ✅ Pastikan nilai yang dikirim ke Combobox konsisten
               <Combobox
                 value={form.product_merk_id ?? null}
                 onChange={(val) => setForm({ ...form, product_merk_id: val })}
@@ -174,7 +149,7 @@ export default function FormProduct({
                 isLoading={merkLoading}
                 getOptionLabel={(item) => item.name}
                 placeholder="Pilih Merk Produk"
-                key={`merk-${mounted}`} // ✅ Key untuk memastikan re-render setelah mounted
+                // ✨ IMPROVEMENT: The key prop is no longer needed.
               />
             )}
           </div>
@@ -210,13 +185,14 @@ export default function FormProduct({
                   : ""
               }
               onChange={(e) => {
-                const raw = e.target.value.replace(/\./g, ""); // hapus titik
+                const raw = e.target.value.replace(/\./g, "");
                 const numberValue = Number(raw);
-
-                setForm({
-                  ...form,
-                  price: raw === "" ? undefined : numberValue,
-                });
+                if (!isNaN(numberValue)) {
+                  setForm({
+                    ...form,
+                    price: raw === "" ? undefined : numberValue,
+                  });
+                }
               }}
               readOnly={readonly}
             />
@@ -236,9 +212,10 @@ export default function FormProduct({
               readOnly={readonly}
             />
           </div>
-
+          
+          {/* ... other input fields remain the same ... */}
           <div className="flex flex-col gap-y-1">
-            <Label>Berat</Label>
+            <Label>Berat (gram)</Label>
             <Input
               type="number"
               value={form.weight ?? ""}
@@ -253,7 +230,7 @@ export default function FormProduct({
           </div>
 
           <div className="flex flex-col gap-y-1">
-            <Label>Panjang</Label>
+            <Label>Panjang (cm)</Label>
             <Input
               type="number"
               value={form.length ?? ""}
@@ -268,7 +245,7 @@ export default function FormProduct({
           </div>
 
           <div className="flex flex-col gap-y-1">
-            <Label>Width</Label>
+            <Label>Lebar (cm)</Label>
             <Input
               type="number"
               value={form.width ?? ""}
@@ -283,7 +260,7 @@ export default function FormProduct({
           </div>
 
           <div className="flex flex-col gap-y-1">
-            <Label>Height</Label>
+            <Label>Tinggi (cm)</Label>
             <Input
               type="number"
               value={form.height ?? ""}
@@ -298,7 +275,7 @@ export default function FormProduct({
           </div>
 
           <div className="flex flex-col gap-y-1">
-            <Label>Diameter</Label>
+            <Label>Diameter (cm)</Label>
             <Input
               type="number"
               value={form.diameter ?? ""}
@@ -315,7 +292,7 @@ export default function FormProduct({
           <div className="flex flex-col gap-y-1">
             <Label>Status</Label>
             <select
-              className="border rounded-md px-3 py-2 text-sm bg-white dark:bg-zinc-800 border-gray-300 dark:border-zinc-600"
+              className="border rounded-md px-3 py-2 text-sm bg-white dark:bg-zinc-800 border-gray-300 dark:border-zinc-600 focus:ring-2 focus:ring-blue-500"
               value={form.status ? "1" : "0"}
               onChange={(e) =>
                 setForm({ ...form, status: e.target.value === "1" })
@@ -340,10 +317,10 @@ export default function FormProduct({
                   imageValue && typeof imageValue === "string" ? (
                     <Image
                       src={imageValue}
-                      alt="Preview"
-                      className="h-20 object-contain border rounded"
-                      width={200}
-                      height={200}
+                      alt={`Gambar produk ${imageNum}`}
+                      className="h-24 w-24 object-contain border rounded-md"
+                      width={96}
+                      height={96}
                     />
                   ) : (
                     <span className="text-sm text-gray-500">
@@ -354,9 +331,10 @@ export default function FormProduct({
                   <Input
                     type="file"
                     accept="image/*"
+                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (file) setForm({ ...form, [imageKey]: file });
+                      setForm({ ...form, [imageKey]: file || null });
                     }}
                   />
                 )}
@@ -366,7 +344,7 @@ export default function FormProduct({
         </div>
       </div>
 
-      {/* Footer/Actions - Fixed */}
+      {/* Footer */}
       {!readonly && (
         <div className="p-6 border-t border-gray-200 dark:border-zinc-700 flex justify-end gap-2 flex-shrink-0">
           <Button variant="outline" onClick={onCancel}>
