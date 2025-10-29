@@ -35,6 +35,7 @@ import PaymentMethod from "@/components/payment-method";
 import type { Voucher } from "@/types/voucher";
 import type { Product } from "@/types/admin/product";
 import { fredoka, sniglet } from "@/lib/fonts";
+import { Combobox } from "@/components/ui/combo-box";
 
 /** ====== Helpers & Types (samakan dengan CartPage) ====== */
 const STORAGE_KEY = "cart-storage";
@@ -835,93 +836,88 @@ export default function PublicTransaction() {
               </div>
 
               {/* === Combobox Wilayah (seperti CartPage) === */}
+              {/* Provinsi */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Provinsi
                 </label>
-                <select
-                  className="w-full px-4 py-3 border border-gray-200 rounded-2xl"
-                  value={guest.rajaongkir_province_id || ""}
-                  onChange={(e) =>
+                <Combobox
+                  value={guest.rajaongkir_province_id || null}
+                  onChange={(id) => {
                     setGuest((s) => ({
                       ...s,
-                      rajaongkir_province_id: Number(e.target.value) || 0,
-                    }))
+                      rajaongkir_province_id: id,
+                      rajaongkir_city_id: 0,
+                      rajaongkir_district_id: 0,
+                    }));
+                    setShippingCourier(null);
+                    setShippingMethod(null);
+                  }}
+                  data={provinces}
+                  isLoading={provLoading}
+                  placeholder="Pilih Provinsi"
+                  getOptionLabel={(item: { id: number; name: string }) =>
+                    item.name
                   }
-                >
-                  <option value="">Pilih Provinsi</option>
-                  {provinces.map((p: { id: number; name: string }) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-                {provLoading && (
-                  <p className="text-xs text-gray-500 mt-1">Memuat…</p>
-                )}
+                />
               </div>
 
+              {/* Kabupaten / Kota */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Kabupaten / Kota
                 </label>
-                <select
-                  className="w-full px-4 py-3 border border-gray-200 rounded-2xl"
-                  value={guest.rajaongkir_city_id || ""}
-                  onChange={(e) =>
+                <Combobox
+                  value={guest.rajaongkir_city_id || null}
+                  onChange={(id) => {
                     setGuest((s) => ({
                       ...s,
-                      rajaongkir_city_id: Number(e.target.value) || 0,
-                    }))
+                      rajaongkir_city_id: id,
+                      rajaongkir_district_id: 0,
+                    }));
+                    setShippingCourier(null);
+                    setShippingMethod(null);
+                  }}
+                  data={cities}
+                  isLoading={cityLoading}
+                  placeholder={
+                    guest.rajaongkir_province_id
+                      ? "Pilih Kabupaten/Kota"
+                      : "Pilih Provinsi dulu"
+                  }
+                  getOptionLabel={(item: { id: number; name: string }) =>
+                    item.name
                   }
                   disabled={!guest.rajaongkir_province_id}
-                >
-                  <option value="">
-                    {guest.rajaongkir_province_id
-                      ? "Pilih Kabupaten/Kota"
-                      : "Pilih Provinsi dulu"}
-                  </option>
-                  {cities.map((c: { id: number; name: string }) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-                {cityLoading && (
-                  <p className="text-xs text-gray-500 mt-1">Memuat…</p>
-                )}
+                />
               </div>
 
+              {/* Kecamatan */}
               <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Kecamatan
                 </label>
-                <select
-                  className="w-full px-4 py-3 border border-gray-200 rounded-2xl"
-                  value={guest.rajaongkir_district_id || ""}
-                  onChange={(e) =>
-                    setGuest((s) => ({
-                      ...s,
-                      rajaongkir_district_id: Number(e.target.value) || 0,
-                    }))
+                <Combobox
+                  value={guest.rajaongkir_district_id || null}
+                  onChange={(id) => {
+                    setGuest((s) => ({ ...s, rajaongkir_district_id: id }));
+                    setShippingCourier(null);
+                    setShippingMethod(null);
+                  }}
+                  data={districts}
+                  isLoading={distLoading}
+                  placeholder={
+                    guest.rajaongkir_city_id
+                      ? "Pilih Kecamatan"
+                      : "Pilih Kabupaten/Kota dulu"
+                  }
+                  getOptionLabel={(item: { id: number; name: string }) =>
+                    item.name
                   }
                   disabled={!guest.rajaongkir_city_id}
-                >
-                  <option value="">
-                    {guest.rajaongkir_city_id
-                      ? "Pilih Kecamatan"
-                      : "Pilih Kabupaten/Kota dulu"}
-                  </option>
-                  {districts.map((d: { id: number; name: string }) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name}
-                    </option>
-                  ))}
-                </select>
-                {distLoading && (
-                  <p className="text-xs text-gray-500 mt-1">Memuat…</p>
-                )}
+                />
               </div>
+
               {/* === /Combobox Wilayah === */}
 
               <div>
