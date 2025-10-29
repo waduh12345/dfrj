@@ -244,19 +244,17 @@ export default function LoginPage() {
               <ArrowLeft className="w-4 h-4 mr-1" />
               {t["back-button"]}
             </Button>
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center">
-                <Image
-                  src="/favicon.ico"
-                  alt="Colore Logo"
-                  width={48}
-                  height={48}
-                />
-              </div>
-              <div>
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo-colore.png"
+                alt="Colore Logo"
+                width={100}
+                height={100}
+              />
+              {/* <div>
                 <h1 className="text-2xl font-bold">COLORE</h1>
                 <p className="text-white/90 text-sm">Art & Crafts</p>
-              </div>
+              </div> */}
             </div>
 
             <div className="mb-8">
@@ -303,7 +301,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right */}
-        <div className="p-8 lg:p-12">
+        <div className="p-8 lg:p-12 max-h-[91vh] overflow-y-auto .no-scrollbar">
           <div className="max-w-md mx-auto">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-4">
