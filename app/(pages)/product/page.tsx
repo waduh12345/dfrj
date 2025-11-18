@@ -233,7 +233,7 @@ export default function ProductsPage() {
             )}
           >
             {t["hero-title"]}
-            <span className="block text-emerald-800">
+            <span className="block text-[#35966d]">
               {t["hero-title-highlight"]}
             </span>
           </h1>
@@ -313,6 +313,10 @@ export default function ProductsPage() {
                   className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
                 >
                   <option value="all">{t["filter-age"]}</option>
+                  <option value="0-3">{t["filter-age-0-3"]}</option>
+                  <option value="4-7">{t["filter-age-4-7"]}</option>
+                  <option value="8-12">{t["filter-age-8-12"]}</option>
+                  <option value="13+">{t["filter-age-13+"]}</option>
                 </select>
 
                 <select
@@ -328,7 +332,7 @@ export default function ProductsPage() {
                   <option value="above-200k">{t["filter-price-above"]}</option>
                 </select>
 
-                <select
+                {/* <select
                   value={filter.sort}
                   onChange={(e) =>
                     setFilter({ ...filter, sort: e.target.value })
@@ -340,7 +344,7 @@ export default function ProductsPage() {
                   <option value="price-low">{t["filter-sort-low"]}</option>
                   <option value="price-high">{t["filter-sort-high"]}</option>
                   <option value="rating">{t["filter-sort-rating"]}</option>
-                </select>
+                </select> */}
               </div>
 
               {/* View Mode */}

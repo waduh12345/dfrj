@@ -25,6 +25,7 @@ import en from "@/translations/auth/en";
 import { useRegisterMutation } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { fredoka } from "@/lib/fonts";
 
 interface LoginFormData {
   email: string;
@@ -239,7 +240,7 @@ export default function LoginPage() {
               variant="outline"
               size="sm"
               onClick={() => router.push("/")}
-              className="text-[#A3B18A] cursor-pointer shadow-lg border-[#A3B18A]/20 hover:bg-[#A3B18A]/10 hover:text-white transition-colors absolute -top-12 left-0"
+              className={`text-[#A3B18A] cursor-pointer shadow-lg border-[#A3B18A]/20 hover:bg-[#A3B18A]/10 hover:text-white transition-colors absolute -top-12 left-0 ${fredoka.className}`}
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               {t["back-button"]}
@@ -257,7 +258,7 @@ export default function LoginPage() {
               </div> */}
             </div>
 
-            <div className="mb-8">
+            <div className={`mb-8 ${fredoka.className}`}>
               <h2 className="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
                 {isLogin ? t["left-login-title"] : t["left-register-title"]}
               </h2>
@@ -268,7 +269,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className={`space-y-4 ${fredoka.className}`}>
               <div className="flex items-center gap-3">
                 <Leaf className="w-6 h-6 text-white/90" />
                 <span className="text-white/90">{t["left-item-1"]}</span>
@@ -283,7 +284,9 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/20">
+            <div
+              className={`grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/20 ${fredoka.className}`}
+            >
               <div className="text-center">
                 <div className="text-2xl font-bold">5000+</div>
                 <div className="text-white/80 text-sm">{t["left-stats-1"]}</div>

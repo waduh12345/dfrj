@@ -11,6 +11,11 @@ const translations = {
   "search-placeholder": "Cari produk favorit anak...",
   "filter-category": "Semua Kategori",
   "filter-age": "Semua Usia",
+  "filter-age-0-3": "0 - 3 Tahun",
+  "filter-age-4-7": "4 - 7 Tahun",
+  "filter-age-8-12": "8 - 12 Tahun",
+  "filter-age-13+": "13 Tahun ke Atas",
+
   "filter-price": "Semua Harga",
   "filter-price-under": "Di bawah 100k",
   "filter-price-mid": "100k - 200k",

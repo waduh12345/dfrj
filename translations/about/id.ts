@@ -3,6 +3,8 @@ const translations = {
   "hero-title-1": "Menciptakan Masa Depan",
   "hero-title-2": "Yang Lebih",
   "hero-title-3": "Berwarna",
+  "filter-category": "Semua Kategori",
+  "filter-category-CategoryName": "Nama Kategori",
   "hero-subtitle":
     "COLORE Art & Crafts hadir sebagai solusi terpercaya untuk menyediakan produk seni dan kerajinan ramah lingkungan yang aman, edukatif, dan menyenangkan untuk anak-anak Indonesia.",
   "hero-item-1-title": "100% Eco-Friendly",

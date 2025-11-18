@@ -51,7 +51,7 @@ export default function HowToOrderPage() {
 
   // === THEME (urut ke-2: #F6CCD0), selang-seling dgn putih ===
   const THEME = {
-    primary: "#F6CCD0", // warna halaman ini
+    primary: "#d43893ff", // warna halaman ini
     bubbleA: "#DFF19D",
     bubbleB: "#BFF0F5",
     COCOA: "#7F1D1D",
@@ -433,7 +433,7 @@ export default function HowToOrderPage() {
           <h1
             className={cn(
               fredoka.className,
-              "text-4xl lg:text-6xl font-bold text-gray-900 mb-6"
+              "text-4xl lg:text-6xl font-bold text-[#5B4A3B] mb-6"
             )}
           >
             {t["hero-title-1"]}
@@ -445,7 +445,7 @@ export default function HowToOrderPage() {
           <p
             className={cn(
               sniglet.className,
-              "text-xl text-gray-700 max-w-3xl mx-auto mb-8"
+              "text-xl text-[#5B4A3B] max-w-3xl mx-auto mb-8"
             )}
           >
             {t["hero-subtitle"]}
@@ -461,10 +461,10 @@ export default function HowToOrderPage() {
             {benefits.map((benefit, i) => (
               <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-center mb-3">{benefit.icon}</div>
-                <h3 className="font-semibold text-gray-900 text-sm mb-1">
+                <h3 className="font-semibold text-[#5B4A3B] text-sm mb-1">
                   {benefit.title}
                 </h3>
-                <p className="text-xs text-gray-600">{benefit.description}</p>
+                <p className="text-xs text-[#5B4A3B]">{benefit.description}</p>
               </div>
             ))}
           </div>
@@ -478,7 +478,7 @@ export default function HowToOrderPage() {
             <h2
               className={cn(
                 fredoka.className,
-                "text-3xl lg:text-4xl font-bold text-gray-900 mb-4"
+                "text-3xl lg:text-4xl font-bold text-[#5B4A3B] mb-4"
               )}
             >
               {t["nav-step-title-1"]}{" "}
@@ -489,7 +489,7 @@ export default function HowToOrderPage() {
             <p
               className={cn(
                 sniglet.className,
-                "text-gray-600 max-w-2xl mx-auto"
+                "text-[#5B4A3B] max-w-2xl mx-auto"
               )}
             >
               {t["nav-step-subtitle"]}
@@ -577,18 +577,18 @@ export default function HowToOrderPage() {
                           >
                             {t["nav-step-header-1"]} {step.id}
                           </div>
-                          <h3 className="text-2xl font-bold text-gray-900">
+                          <h3 className="text-2xl font-bold text-[#5B4A3B]">
                             {step.title}
                           </h3>
                         </div>
                       </div>
 
-                      <p className="text-gray-600 text-lg mb-6">
+                      <p className="text-[#5B4A3B] text-lg mb-6">
                         {step.description}
                       </p>
 
                       <div className="space-y-4 mb-8">
-                        <h4 className="font-semibold text-gray-900">
+                        <h4 className="font-semibold text-[#5B4A3B]">
                           {t["nav-step-header-2"]}
                         </h4>
                         {step.details.map((detail, index) => (
@@ -602,7 +602,7 @@ export default function HowToOrderPage() {
                                 style={{ backgroundColor: THEME.primary }}
                               />
                             </div>
-                            <span className="text-gray-700">{detail}</span>
+                            <span className="text-[#5B4A3B]">{detail}</span>
                           </div>
                         ))}
                       </div>
@@ -612,7 +612,7 @@ export default function HowToOrderPage() {
                           className="rounded-2xl p-6"
                           style={{ backgroundColor: `${THEME.primary}29` }}
                         >
-                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <h4 className="font-semibold text-[#5B4A3B] mb-3 flex items-center gap-2">
                             <AlertCircle
                               className="w-5 h-5"
                               style={{ color: THEME.primary }}
@@ -701,7 +701,7 @@ export default function HowToOrderPage() {
       <section className="px-6 lg:px-12 mb-16">
         <div className="container mx-auto">
           <div
-            className="rounded-3xl p-8 lg:p-12 text-gray-900"
+            className="rounded-3xl p-8 lg:p-12 text-[#5B4A3B]"
             style={{
               background: `linear-gradient(90deg, ${THEME.primary} 0%, ${THEME.primary}CC 100%)`,
               color: "#8F5D73",
@@ -768,7 +768,7 @@ export default function HowToOrderPage() {
             <h2
               className={cn(
                 fredoka.className,
-                "text-3xl lg:text-4xl font-bold text-gray-900 mb-4"
+                "text-3xl lg:text-4xl font-bold text-[#5B4A3B] mb-4"
               )}
             >
               {t["cta-title"]}
@@ -776,7 +776,7 @@ export default function HowToOrderPage() {
             <p
               className={cn(
                 sniglet.className,
-                "text-gray-600 mb-8 max-w-2xl mx-auto"
+                "text-[#5B4A3B] mb-8 max-w-2xl mx-auto"
               )}
             >
               {t["cta-subtitle"]}
@@ -809,7 +809,7 @@ export default function HowToOrderPage() {
             <h2
               className={cn(
                 fredoka.className,
-                "text-3xl lg:text-4xl font-bold text-gray-900 mb-4"
+                "text-3xl lg:text-4xl font-bold text-[#5B4A3B] mb-4"
               )}
             >
               {t["faq-title-1"]}{" "}
@@ -818,7 +818,7 @@ export default function HowToOrderPage() {
             <p
               className={cn(
                 sniglet.className,
-                "text-gray-600 max-w-2xl mx-auto"
+                "text-[#5B4A3B] max-w-2xl mx-auto"
               )}
             >
               {t["faq-subtitle"]}
@@ -838,7 +838,7 @@ export default function HowToOrderPage() {
                     }
                     className="w-full px-6 py-6 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
                   >
-                    <h3 className="font-semibold text-gray-900 pr-4">
+                    <h3 className="font-semibold text-[#5B4A3B] pr-4">
                       {faq.question}
                     </h3>
                     {expandedFAQ === index ? (
@@ -855,7 +855,7 @@ export default function HowToOrderPage() {
                   </button>
                   {expandedFAQ === index && (
                     <div className="px-6 pb-6">
-                      <p className="text-gray-600 leading-relaxed">
+                      <p className="text-[#5B4A3B] leading-relaxed">
                         {faq.answer}
                       </p>
                     </div>

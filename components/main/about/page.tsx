@@ -26,22 +26,22 @@ export default function AboutPage() {
 
   const values = [
     {
-      icon: <Leaf className="w-8 h-8 text-[#A3B18A]" />,
+      icon: <Leaf className="w-8 h-8 text-[#35966d]" />,
       title: t["value-item-1-title"],
       description: t["value-item-1-content"],
     },
     {
-      icon: <Shield className="w-8 h-8 text-[#A3B18A]" />,
+      icon: <Shield className="w-8 h-8 text-[#35966d]" />,
       title: t["value-item-2-title"],
       description: t["value-item-2-content"],
     },
     {
-      icon: <Palette className="w-8 h-8 text-[#A3B18A]" />,
+      icon: <Palette className="w-8 h-8 text-[#35966d]" />,
       title: t["value-item-3-title"],
       description: t["value-item-3-content"],
     },
     {
-      icon: <Heart className="w-8 h-8 text-[#A3B18A]" />,
+      icon: <Heart className="w-8 h-8 text-[#35966d]" />,
       title: t["value-item-4-title"],
       description: t["value-item-4-content"],
     },
@@ -132,10 +132,10 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#DFF19D]/20 via-[#BFF0F5]/20 to-[#F6CCD0]/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#DFF19D]/20 via-[#BFF0F5]/20 to-[#d43893ff]/20"></div>
 
         {/* Decorative Elements */}
-        <div className="absolute top-20 left-10 w-24 h-24 bg-[#F6CCD0] rounded-full opacity-60 animate-pulse"></div>
+        <div className="absolute top-20 left-10 w-24 h-24 bg-[#d43893ff] rounded-full opacity-60 animate-pulse"></div>
         <div className="absolute bottom-32 right-16 w-20 h-20 bg-[#BFF0F5] rounded-full opacity-60 animate-pulse delay-1000"></div>
         <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-[#DFF19D] rounded-full opacity-40 animate-pulse delay-500"></div>
 
@@ -143,10 +143,10 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Text Content */}
             <div className="text-center lg:text-left space-y-8">
-              <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full">
-                <Sparkles className="w-4 h-4 text-[#A3B18A]" />
+              <div className="inline-flex items-center gap-2 bg-[#35966d]/10 px-4 py-2 rounded-full">
+                <Sparkles className="w-4 h-4 text-[#35966d]" />
                 <span
-                  className={`text-sm font-medium text-[#A3B18A] ${sniglet.className}`}
+                  className={`text-sm font-medium text-[#35966d] ${sniglet.className}`}
                 >
                   {t["hero-badge"]}
                 </span>
@@ -156,10 +156,10 @@ export default function AboutPage() {
                 className={`text-5xl lg:text-6xl font-semibold text-[#5B4A3B] leading-tight ${fredoka.className}`}
               >
                 {t["hero-title-1"]}
-                <span className="block text-[#A3B18A]">
+                <span className="block text-[#35966d]">
                   {t["hero-title-2"]}
                 </span>
-                <span className="block text-[#F6CCD0]">
+                <span className="block text-[#d43893ff]">
                   {t["hero-title-3"]}
                 </span>
               </h1>
@@ -174,7 +174,7 @@ export default function AboutPage() {
                 className={`flex flex-col sm:flex-row gap-4 ${sniglet.className}`}
               >
                 <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-lg">
-                  <div className="w-12 h-12 bg-[#A3B18A] rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-[#35966d] rounded-xl flex items-center justify-center">
                     <TreePine className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -187,7 +187,7 @@ export default function AboutPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-lg">
-                  <div className="w-12 h-12 bg-[#F6CCD0] rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-[#d43893ff] rounded-xl flex items-center justify-center">
                     <Baby className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -243,14 +243,14 @@ export default function AboutPage() {
 
       {/* Mission & Vision */}
       <section
-        className={`py-20 bg-gradient-to-r from-[#A3B18A]/5 to-[#DFF19D]/5 ${sniglet.className}`}
+        className={`py-20 bg-gradient-to-r from-[#35966d]/5 to-[#DFF19D]/5 ${sniglet.className}`}
       >
         <div className="container mx-auto px-6 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Mission */}
             <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 bg-[#A3B18A] rounded-2xl flex items-center justify-center">
+                <div className="w-16 h-16 bg-[#35966d] rounded-2xl flex items-center justify-center">
                   <Target className="w-8 h-8 text-white" />
                 </div>
                 <h2
@@ -266,7 +266,7 @@ export default function AboutPage() {
                 {[t["misi-item-1"], t["misi-item-2"], t["misi-item-3"]].map(
                   (item, index) => (
                     <div key={index} className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-[#A3B18A]" />
+                      <CheckCircle className="w-5 h-5 text-[#35966d]" />
                       <span className="text-gray-700">{item}</span>
                     </div>
                   )
@@ -277,7 +277,7 @@ export default function AboutPage() {
             {/* Vision */}
             <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 bg-[#F6CCD0] rounded-2xl flex items-center justify-center">
+                <div className="w-16 h-16 bg-[#d43893ff] rounded-2xl flex items-center justify-center">
                   <Eye className="w-8 h-8 text-white" />
                 </div>
                 <h2
@@ -293,7 +293,7 @@ export default function AboutPage() {
                 {[t["visi-item-1"], t["visi-item-2"], t["visi-item-3"]].map(
                   (item, index) => (
                     <div key={index} className="flex items-center gap-3">
-                      <Star className="w-5 h-5 text-[#F6CCD0]" />
+                      <Star className="w-5 h-5 text-[#d43893ff]" />
                       <span className="text-gray-700">{item}</span>
                     </div>
                   )
@@ -312,7 +312,7 @@ export default function AboutPage() {
               className={`text-4xl lg:text-5xl font-bold text-[#5B4A3B] mb-6 ${fredoka.className}`}
             >
               {t["value-title-1"]}{" "}
-              <span className="text-[#A3B18A]">{t["value-title-2"]}</span>
+              <span className="text-[#35966d]">{t["value-title-2"]}</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               {t["value-subtitle"]}
@@ -323,10 +323,10 @@ export default function AboutPage() {
             {values.map((value, index) => (
               <div
                 key={index}
-                className="text-center group hover:bg-[#A3B18A]/5 p-8 rounded-3xl transition-all duration-300"
+                className="text-center group hover:bg-[#35966d]/5 p-8 rounded-3xl transition-all duration-300"
               >
                 <div className="mb-6 flex justify-center">
-                  <div className="p-4 bg-[#A3B18A]/10 rounded-2xl group-hover:bg-[#A3B18A]/20 transition-colors group-hover:scale-110 transform duration-300">
+                  <div className="p-4 bg-[#35966d]/10 rounded-2xl group-hover:bg-[#35966d]/20 transition-colors group-hover:scale-110 transform duration-300">
                     {value.icon}
                   </div>
                 </div>
@@ -344,7 +344,7 @@ export default function AboutPage() {
 
       {/* Stats Section */}
       <section
-        className={`py-20 bg-gradient-to-r from-[#BFF0F5]/10 to-[#F6CCD0]/10 ${sniglet.className}`}
+        className={`py-20 bg-gradient-to-r from-[#BFF0F5]/10 to-[#d43893ff]/10 ${sniglet.className}`}
       >
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mb-16">
@@ -352,7 +352,7 @@ export default function AboutPage() {
               className={`text-4xl lg:text-5xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
             >
               {t["stats-title-1"]}{" "}
-              <span className="text-[#A3B18A]">{t["stats-title-2"]}</span>
+              <span className="text-[#35966d]">{t["stats-title-2"]}</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               {t["stats-subtitle"]}
@@ -366,11 +366,11 @@ export default function AboutPage() {
                 className="text-center bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
               >
                 <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 bg-[#A3B18A] rounded-2xl flex items-center justify-center text-white">
+                  <div className="w-16 h-16 bg-[#35966d] rounded-2xl flex items-center justify-center text-white">
                     {stat.icon}
                   </div>
                 </div>
-                <div className="text-4xl font-bold text-[#A3B18A] mb-2">
+                <div className="text-4xl font-bold text-[#35966d] mb-2">
                   {stat.number}
                 </div>
                 <div className="text-gray-600 font-medium">{stat.label}</div>
@@ -381,14 +381,14 @@ export default function AboutPage() {
       </section>
 
       {/* Timeline */}
-      <section className={`py-20 bg-white ${sniglet.className}`}>
+      {/* <section className={`py-20 bg-white ${sniglet.className}`}>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mb-16">
             <h2
               className={`text-4xl lg:text-5xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
             >
               {t["journey-title-1"]}{" "}
-              <span className="text-[#A3B18A]">{t["journey-title-2"]}</span>
+              <span className="text-[#35966d]">{t["journey-title-2"]}</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               {t["journet-subtitle"]}
@@ -396,8 +396,7 @@ export default function AboutPage() {
           </div>
 
           <div className="relative">
-            {/* Timeline Line */}
-            <div className="absolute left-1/2 transform -translate-x-0.5 w-1 h-full bg-[#A3B18A]/20 hidden lg:block"></div>
+            <div className="absolute left-1/2 transform -translate-x-0.5 w-1 h-full bg-[#35966d]/20 hidden lg:block"></div>
 
             <div className="space-y-12">
               {milestones.map((milestone, index) => (
@@ -407,10 +406,9 @@ export default function AboutPage() {
                     index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
                   }`}
                 >
-                  {/* Content */}
                   <div className="flex-1 lg:text-right lg:pr-8 lg:even:text-left lg:even:pl-8">
-                    <div className="bg-white border border-[#A3B18A]/20 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-                      <div className="text-2xl font-bold text-[#A3B18A] mb-2">
+                    <div className="bg-white border border-[#35966d]/20 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                      <div className="text-2xl font-bold text-[#35966d] mb-2">
                         {milestone.year}
                       </div>
                       <h3 className="text-xl font-bold text-gray-900 mb-3">
@@ -420,20 +418,18 @@ export default function AboutPage() {
                     </div>
                   </div>
 
-                  {/* Timeline Dot */}
-                  <div className="hidden lg:flex w-4 h-4 bg-[#A3B18A] rounded-full border-4 border-white shadow-lg z-10"></div>
+                  <div className="hidden lg:flex w-4 h-4 bg-[#35966d] rounded-full border-4 border-white shadow-lg z-10"></div>
 
-                  {/* Spacer */}
                   <div className="flex-1 hidden lg:block"></div>
                 </div>
               ))}
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Team Section */}
-      <section
+      {/* <section
         className={`py-20 bg-gradient-to-r from-[#DFF19D]/10 to-[#BFF0F5]/10 ${sniglet.className}`}
       >
         <div className="container mx-auto px-6 lg:px-12">
@@ -442,7 +438,7 @@ export default function AboutPage() {
               className={`text-4xl lg:text-5xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
             >
               {t["team-title-1"]}{" "}
-              <span className="text-[#A3B18A]">{t["team-title-2"]}</span>
+              <span className="text-[#35966d]">{t["team-title-2"]}</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               {t["team-subtitle"]}
@@ -475,11 +471,11 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section
-        className={`py-20 bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80 text-white ${sniglet.className}`}
+        className={`py-20 bg-gradient-to-r from-[#35966d] to-[#35966d]/80 text-white ${sniglet.className}`}
       >
         <div className="container mx-auto px-6 lg:px-12 text-center">
           <div className="max-w-4xl mx-auto">
@@ -491,11 +487,11 @@ export default function AboutPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-[#A3B18A] font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2">
+              <button className="bg-white text-[#35966d] font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2">
                 <Palette className="w-5 h-5" />
                 {t["cta-btn-1"]}
               </button>
-              <button className="bg-transparent text-white border-2 border-white font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-white hover:text-[#A3B18A] transition-all duration-300">
+              <button className="bg-transparent text-white border-2 border-white font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-white hover:text-[#35966d] transition-all duration-300">
                 {t["cta-btn-2"]}
               </button>
             </div>

@@ -150,7 +150,7 @@ export default function NewsPage() {
     return (
       <div className="min-h-screen bg-white">
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80 text-white">
+        <div className="bg-gradient-to-r from-[#35966d] to-[#35966d]/80 text-white">
           <div className="container mx-auto px-6 lg:px-12 py-8">
             <button
               onClick={closeArticle}
@@ -263,7 +263,7 @@ export default function NewsPage() {
                       <span>Suka</span>
                     </button>
 
-                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-2xl hover:bg-[#A3B18A]/10 hover:text-[#A3B18A] transition-colors">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-2xl hover:bg-[#35966d]/10 hover:text-[#35966d] transition-colors">
                       <MessageCircle className="w-5 h-5" />
                       Diskusikan
                     </button>
@@ -280,7 +280,7 @@ export default function NewsPage() {
                       Tentang Penulis
                     </h4>
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 bg-[#A3B18A] rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-[#35966d] rounded-full flex items-center justify-center">
                         <User className="w-6 h-6 text-white" />
                       </div>
                       <div>
@@ -311,7 +311,7 @@ export default function NewsPage() {
                               onClick={() => openArticle(a)}
                               className="cursor-pointer group"
                             >
-                              <h5 className="font-medium text-gray-900 group-hover:text-[#A3B18A] transition-colors text-sm leading-snug">
+                              <h5 className="font-medium text-gray-900 group-hover:text-[#35966d] transition-colors text-sm leading-snug">
                                 {a.title}
                               </h5>
                               <p className="text-xs text-gray-500 mt-1">
@@ -331,7 +331,7 @@ export default function NewsPage() {
               <div className="mt-8">
                 <button
                   onClick={closeArticle}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-[#A3B18A] text-[#A3B18A] hover:bg-[#A3B18A]/10"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-[#35966d] text-[#35966d] hover:bg-[#35966d]/10"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Kembali
@@ -352,10 +352,10 @@ export default function NewsPage() {
       {/* Header Section */}
       <section className={`pt-24 pb-12 px-6 lg:px-12 ${sniglet.className}`}>
         <div className="container mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-6">
-            <Sparkles className="w-4 h-4 text-[#A3B18A]" />
+          <div className="inline-flex items-center gap-2 bg-[#35966d]/10 px-4 py-2 rounded-full mb-6">
+            <Sparkles className="w-4 h-4 text-[#35966d]" />
             <span
-              className={`text-sm font-medium text-[#A3B18A] ${sniglet.className}`}
+              className={`text-sm font-medium text-[#35966d] ${sniglet.className}`}
             >
               {t["hero-badge"]}
             </span>
@@ -365,7 +365,7 @@ export default function NewsPage() {
             className={`text-4xl lg:text-6xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
           >
             {t["hero-title-1"]}
-            <span className="block text-[#A3B18A]">{t["hero-title-2"]}</span>
+            <span className="block text-[#35966d]">{t["hero-title-2"]}</span>
           </h1>
 
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
@@ -377,7 +377,7 @@ export default function NewsPage() {
       {/* Search & Filter Section */}
       <section className="px-6 lg:px-12 mb-12">
         <div className="container mx-auto">
-          <div className="bg-white rounded-3xl p-6 shadow-lg border border-[#A3B18A]/10">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border border-[#35966d]/10">
             <div className="flex flex-col lg:flex-row gap-6">
               {/* Search */}
               <div className="relative flex-1">
@@ -388,26 +388,26 @@ export default function NewsPage() {
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
-                    setCurrentPage(1);
+                    setCurrentPage(1); // Reset page when search term changes
                   }}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#35966d] focus:border-transparent"
                 />
               </div>
 
-              {/* Categories (hanya 'Semua' karena API tidak kirim kategori) */}
+              {/* Categories (only 'Semua' as there's no category from the API) */}
               <div className="flex items-center gap-3 overflow-x-auto">
-                <Filter className="w-5 h-5 text-[#A3B18A] flex-shrink-0" />
+                <Filter className="w-5 h-5 text-[#35966d] flex-shrink-0" />
                 {categories.map((category) => (
                   <button
                     key={category.name}
                     onClick={() => {
-                      setSelectedCategory(category.name);
-                      setCurrentPage(1);
+                      setSelectedCategory(category.name); // Update selected category
+                      setCurrentPage(1); // Reset to first page
                     }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-2xl font-medium whitespace-nowrap transition-all duration-300 ${
                       selectedCategory === category.name
-                        ? "bg-[#A3B18A] text-white shadow-lg"
-                        : "bg-gray-100 text-gray-700 hover:bg-[#A3B18A] hover:text-white"
+                        ? "bg-[#35966d] text-white shadow-lg"
+                        : "bg-gray-100 text-gray-700 hover:bg-[#35966d] hover:text-white"
                     }`}
                   >
                     {category.icon}
@@ -446,17 +446,17 @@ export default function NewsPage() {
                     className="object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute top-4 left-4">
-                    <span className="bg-[#A3B18A] text-white px-4 py-2 rounded-full text-sm font-semibold">
+                    <span className="bg-[#35966d] text-white px-4 py-2 rounded-full text-sm font-semibold">
                       Featured
                     </span>
                   </div>
                 </div>
                 <div className="p-8 lg:p-12 flex flex-col justify-center">
-                  <span className="text-[#A3B18A] font-semibold mb-3">
+                  <span className="text-[#35966d] font-semibold mb-3">
                     Berita
                   </span>
                   <h2
-                    className={`text-3xl lg:text-4xl font-bold text-gray-900 mb-4 group-hover:text-[#A3B18A] transition-colors ${fredoka.className}`}
+                    className={`text-3xl lg:text-4xl font-bold text-gray-900 mb-4 group-hover:text-[#35966d] transition-colors ${fredoka.className}`}
                   >
                     {featured.title}
                   </h2>
@@ -481,7 +481,7 @@ export default function NewsPage() {
                       <span>{estimateReadTime(featured.content)}</span>
                     </div>
                   </div>
-                  <button className="self-start bg-[#A3B18A] text-white px-6 py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center gap-2">
+                  <button className="self-start bg-[#35966d] text-white px-6 py-3 rounded-2xl font-semibold hover:bg-[#35966d]/90 transition-colors flex items-center gap-2">
                     {t["main-card-cta"]}
                     <ArrowRight className="w-5 h-5" />
                   </button>
@@ -515,7 +515,9 @@ export default function NewsPage() {
       {!isLoading && (
         <section className="px-6 lg:px-12 mb-12">
           <div className="container mx-auto">
-            <div className={`flex items-center justify-between mb-8 ${fredoka.className}`}>
+            <div
+              className={`flex items-center justify-between mb-8 ${fredoka.className}`}
+            >
               <h3 className="text-2xl font-bold text-gray-900">
                 {selectedCategory === "Semua"
                   ? t["header-title"]
@@ -541,14 +543,14 @@ export default function NewsPage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-4 left-4">
-                      <span className="bg-white/90 backdrop-blur-sm text-[#A3B18A] px-3 py-1 rounded-full text-xs font-semibold">
+                      <span className="bg-white/90 backdrop-blur-sm text-[#35966d] px-3 py-1 rounded-full text-xs font-semibold">
                         Berita
                       </span>
                     </div>
                   </div>
 
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#A3B18A] transition-colors line-clamp-2">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#35966d] transition-colors line-clamp-2">
                       {article.title}
                     </h3>
                     <p className="text-gray-600 mb-4 line-clamp-3">
@@ -607,8 +609,8 @@ export default function NewsPage() {
             {/* Empty State */}
             {displayedArticles.length === 0 && (
               <div className="text-center py-20">
-                <div className="w-24 h-24 bg-[#A3B18A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <BookOpen className="w-12 h-12 text-[#A3B18A]" />
+                <div className="w-24 h-24 bg-[#35966d]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <BookOpen className="w-12 h-12 text-[#35966d]" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">
                   {t["empty-title"]}
@@ -620,7 +622,7 @@ export default function NewsPage() {
                     setSelectedCategory("Semua");
                     setCurrentPage(1);
                   }}
-                  className="bg-[#A3B18A] text-white px-6 py-3 rounded-2xl hover:bg-[#A3B18A]/90 transition-colors"
+                  className="bg-[#35966d] text-white px-6 py-3 rounded-2xl hover:bg-[#35966d]/90 transition-colors"
                 >
                   {t["empty-reset"]}
                 </button>
@@ -638,7 +640,7 @@ export default function NewsPage() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((prev) => prev - 1)}
-                className="px-6 py-3 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 border border-[#35966d] text-[#35966d] rounded-2xl hover:bg-[#35966d] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t["paginate-prev"]}
               </button>
@@ -651,8 +653,8 @@ export default function NewsPage() {
                       onClick={() => setCurrentPage(page)}
                       className={`w-12 h-12 rounded-2xl font-semibold transition-colors ${
                         currentPage === page
-                          ? "bg-[#A3B18A] text-white"
-                          : "border border-[#A3B18A] text-[#A3B18A] hover:bg-[#A3B18A] hover:text-white"
+                          ? "bg-[#35966d] text-white"
+                          : "border border-[#35966d] text-[#35966d] hover:bg-[#35966d] hover:text-white"
                       }`}
                     >
                       {page}
@@ -664,7 +666,7 @@ export default function NewsPage() {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="px-6 py-3 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 border border-[#35966d] text-[#35966d] rounded-2xl hover:bg-[#35966d] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t["paginate-next"]}
               </button>
@@ -676,7 +678,7 @@ export default function NewsPage() {
       {/* Newsletter CTA */}
       <section className="px-6 lg:px-12 mb-12">
         <div className="container mx-auto">
-          <div className="bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80 rounded-3xl p-8 lg:p-12 text-white text-center">
+          <div className="bg-gradient-to-r from-[#35966d] to-[#35966d]/80 rounded-3xl p-8 lg:p-12 text-white text-center">
             <h3 className="text-3xl lg:text-4xl font-bold mb-4">
               {t["nl-title"]}
             </h3>
@@ -690,7 +692,7 @@ export default function NewsPage() {
                 placeholder={t["nl-input-placeholder"]}
                 className="flex-1 px-6 py-4 rounded-2xl text-gray-900 outline-none ring-2 ring-white focus:outline-none focus:ring-2 focus:ring-white"
               />
-              <button className="bg-white text-[#A3B18A] px-8 py-4 rounded-2xl font-semibold hover:bg-gray-100 transition-colors">
+              <button className="bg-white text-[#35966d] px-8 py-4 rounded-2xl font-semibold hover:bg-gray-100 transition-colors">
                 {t["nl-cta"]}
               </button>
             </div>
