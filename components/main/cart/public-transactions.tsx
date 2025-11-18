@@ -800,6 +800,49 @@ export default function PublicTransaction() {
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nama Lengkap *
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                  value={guest.guest_name}
+                  onChange={(e) =>
+                    setGuest((s) => ({ ...s, guest_name: e.target.value }))
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                  value={guest.guest_email}
+                  onChange={(e) =>
+                    setGuest((s) => ({ ...s, guest_email: e.target.value }))
+                  }
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  No. HP *
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                  value={guest.guest_phone}
+                  onChange={(e) =>
+                    setGuest((s) => ({ ...s, guest_phone: e.target.value }))
+                  }
+                  placeholder="08xxxxxxxxxx"
+                />
+              </div>
+
               <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Alamat Lengkap *
@@ -931,49 +974,6 @@ export default function PublicTransaction() {
                   onChange={(e) =>
                     setGuest((s) => ({ ...s, postal_code: e.target.value }))
                   }
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nama Lengkap *
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                  value={guest.guest_name}
-                  onChange={(e) =>
-                    setGuest((s) => ({ ...s, guest_name: e.target.value }))
-                  }
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                  value={guest.guest_email}
-                  onChange={(e) =>
-                    setGuest((s) => ({ ...s, guest_email: e.target.value }))
-                  }
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  No. HP *
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                  value={guest.guest_phone}
-                  onChange={(e) =>
-                    setGuest((s) => ({ ...s, guest_phone: e.target.value }))
-                  }
-                  placeholder="08xxxxxxxxxx"
                 />
               </div>
 

@@ -28,6 +28,9 @@ import { useTranslation } from "@/hooks/use-translation";
 import id from "@/translations/product/id";
 import en from "@/translations/product/en";
 
+// SweetAlert2
+import Swal from "sweetalert2";
+
 type ViewMode = "grid" | "list";
 
 export default function ProductsPage() {
@@ -84,9 +87,22 @@ export default function ProductsPage() {
   // === Add to cart via zustand (persist ke localStorage)
   const addToCart = (product: Product) => {
     addItem(product);
+
+    // dispatch global event (kompatibel dgn logic globalmu)
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("cartUpdated")); // kompatibel dgn logic globalmu
+      window.dispatchEvent(new CustomEvent("cartUpdated"));
     }
+
+    // SweetAlert2 toast notification
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: `${product.name} berhasil ditambahkan ke keranjang`,
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    });
   };
 
   const openProductModal = (p: Product) => {
