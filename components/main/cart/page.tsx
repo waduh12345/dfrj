@@ -338,6 +338,28 @@ export default function CartPage() {
       const fresh: StoredCartItem = { ...p, quantity: 1 };
       return [...items, fresh];
     });
+
+    Swal.fire({
+      icon: "success",
+      title: "Berhasil!",
+      text: "Produk berhasil ditambahkan ke keranjang",
+      position: "top-end", // Position it to the top-right
+      toast: true, // Makes it appear as a toast
+      showConfirmButton: false, // Hides the confirm button for a toast effect
+      timer: 3000, // Time for the toast to stay before disappearing (in ms)
+      timerProgressBar: true, // Adds a progress bar on the toast
+      background: "#ffffff", // White background for the toast
+      color: "#333333", // Text color
+      iconColor: "#4CAF50", // Color for the success icon (green)
+      customClass: {
+        popup: "toast-popup", // Custom class to style the popup if needed
+      },
+      willOpen: (toast) => {
+        // Adding a gradient background to make the alert colorful and lively
+        toast.style.background =
+          "linear-gradient(45deg, #ff7f50, #ff6347, #ff1493, #ff4500)";
+      },
+    });
   };
 
   // const discount =
@@ -507,8 +529,8 @@ export default function CartPage() {
       <div
         className={`min-h-screen w-full bg-gradient-to-br from-white to-[#A3B18A]/10 pt-24 ${sniglet.className}`}
       >
-        <div className="container mx-auto px-6 lg:px-12">
-          <div className="max-w-2xl mx-auto text-center py-20">
+        <div className="container mx-auto px-6">
+          <div className="mx-auto text-center py-20">
             <div className="w-32 h-32 bg-[#A3B18A]/10 rounded-full flex items-center justify-center mx-auto mb-8">
               <ShoppingCart className="w-16 h-16 text-[#A3B18A]" />
             </div>
@@ -541,7 +563,7 @@ export default function CartPage() {
                 <div className="text-red-600">Gagal memuat rekomendasi.</div>
               )}
               {!isRelLoading && !isRelError && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-80">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {relatedProducts.map((product) => (
                     <div
                       key={product.id}

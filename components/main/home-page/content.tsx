@@ -33,6 +33,7 @@ import type { Product } from "@/types/admin/product";
 import DotdLoader from "@/components/loader/3dot";
 import { fredoka, sniglet } from "@/lib/fonts";
 import ImageCarousel from "./caraousel-hero";
+import Swal from "sweetalert2";
 
 export default function HomePage() {
   const router = useRouter();
@@ -195,6 +196,28 @@ export default function HomePage() {
 
     localStorage.setItem(CART_KEY, JSON.stringify(cartData));
     window.dispatchEvent(new CustomEvent("cartUpdated"));
+
+    // Show SweetAlert at top-right corner with colorful effect
+    Swal.fire({
+      icon: "success",
+      title: "Berhasil!",
+      text: "Produk berhasil ditambahkan ke keranjang",
+      position: "top-end", // Position it to the top-right
+      toast: true, // Makes it appear as a toast
+      showConfirmButton: false, // Hides the confirm button for a toast effect
+      timer: 3000, // Time for the toast to stay before disappearing (in ms)
+      timerProgressBar: true, // Adds a progress bar on the toast
+      background: "white", // White background
+      color: "#333", // Dark text color for contrast
+      iconColor: "#ff5722", // Color for the success icon
+      customClass: {
+        popup: "toast-popup", // Custom class to style the popup if needed
+      },
+      willOpen: (toast) => {
+        toast.style.background =
+          "linear-gradient(45deg, #ff6ec7, #f7bb97, #f7b7d7, #ff9a8b, #ff8cdd)"; // Colorful gradient background
+      },
+    });
   };
 
   return (
