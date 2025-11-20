@@ -4,10 +4,10 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState, useEffect } from "react";
 import { useGetProductBySlugQuery } from "@/services/product.service"; // API service
 import Image from "next/image";
-import { ShoppingCart, Heart, Truck, Clock, Package, Star } from "lucide-react"; // Menambahkan ikon baru untuk visual
+import { ChevronLeft, ChevronRight, ShoppingCart, X } from "lucide-react";
 import useCart from "@/hooks/use-cart";
 import Swal from "sweetalert2";
-import Link from "next/link"; // Menggunakan Link jika perlu navigasi
+import Link from "next/link";
 
 // Komponen yang merender halaman detail Produk berdasarkan slug
 const ProductDetailPage = () => {
@@ -52,16 +52,21 @@ const ProductDetail = ({ slug }: { slug: string }) => {
 
   // State untuk menyimpan gambar yang dipilih, diinisialisasi dengan gambar utama produk jika ada
   const [selectedImage, setSelectedImage] = useState<string>("");
+  // State untuk lightbox modal
+  const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
+  // optional index of selected image
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   useEffect(() => {
     if (product && selectedImage === "") {
-      setSelectedImage(product.image as string);
+      const first = (product.image as string) || "";
+      setSelectedImage(first);
+      setSelectedIndex(0);
     }
   }, [product, selectedImage]);
 
   const addToCart = () => {
     if (product) {
-      // Menambahkan ukuran yang dipilih ke produk sebelum ditambahkan ke keranjang
       const productWithDetails = {
         ...product,
       };
@@ -118,22 +123,86 @@ const ProductDetail = ({ slug }: { slug: string }) => {
     product.image_7,
   ].filter(Boolean) as string[];
 
+  // Handler klik thumbnail: set selected image and index
+  function handleClickThumb(url: string, idx: number) {
+    setSelectedImage(url);
+    setSelectedIndex(idx);
+  }
+
+  // Handler klik utama: buka lightbox dengan gambar yang sedang dipilih
+  function handleOpenLightbox() {
+    if (!selectedImage) return;
+    setLightboxOpen(true);
+  }
+
+  // navigate next/prev in lightbox
+  function lightboxNext() {
+    if (!images.length) return;
+    const next = (selectedIndex + 1) % images.length;
+    setSelectedIndex(next);
+    setSelectedImage(images[next]);
+  }
+  function lightboxPrev() {
+    if (!images.length) return;
+    const prev = (selectedIndex - 1 + images.length) % images.length;
+    setSelectedIndex(prev);
+    setSelectedImage(images[prev]);
+  }
+
   return (
     <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-[6rem] bg-white">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16">
         {/* Kolom Kiri: Galeri Gambar Produk */}
-        <div className="lg:sticky lg:top-8 self-start">
+        <div className="lg:sticky lg:top-8 self-start relative">
           {/* Gambar Utama yang Dipilih */}
-          <div className="relative w-full aspect-square mb-6 overflow-hidden rounded-xl shadow-2xl">
+          <div
+            className="relative w-full aspect-square mb-4 overflow-hidden rounded-xl shadow-2xl cursor-zoom-in"
+            onClick={handleOpenLightbox}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleOpenLightbox();
+            }}
+          >
             <Image
               src={selectedImage || productImageUrl}
               alt={product.name}
-              width={800}
-              height={800}
+              width={1200}
+              height={1200}
               className="w-full h-full object-cover transform transition-all duration-500 hover:scale-105"
               priority
             />
           </div>
+
+          {/* Thumbnails */}
+          {images.length > 1 && (
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-3 overflow-x-auto backdrop-blur-md rounded-lg py-2 px-4">
+              {images.map((img, i) => {
+                const isActive = img === (selectedImage || productImageUrl);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => handleClickThumb(img, i)}
+                    className={`relative h-20 w-20 flex-shrink-0 rounded-md overflow-hidden ring-1 ${
+                      isActive
+                        ? "ring-sky-500 shadow-lg"
+                        : "ring-zinc-200 hover:ring-sky-200"
+                    }`}
+                    aria-pressed={isActive}
+                    title={`Gambar ${i + 1}`}
+                  >
+                    <Image
+                      src={img}
+                      alt={`${product.name} ${i + 1}`}
+                      width={160}
+                      height={160}
+                      className="object-cover w-full h-full"
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Kolom Kanan: Informasi Produk & Aksi */}
@@ -176,6 +245,63 @@ const ProductDetail = ({ slug }: { slug: string }) => {
           </div>
         </div>
       </div>
+
+      {/* Lightbox Modal */}
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setLightboxOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="relative max-w-[1200px] w-full max-h-[90vh] flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Prev */}
+            {images.length > 1 && (
+              <button
+                onClick={lightboxPrev}
+                aria-label="Sebelumnya"
+                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow hover:bg-white"
+              >
+                <ChevronLeft/>
+              </button>
+            )}
+
+            <div className="w-full h-full flex items-center justify-center">
+              <Image
+                src={selectedImage || productImageUrl}
+                alt={product.name}
+                width={1200}
+                height={1200}
+                className="max-h-[88vh] object-contain"
+                priority
+              />
+            </div>
+
+            {/* Next */}
+            {images.length > 1 && (
+              <button
+                onClick={lightboxNext}
+                aria-label="Berikutnya"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow hover:bg-white"
+              >
+                <ChevronRight/>
+              </button>
+            )}
+
+            {/* Close */}
+            <button
+              onClick={() => setLightboxOpen(false)}
+              aria-label="Tutup"
+              className="absolute top-4 right-4 rounded-lg bg-white/80 p-2 shadow hover:bg-white"
+            >
+              <X/>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
