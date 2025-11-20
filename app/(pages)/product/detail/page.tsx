@@ -7,6 +7,9 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, ShoppingCart, X } from "lucide-react";
 import useCart from "@/hooks/use-cart";
 import Swal from "sweetalert2";
+import { useTranslation } from "@/hooks/use-translation";
+import id from "@/translations/product/id";
+import en from "@/translations/product/en";
 import Link from "next/link";
 
 // Komponen yang merender halaman detail Produk berdasarkan slug
@@ -49,6 +52,7 @@ const ProductDetailContent = () => {
 const ProductDetail = ({ slug }: { slug: string }) => {
   const { data: product, isLoading, isError } = useGetProductBySlugQuery(slug);
   const { addItem } = useCart();
+    const t = useTranslation({ id, en });
 
   // State untuk menyimpan gambar yang dipilih, diinisialisasi dengan gambar utama produk jika ada
   const [selectedImage, setSelectedImage] = useState<string>("");
@@ -150,7 +154,16 @@ const ProductDetail = ({ slug }: { slug: string }) => {
   }
 
   return (
-    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-[6rem] bg-white">
+    <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-[6rem] bg-white">
+      <div className="absolute fixed top-[7rem] left-[3rem] z-50">
+        <Link
+          href="/product"
+          className="flex items-center bg-white hover:bg-gray-200 px-4 py-2 rounded-lg shadow-xl font-bold"
+        >
+          <ChevronLeft className="w-6 h-6" />
+          {t["button-back"]}
+        </Link>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16">
         {/* Kolom Kiri: Galeri Gambar Produk */}
         <div className="lg:sticky lg:top-8 self-start relative">
@@ -265,7 +278,7 @@ const ProductDetail = ({ slug }: { slug: string }) => {
                 aria-label="Sebelumnya"
                 className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow hover:bg-white"
               >
-                <ChevronLeft/>
+                <ChevronLeft />
               </button>
             )}
 
@@ -287,7 +300,7 @@ const ProductDetail = ({ slug }: { slug: string }) => {
                 aria-label="Berikutnya"
                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow hover:bg-white"
               >
-                <ChevronRight/>
+                <ChevronRight />
               </button>
             )}
 
@@ -297,7 +310,7 @@ const ProductDetail = ({ slug }: { slug: string }) => {
               aria-label="Tutup"
               className="absolute top-4 right-4 rounded-lg bg-white/80 p-2 shadow hover:bg-white"
             >
-              <X/>
+              <X />
             </button>
           </div>
         </div>

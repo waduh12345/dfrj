@@ -15,6 +15,7 @@ const translations = {
   "filter-age-4-7": "4 - 7 Tahun",
   "filter-age-8-12": "8 - 12 Tahun",
   "filter-age-13+": "13 Tahun ke Atas",
+  "button-back": "Kembali",
 
   "filter-price": "Semua Harga",
   "filter-price-under": "Di bawah 100k",

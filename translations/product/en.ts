@@ -24,6 +24,7 @@ const translations = {
   "filter-sort-low": "Price: Low - High",
   "filter-sort-high": "Price: High - Low",
   "filter-sort-rating": "Top Rated",
+  "button-back": "Back",
 
   "list-showing": "Showing {count} of {total} products",
   "list-reviews": "{count} reviews",
