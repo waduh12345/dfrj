@@ -402,10 +402,12 @@ export default function ProductsPage() {
                 return (
                   <div
                     key={product.id}
-                    onClick={() => openProductDetailPage(product.slug)}
                     className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group hover:-translate-y-2"
                   >
-                    <div className="relative">
+                    <div
+                      onClick={() => openProductDetailPage(product.slug)}
+                      className="relative"
+                    >
                       <Image
                         src={img}
                         alt={product.name}

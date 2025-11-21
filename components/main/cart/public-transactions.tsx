@@ -233,9 +233,9 @@ export default function PublicTransaction() {
     address_line_1: "Jl Kebon Kopi",
     address_line_2: "",
     postal_code: "40535",
-    guest_name: "Soni Setiawan",
-    guest_email: "soni.setiawan.it07@gmail.com",
-    guest_phone: "0895405873792",
+    guest_name: "Test Guest",
+    guest_email: "akmalrafly875@gmail.com",
+    guest_phone: "08954058734653",
     rajaongkir_province_id: 0,
     rajaongkir_city_id: 0,
     rajaongkir_district_id: 0,
@@ -428,7 +428,7 @@ export default function PublicTransaction() {
         await Swal.fire({
           icon: "success",
           title: "Pesanan Berhasil Dibuat",
-          text: "Silakan cek email untuk detail transaksi.",
+          text: " Untuk informasi lebih lanjut bisa melalui WhatsApp,email, dan menu track order lalu masukan code transaksi yang dikirim melalui email atau WhatsApp",
         });
         clearCart();
       }
@@ -448,8 +448,8 @@ export default function PublicTransaction() {
       <div
         className={`min-h-screen w-full bg-gradient-to-br from-white to-[#A3B18A]/10 pt-24 ${sniglet.className}`}
       >
-        <div className="container mx-auto px-6 lg:px-12">
-          <div className="max-w-2xl mx-auto text-center py-20">
+        <div className="container mx-auto px-6">
+          <div className="mx-auto text-center py-20">
             <div className="w-32 h-32 bg-[#A3B18A]/10 rounded-full flex items-center justify-center mx-auto mb-8">
               <ShoppingCart className="w-16 h-16 text-[#A3B18A]" />
             </div>
