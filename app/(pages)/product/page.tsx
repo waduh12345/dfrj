@@ -416,7 +416,7 @@ export default function ProductsPage() {
 
                       {/* Actions */}
                       <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
+                        {/* <button
                           onClick={() => toggleWishlist(product.id)}
                           className={`p-2 rounded-full shadow-lg transition-colors ${
                             wishlist.includes(product.id)
@@ -431,7 +431,7 @@ export default function ProductsPage() {
                                 : ""
                             }`}
                           />
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => openProductDetailPage(product.slug)}
                           className="p-2 bg-white text-gray-600 hover:text-[#A3B18A] rounded-full shadow-lg transition-colors"
@@ -523,7 +523,7 @@ export default function ProductsPage() {
                                 {product.name}
                               </h3>
                             </div>
-                            <button
+                            {/* <button
                               onClick={() => toggleWishlist(product.id)}
                               className={`p-2 rounded-full transition-colors ${
                                 wishlist.includes(product.id)
@@ -538,7 +538,7 @@ export default function ProductsPage() {
                                     : ""
                                 }`}
                               />
-                            </button>
+                            </button> */}
                           </div>
 
                           <p className="text-gray-600 mb-4 line-clamp-3">

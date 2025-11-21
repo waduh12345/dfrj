@@ -136,7 +136,7 @@ function mapStoredToView(items: StoredCartItem[]): CartItemView[] {
 }
 
 type ErrorBag = Record<string, string[] | string>;
-type PaymentType = "midtrans" | "manual" | "cod";
+type PaymentType = "automatic" | "manual" | "cod";
 
 export default function CartPage() {
   const router = useRouter();
@@ -157,6 +157,7 @@ export default function CartPage() {
   const [shippingInfo, setShippingInfo] = useState({
     fullName: "",
     phone: "",
+    email: "",
     address_line_1: "",
     city: "",
     postal_code: "",
@@ -444,7 +445,7 @@ export default function CartPage() {
               city_id: shippingInfo.rajaongkir_city_id,
               district_id: shippingInfo.rajaongkir_district_id,
             },
-            payment_method: paymentMethod,
+            payment_type: paymentMethod,
           },
         ],
       };
@@ -810,21 +811,43 @@ export default function CartPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nomor Telepon *
-                  </label>
-                  <input
-                    type="tel"
-                    value={shippingInfo.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                    placeholder="08xxxxxxxxxx"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                  />
-                  {!isPhoneValid && shippingInfo.phone && (
-                    <p className="text-sm text-red-500 mt-0.5">
-                      Nomor telepon tidak valid
-                    </p>
-                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Nomor Telepon *
+                      </label>
+                      <input
+                        type="tel"
+                        value={shippingInfo.phone}
+                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        placeholder="08xxxxxxxxxx"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                      />
+                      {!isPhoneValid && shippingInfo.phone && (
+                        <p className="text-sm text-red-500 mt-0.5">
+                          Nomor telepon tidak valid
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        value={shippingInfo.email}
+                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        placeholder="Masukkan email"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                      />
+                      {!isPhoneValid && shippingInfo.email && (
+                        <p className="text-sm text-red-500 mt-0.5">
+                          Email tidak valid
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
@@ -1007,102 +1030,104 @@ export default function CartPage() {
                   )}
                 </div>
               </div>
+              <div>
+                <VoucherPicker
+                  selected={selectedVoucher}
+                  onChange={setSelectedVoucher}
+                />
+                <hr className="my-6" />
+                <PaymentMethod
+                  value={paymentMethod}
+                  onChange={(val) => setPaymentMethod(val)}
+                />
+                <hr className="my-6" />
+                {/* === Ringkasan Pesanan (update baris diskon) === */}
+                <div className="bg-white rounded-3xl p-6 shadow-lg">
+                  <h3 className="font-bold text-gray-900 mb-4">
+                    Ringkasan Pesanan
+                  </h3>
+                  <div className="space-y-3 mb-6">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">
+                        Subtotal ({cartItems.length} produk)
+                      </span>
+                      <span className="font-semibold">
+                        Rp {subtotal.toLocaleString("id-ID")}
+                      </span>
+                    </div>
 
-              <VoucherPicker
-                selected={selectedVoucher}
-                onChange={setSelectedVoucher}
-              />
-            </div>
-            <PaymentMethod
-              value={paymentMethod}
-              onChange={(val) => setPaymentMethod(val)}
-            />
+                    {discount > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>
+                          Diskon{" "}
+                          {selectedVoucher?.code
+                            ? `(${selectedVoucher.code})`
+                            : "Voucher"}
+                        </span>
+                        <span>- Rp {discount.toLocaleString("id-ID")}</span>
+                      </div>
+                    )}
 
-            {/* === Ringkasan Pesanan (update baris diskon) === */}
-            <div className="bg-white rounded-3xl p-6 shadow-lg">
-              <h3 className="font-bold text-gray-900 mb-4">
-                Ringkasan Pesanan
-              </h3>
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">
-                    Subtotal ({cartItems.length} produk)
-                  </span>
-                  <span className="font-semibold">
-                    Rp {subtotal.toLocaleString("id-ID")}
-                  </span>
-                </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Ongkos Kirim</span>
+                      <span className="font-semibold">
+                        Rp {shippingCost.toLocaleString("id-ID")}
+                      </span>
+                    </div>
 
-                {discount > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>
-                      Diskon{" "}
-                      {selectedVoucher?.code
-                        ? `(${selectedVoucher.code})`
-                        : "Voucher"}
-                    </span>
-                    <span>- Rp {discount.toLocaleString("id-ID")}</span>
+                    <div className="border-t border-gray-200 pt-3">
+                      <div className="flex justify-between text-lg font-bold">
+                        <span>Total</span>
+                        <span className="text-[#A3B18A]">
+                          Rp {total.toLocaleString("id-ID")}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                )}
 
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Ongkos Kirim</span>
-                  <span className="font-semibold">
-                    Rp {shippingCost.toLocaleString("id-ID")}
-                  </span>
-                </div>
+                  <button
+                    onClick={handleCheckout}
+                    disabled={
+                      isCheckingOut ||
+                      isSubmitting ||
+                      cartItems.some((it) => !it.inStock) ||
+                      !shippingMethod ||
+                      !shippingInfo.fullName ||
+                      !shippingInfo.address_line_1 ||
+                      !shippingInfo.postal_code ||
+                      !isPhoneValid
+                    }
+                    className="w-full bg-[#A3B18A] text-white py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isCheckingOut || isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Memproses...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="w-5 h-5" />
+                        Checkout Sekarang
+                      </>
+                    )}
+                  </button>
 
-                <div className="border-t border-gray-200 pt-3">
-                  <div className="flex justify-between text-lg font-bold">
-                    <span>Total</span>
-                    <span className="text-[#A3B18A]">
-                      Rp {total.toLocaleString("id-ID")}
-                    </span>
-                  </div>
+                  {(!paymentMethod ||
+                    !shippingMethod ||
+                    !shippingInfo.fullName ||
+                    !shippingInfo.address_line_1) && (
+                    <p className="text-red-500 text-sm text-center mt-3">
+                      * Harap lengkapi semua informasi yang diperlukan
+                    </p>
+                  )}
+
+                  {cartItems.some((it) => !it.inStock) && (
+                    <p className="text-red-500 text-sm text-center mt-3">
+                      Beberapa produk tidak tersedia. Hapus untuk melanjutkan.
+                    </p>
+                  )}
                 </div>
               </div>
-
-              <button
-                onClick={handleCheckout}
-                disabled={
-                  isCheckingOut ||
-                  isSubmitting ||
-                  cartItems.some((it) => !it.inStock) ||
-                  !shippingMethod ||
-                  !shippingInfo.fullName ||
-                  !shippingInfo.address_line_1 ||
-                  !shippingInfo.postal_code ||
-                  !isPhoneValid
-                }
-                className="w-full bg-[#A3B18A] text-white py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isCheckingOut || isSubmitting ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Memproses...
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="w-5 h-5" />
-                    Checkout Sekarang
-                  </>
-                )}
-              </button>
-
-              {(!paymentMethod ||
-                !shippingMethod ||
-                !shippingInfo.fullName ||
-                !shippingInfo.address_line_1) && (
-                <p className="text-red-500 text-sm text-center mt-3">
-                  * Harap lengkapi semua informasi yang diperlukan
-                </p>
-              )}
-
-              {cartItems.some((it) => !it.inStock) && (
-                <p className="text-red-500 text-sm text-center mt-3">
-                  Beberapa produk tidak tersedia. Hapus untuk melanjutkan.
-                </p>
-              )}
             </div>
           </div>
         </div>

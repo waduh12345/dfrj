@@ -2,7 +2,7 @@
 
 import { CreditCard } from "lucide-react";
 
-type PaymentType = "midtrans" | "manual" | "cod";
+type PaymentType = "automatic" | "manual" | "cod";
 
 export default function PaymentType({
   value,
@@ -28,9 +28,9 @@ export default function PaymentType({
               <input
                 type="radio"
                 name="payment-type"
-                value="midtrans"
-                checked={value === "midtrans"}
-                onChange={() => onChange("midtrans")}
+                value="automatic"
+                checked={value === "automatic"}
+                onChange={() => onChange("automatic")}
                 className="form-radio text-[#6B6B6B] h-4 w-4"
               />
               <div>

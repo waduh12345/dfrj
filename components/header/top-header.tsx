@@ -53,6 +53,13 @@ export default function Header() {
       textColor: "text-[#6B7280]",
     },
     {
+      name: t.cekOrder,
+      href: "/cek-order",
+      hoverBg: "hover:bg-[#BFF0F5]", // Light blue
+      activeBg: "bg-[#BFF0F5]",
+      textColor: "text-[#6B7280]",
+    },
+    {
       name: t.news,
       href: "/news",
       hoverBg: "hover:bg-[#DFF1AD]", // Light green
