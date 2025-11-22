@@ -265,7 +265,7 @@ export default function TrackOrderPage() {
                 Belum Melacak Pesanan?
               </h3>
               <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                Silakan masukkan <strong>Kode Referensi (TRX-...)</strong> yang Anda dapatkan pada halaman "Terima Kasih" atau yang kami kirimkan melalui Email/WhatsApp.
+                Silakan masukkan <strong>Kode Referensi (TRX-...)</strong> {`yang Anda dapatkan pada halaman "Terima Kasih" atau yang kami kirimkan melalui Email/WhatsApp.`}
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
