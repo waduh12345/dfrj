@@ -43,6 +43,7 @@ type OrderStatus =
 interface TrackResult {
   id: number;
   reference: string;
+  encypted_id: string;
   status: OrderStatus;
   created_at: string;
   grand_total: number;
@@ -134,6 +135,7 @@ export default function TrackOrderPage() {
       const mockData: TrackResult = {
         id: transactionData.id,
         reference: transactionData.reference,
+        encypted_id: transactionData.encypted_id || "",
         status: transactionData.status === 0 ? "PENDING" : "SHIPPED", 
         created_at: transactionData.created_at,
         grand_total: transactionData.grand_total,
@@ -367,10 +369,10 @@ export default function TrackOrderPage() {
                     </div>
 
                     {/* Logic Tombol Bayar dengan Encrypted ID */}
-                    {encryptedPaymentId ? (
+                    {result.status === "PENDING" ? (
                       <Link
                         // Menggunakan encodeURIComponent agar karakter spesial (:, +) di string enkripsi aman di URL
-                        href={`/guest/transaction/${encodeURIComponent(encryptedPaymentId)}`}
+                        href={`/guest/transaction/${result.encypted_id}`}
                         className="bg-yellow-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-600 transition-colors whitespace-nowrap shadow-lg shadow-yellow-500/30"
                       >
                         Bayar Sekarang
