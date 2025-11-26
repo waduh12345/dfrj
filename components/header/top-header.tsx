@@ -226,7 +226,7 @@ export default function Header() {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-all duration-300 ${
+        className={`fixed inset-0 bg-black/50 z-50 lg:hidden transition-all duration-300 ${
           isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         onClick={toggleMobileMenu}
@@ -241,15 +241,16 @@ export default function Header() {
           <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-[#DFF1AD]/50 to-[#BFF0F5]/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold">C</span>
-                </div>
-                <div>
-                  <h2 className="font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                    COLORE
-                  </h2>
-                  <p className="text-xs text-gray-600">{t.tagline}</p>
-                </div>
+                <Link href="/" className="flex items-center gap-3 group">
+                  <div className="relative">
+                    <Image
+                      src="/logo-colore.png"
+                      alt="Colore Logo"
+                      width={100}
+                      height={100}
+                    />
+                  </div>
+                </Link>
               </div>
               <button
                 onClick={toggleMobileMenu}

@@ -226,7 +226,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#DFF19D]/20 via-[#BFF0F5]/20 to-[#F6CCD0]/20 flex items-center justify-center p-4 sm:p-6 relative">
-      
       {/* --- Mobile Specific Back Button (Fixed at top-left of screen) --- */}
       <div className="fixed top-4 left-4 z-50 lg:hidden">
         <Button
@@ -246,10 +245,8 @@ export default function LoginPage() {
 
       {/* Main Container */}
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white rounded-[2rem] shadow-2xl overflow-hidden my-4 lg:my-0">
-        
         {/* Left Side (Branding Panel) */}
         <div className="bg-gradient-to-br from-[#A3B18A] to-[#DFF19D] p-8 lg:p-12 flex flex-col justify-center text-white relative overflow-hidden min-h-[200px] lg:min-h-[600px]">
-          
           {/* Desktop Back Button (Absolute on card) */}
           <Button
             variant="outline"
@@ -295,7 +292,9 @@ export default function LoginPage() {
             </div>
 
             {/* Feature List (Hidden on Mobile to save space) */}
-            <div className={`hidden lg:flex flex-col space-y-4 ${fredoka.className}`}>
+            <div
+              className={`hidden lg:flex flex-col space-y-4 ${fredoka.className}`}
+            >
               <div className="flex items-center gap-3">
                 <Leaf className="w-6 h-6 text-white/90" />
                 <span className="text-white/90">{t["left-item-1"]}</span>
@@ -361,7 +360,10 @@ export default function LoginPage() {
             {/* Forms */}
             {isLogin ? (
               // --- LOGIN FORM ---
-              <form onSubmit={handleLoginSubmit} className="space-y-5 lg:space-y-6">
+              <form
+                onSubmit={handleLoginSubmit}
+                className="space-y-5 lg:space-y-6"
+              >
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
                     Email Address
@@ -454,131 +456,136 @@ export default function LoginPage() {
               </form>
             ) : (
               // --- REGISTER FORM ---
-              <form onSubmit={handleRegisterSubmit} className="space-y-4 lg:space-y-5">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    Nama Lengkap
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      value={registerData.fullName}
-                      onChange={(e) =>
-                        setRegisterData((prev) => ({
-                          ...prev,
-                          fullName: e.target.value,
-                        }))
-                      }
-                      className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                      placeholder="Masukkan nama lengkap"
-                    />
+              <form
+                onSubmit={handleRegisterSubmit}
+                className="space-y-4 lg:space-y-5"
+              >
+                <div className="md:max-h-[28vh] md:overflow-y-auto">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                      Nama Lengkap
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="text"
+                        value={registerData.fullName}
+                        onChange={(e) =>
+                          setRegisterData((prev) => ({
+                            ...prev,
+                            fullName: e.target.value,
+                          }))
+                        }
+                        className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                        placeholder="Masukkan nama lengkap"
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="email"
-                      value={registerData.email}
-                      onChange={(e) =>
-                        setRegisterData((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }))
-                      }
-                      className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                      placeholder="nama@email.com"
-                    />
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="email"
+                        value={registerData.email}
+                        onChange={(e) =>
+                          setRegisterData((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
+                        className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                        placeholder="nama@email.com"
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    Nomor Telepon
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="tel"
-                      value={registerData.phone}
-                      onChange={(e) =>
-                        setRegisterData((prev) => ({
-                          ...prev,
-                          phone: e.target.value,
-                        }))
-                      }
-                      className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                      placeholder="+62 812 3456 7890"
-                    />
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                      Nomor Telepon
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="tel"
+                        value={registerData.phone}
+                        onChange={(e) =>
+                          setRegisterData((prev) => ({
+                            ...prev,
+                            phone: e.target.value,
+                          }))
+                        }
+                        className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                        placeholder="+62 812 3456 7890"
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={registerData.password}
-                      onChange={(e) =>
-                        setRegisterData((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                      className="w-full pl-12 pr-12 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                      placeholder="Min. 8 karakter"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
-                    </button>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={registerData.password}
+                        onChange={(e) =>
+                          setRegisterData((prev) => ({
+                            ...prev,
+                            password: e.target.value,
+                          }))
+                        }
+                        className="w-full pl-12 pr-12 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                        placeholder="Min. 8 karakter"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    Konfirmasi Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={registerData.confirmPassword}
-                      onChange={(e) =>
-                        setRegisterData((prev) => ({
-                          ...prev,
-                          confirmPassword: e.target.value,
-                        }))
-                      }
-                      className="w-full pl-12 pr-12 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
-                      placeholder="Ulangi password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword((v) => !v)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
-                    </button>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                      Konfirmasi Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={registerData.confirmPassword}
+                        onChange={(e) =>
+                          setRegisterData((prev) => ({
+                            ...prev,
+                            confirmPassword: e.target.value,
+                          }))
+                        }
+                        className="w-full pl-12 pr-12 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                        placeholder="Ulangi password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((v) => !v)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -595,9 +602,15 @@ export default function LoginPage() {
                     }
                     className="w-4 h-4 text-[#A3B18A] border-gray-300 rounded focus:ring-[#A3B18A] mt-1 cursor-pointer"
                   />
-                  <label htmlFor="terms" className="ml-3 text-sm text-gray-600 cursor-pointer">
+                  <label
+                    htmlFor="terms"
+                    className="ml-3 text-sm text-gray-600 cursor-pointer"
+                  >
                     {t["terms-1"]}{" "}
-                    <a href="/terms" className="text-[#A3B18A] hover:underline font-medium">
+                    <a
+                      href="/terms"
+                      className="text-[#A3B18A] hover:underline font-medium"
+                    >
                       {t["terms-2"]}
                     </a>{" "}
                     {t["terms-3"]}{" "}

@@ -29,6 +29,7 @@ import {
 } from "@/services/gallery.service";
 import DotdLoader from "@/components/loader/3dot";
 import { fredoka, sniglet } from "@/lib/fonts";
+import { useRouter } from "next/navigation";
 
 // Kategori untuk filter (UI)
 const categories = [
@@ -156,6 +157,11 @@ export default function GaleriPage() {
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [selectedItem, setSelectedItem] = useState<GaleriCard | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const phone = "628176942128";
+  const waText = encodeURIComponent("saya ingin mendaftar workshop");
+  const waUrlWithPhone = `https://wa.me/${phone}?text=${waText}`;
+  const router = useRouter();
 
   // Ambil data galeri dari service (pagination bebas; default contoh: 12 item)
   const { data, isLoading, isError, refetch } = useGetGalleryListQuery({
@@ -400,7 +406,7 @@ export default function GaleriPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="px-6 lg:px-12 mb-12">
+      <section className="hidden lg:block px-6 lg:px-12 mb-12">
         <div className="container mx-auto">
           <div className="bg-gradient-to-r from-[#A3B18A] to-[#A3B18A]/80 rounded-3xl p-8 text-white text-center">
             <h3 className={`text-4xl font-bold mb-8 ${fredoka.className}`}>
@@ -447,11 +453,20 @@ export default function GaleriPage() {
               {t["cta-subtitle"]}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-[#A3B18A] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2">
+              <a
+                href={waUrlWithPhone}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#A3B18A] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
+              >
                 <Users className="w-5 h-5" />
                 {t["cta-btn-1"]}
-              </button>
-              <button className="border border-[#A3B18A] text-[#A3B18A] px-8 py-4 rounded-2xl font-semibold hover:bg-[#A3B18A] hover:text-white transition-colors">
+              </a>
+              <button
+                type="button"
+                onClick={() => router.push("/product")}
+                className="border border-[#A3B18A] text-[#A3B18A] px-8 py-4 rounded-2xl font-semibold hover:bg-[#A3B18A] hover:text-white transition-colors"
+              >
                 {t["cta-btn-2"]}
               </button>
             </div>

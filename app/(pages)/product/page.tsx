@@ -393,7 +393,7 @@ export default function ProductsPage() {
           </div>
 
           {viewMode === "grid" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 md:gap-8">
               {sortedProducts.map((product) => {
                 const img = getImageUrl(product);
                 const ratingNum = toNumber(product.rating);
@@ -413,7 +413,7 @@ export default function ProductsPage() {
                         alt={product.name}
                         width={400}
                         height={300}
-                        className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-32 md:h-64 object-cover group-hover:scale-105 transition-transform duration-500"
                       />
 
                       {/* Actions */}
@@ -443,7 +443,7 @@ export default function ProductsPage() {
                       </div>
                     </div>
 
-                    <div className="p-6">
+                    <div className="p-4 md:p-6">
                       <div className="mb-3">
                         <span className="text-xs text-[#A3B18A] font-medium">
                           {product.category_name}
@@ -472,7 +472,7 @@ export default function ProductsPage() {
                       </div>
 
                       <div className="flex items-center gap-3 mb-4">
-                        <span className="text-2xl font-bold text-[#A3B18A]">
+                        <span className="text-lg md:text-2xl font-bold text-[#A3B18A]">
                           Rp {product.price.toLocaleString("id-ID")}
                         </span>
                       </div>
@@ -480,9 +480,9 @@ export default function ProductsPage() {
                       <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
                         <button
                           onClick={() => addToCart(product)}
-                          className="flex-1 bg-black/50 text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
+                          className="text-xs md:text-base flex-1 bg-black/50 text-white px-1 py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-1 md:gap-2"
                         >
-                          <ShoppingCart className="w-5 h-5" />
+                          <ShoppingCart className="w-4 md:w-5 h-5" />
                           {t["list-add-cart"]}
                         </button>
                       </div>
@@ -568,21 +568,21 @@ export default function ProductsPage() {
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <span className="text-3xl font-bold text-[#A3B18A]">
+                            <span className="text-xl md:text-3xl font-bold text-[#A3B18A]">
                               Rp {product.price.toLocaleString("id-ID")}
                             </span>
                           </div>
 
-                          <div className="flex gap-3">
+                          <div className="flex gap-2 md:gap-3">
                             <button
                               onClick={() => openProductModal(product)}
-                              className="px-6 py-3 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors"
+                              className="px-2 md:px-6 py-1 md:py-3 border border-[#A3B18A] text-[#A3B18A] rounded-2xl hover:bg-[#A3B18A] hover:text-white transition-colors"
                             >
                               Detail
                             </button>
                             <button
                               onClick={() => addToCart(product)}
-                              className="px-6 py-3 bg-[#A3B18A] text-white rounded-2xl hover:bg-[#A3B18A]/90 transition-colors flex items-center gap-2"
+                              className="px-4 md:px-6 py-2 md:py-3 bg-[#A3B18A] text-white rounded-2xl hover:bg-[#A3B18A]/90 transition-colors flex items-center gap-2"
                             >
                               <ShoppingCart className="w-5 h-5" />
                               {t["list-add-cart"]}

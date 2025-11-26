@@ -229,7 +229,7 @@ export default function HomePage() {
         <div className="absolute bottom-32 right-16 w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full opacity-80 animate-pulse delay-1000 shadow-lg"></div>
         <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-gradient-to-br from-lime-500 to-green-500 rounded-full opacity-70 animate-pulse delay-500 shadow-lg"></div>
 
-        <div className="relative z-10 container mx-auto px-6 lg:px-12 mt-12">
+        <div className="relative z-10 container mx-auto px-6 lg:px-12 mt-22 md:mt-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Text Content */}
             <div className="text-center lg:text-left space-y-8">
@@ -266,7 +266,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row pt-4">
                 <button
                   onClick={() => router.push("/product")}
-                  className="w-1/2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-8 py-4 rounded-2xl text-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 transform hover:scale-105"
+                  className="w-full lg:w-1/2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-8 py-4 rounded-2xl text-lg hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 transform hover:scale-105"
                 >
                   <ShoppingBag className="w-5 h-5" />
                   {t["hero-cta"]}
@@ -303,7 +303,7 @@ export default function HomePage() {
 
             {/* Hero Image */}
             <div className="relative">
-              <div className="relative w-full h-[600px] rounded-3xl overflow-hidden shadow-2xl">
+              <div className="relative w-full h-[600px] rounded-3xl overflow-hidden shadow-2xl mb-2 lg:mb-0">
                 <ImageCarousel />
                 <div className="absolute top-6 right-6 bg-gradient-to-r from-emerald-600 to-teal-600 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-xl">
                   <div className="flex items-center gap-2 text-white">
@@ -322,7 +322,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="absolute -bottom-6 -left-6 bg-gradient-to-r from-pink-500 to-rose-500 p-6 rounded-2xl shadow-xl">
+              <div className="hidden md:block absolute -bottom-6 -left-6 bg-gradient-to-r from-pink-500 to-rose-500 p-6 rounded-2xl shadow-xl">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-white">50+</div>
                   <div className="text-sm text-white/90">
@@ -369,7 +369,7 @@ export default function HomePage() {
                   Belum ada merk.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-8">
                   {categories.map((category, index) => (
                     <div key={category.id} className="group h-96">
                       <div className="relative h-full flex flex-col overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 transform">
@@ -470,7 +470,7 @@ export default function HomePage() {
             <p className="mt-4 text-gray-700">{t["sec-2-subtitle"]}</p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-6">
             {features.map((f, i) => (
               <div
                 key={i}
@@ -606,7 +606,7 @@ export default function HomePage() {
                   Belum ada produk.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-8">
                   {topProducts.map((product) => {
                     const ratingInt = Math.min(
                       5,
@@ -623,7 +623,7 @@ export default function HomePage() {
                             alt={product.name}
                             width={300}
                             height={300}
-                            className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-32 md:h-64 object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                           <div className="absolute top-4 left-4">
                             <span className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
@@ -637,12 +637,12 @@ export default function HomePage() {
                           </div>
                         </div>
 
-                        <div className="p-6">
-                          <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        <div className="p-4 md:p-6">
+                          <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
                             {product.name}
                           </h3>
 
-                          <div className="flex items-center gap-2 mb-4">
+                          <div className="flex flex-wrap items-center gap-2 mb-4">
                             <div className="flex items-center gap-1">
                               {[1, 2, 3, 4, 5].map((i) => (
                                 <Star
@@ -662,7 +662,7 @@ export default function HomePage() {
                           </div>
 
                           <div className="flex items-center gap-3 mb-6">
-                            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                            <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                               {formatIDR(product.price)}
                             </span>
                           </div>
@@ -670,9 +670,9 @@ export default function HomePage() {
                           {/* Tambah ke Keranjang -> simpan ke localStorage `cart-storage` */}
                           <button
                             onClick={() => addToCart(product)}
-                            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3 rounded-2xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
+                            className="text-xs w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3 rounded-2xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
                           >
-                            <ShoppingBag className="w-5 h-5" />
+                            <ShoppingBag className="w-4 md:w-5 h-4 md:h-5" />
                             {t["sec-4-card-cta"]}
                           </button>
                         </div>
@@ -687,7 +687,7 @@ export default function HomePage() {
           <div className="text-center mt-12">
             <button
               onClick={() => router.push("/product")}
-              className="bg-white text-emerald-600 border-2 border-emerald-600 font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 inline-flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="bg-white text-emerald-600 border-2 border-emerald-600 font-semibold px-4 md:px-8 py-4 rounded-2xl text-sm md:text-lg hover:bg-emerald-600 hover:text-white transition-all duration-300 inline-flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               {t["sec-4-cta"]}
               <ArrowRight className="w-5 h-5" />

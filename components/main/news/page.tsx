@@ -25,6 +25,7 @@ import {
 } from "@/services/public-news.service";
 import DotdLoader from "@/components/loader/3dot";
 import { fredoka, sniglet } from "@/lib/fonts";
+import { extractCategoryNamesFromArticle } from "@/utils/helper-news";
 
 // ==== Utils ====
 const getImageUrl = (img: File | string) =>
@@ -78,27 +79,75 @@ export default function NewsPage() {
   const listItems: News[] = useMemo(() => listResp?.data ?? [], [listResp]);
 
   // categories dari API tidak ada → minimal "Semua"
-  const categories = useMemo(
-    () => [
-      {
-        name: t["search-button"],
-        icon: <BookOpen className="w-4 h-4" />,
-        count: listResp?.total ?? listItems.length ?? 0,
-      },
-    ],
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+
+    for (const a of listItems ?? []) {
+      const names = extractCategoryNamesFromArticle(a);
+      if (names.length === 0) {
+        counts.set("Berita", (counts.get("Berita") ?? 0) + 1);
+      } else {
+        for (const n of names) {
+          counts.set(n, (counts.get(n) ?? 0) + 1);
+        }
+      }
+    }
+
+    // Ensure "Semua" present and count equals total articles
+    const total = listItems?.length ?? 0;
+    const result: { name: string; icon: React.ReactNode; count: number }[] = [
+      { name: "Semua", icon: <BookOpen className="w-4 h-4" />, count: total },
+    ];
+
+    // Append categories sorted (exclude "Semua" and "Berita" duplicate)
+    const keys = Array.from(counts.keys()).sort((a, b) => a.localeCompare(b));
+    for (const k of keys) {
+      if (k === "Semua") continue;
+      result.push({
+        name: k,
+        icon: <Sparkles className="w-4 h-4" />,
+        count: counts.get(k) ?? 0,
+      });
+    }
+
+    // If only "Semua" exists and no articles, keep fallback Berita
+    if (result.length === 1 && total === 0) {
+      result.push({
+        name: "Berita",
+        icon: <Sparkles className="w-4 h-4" />,
+        count: 0,
+      });
+    }
+
+    return result;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [listResp, listItems.length]
-  );
+  }, [listItems, listResp]);
 
   // filter (client-side pada page aktif)
   const filteredArticles = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
-    return listItems.filter((a) => {
-      const inCategory = selectedCategory === "Semua"; // tidak ada kategori di API
-      const inSearch =
-        a.title.toLowerCase().includes(q) ||
-        plainText(a.content).toLowerCase().includes(q);
-      return inCategory && (q ? inSearch : true);
+
+    return (listItems ?? []).filter((a) => {
+      // Category filter
+      if (selectedCategory && selectedCategory !== "Semua") {
+        const cats = extractCategoryNamesFromArticle(a);
+        const matched = cats.some((c) =>
+          c.toLowerCase().includes(selectedCategory.toLowerCase())
+        );
+        if (!matched) return false;
+      }
+
+      // Search filter (title or plain content)
+      if (q) {
+        const title = typeof a.title === "string" ? a.title.toLowerCase() : "";
+        const body =
+          typeof a.content === "string"
+            ? plainText(a.content).toLowerCase()
+            : "";
+        if (!title.includes(q) && !body.includes(q)) return false;
+      }
+
+      return true;
     });
   }, [listItems, selectedCategory, searchTerm]);
 
@@ -395,34 +444,56 @@ export default function NewsPage() {
               </div>
 
               {/* Categories (only 'Semua' as there's no category from the API) */}
-              <div className="flex items-center gap-3 overflow-x-auto">
+              <div className="flex items-center gap-3 w-full md:w-1/4">
                 <Filter className="w-5 h-5 text-[#35966d] flex-shrink-0" />
-                {categories.map((category) => (
-                  <button
-                    key={category.name}
-                    onClick={() => {
-                      setSelectedCategory(category.name); // Update selected category
-                      setCurrentPage(1); // Reset to first page
+
+                {/* Mobile: native select */}
+                <div className="block lg:hidden flex-1">
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value);
+                      setCurrentPage(1);
                     }}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-2xl font-medium whitespace-nowrap transition-all duration-300 ${
-                      selectedCategory === category.name
-                        ? "bg-[#35966d] text-white shadow-lg"
-                        : "bg-gray-100 text-gray-700 hover:bg-[#35966d] hover:text-white"
-                    }`}
+                    className="w-full py-3 px-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#35966d]"
                   >
-                    {category.icon}
-                    {category.name}
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
+                    {categories.map((c) => (
+                      <option key={c.name} value={c.name}>
+                        {c.name} ({c.count})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Desktop: pill buttons */}
+                <div className="hidden lg:flex items-center gap-3 overflow-x-auto">
+                  {categories.map((category) => (
+                    <button
+                      key={category.name}
+                      onClick={() => {
+                        setSelectedCategory(category.name);
+                        setCurrentPage(1);
+                      }}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-2xl font-medium whitespace-nowrap transition-all duration-300 ${
                         selectedCategory === category.name
-                          ? "bg-white/20"
-                          : "bg-gray-200"
+                          ? "bg-[#35966d] text-white shadow-lg"
+                          : "bg-gray-100 text-gray-700 hover:bg-[#35966d] hover:text-white"
                       }`}
                     >
-                      {category.count}
-                    </span>
-                  </button>
-                ))}
+                      {category.icon}
+                      <span>{category.name}</span>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          selectedCategory === category.name
+                            ? "bg-white/20"
+                            : "bg-gray-200"
+                        }`}
+                      >
+                        {category.count}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

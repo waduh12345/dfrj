@@ -26,6 +26,7 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 import Image from "next/image";
+import { IconBrandWhatsapp } from "@tabler/icons-react";
 
 export default function Footer() {
   const router = useRouter();
@@ -115,33 +116,11 @@ export default function Footer() {
                   {t["col-1-a"]}
                 </p>
 
-                {/* Values */}
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Leaf className="w-4 h-4 text-white" />
-                    <span>{t["col-1-b"]}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Shield className="w-4 h-4 text-white" />
-                    <span>{t["col-1-c"]}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Award className="w-4 h-4 text-white" />
-                    <span>{t["col-1-d"]}</span>
-                  </div>
-                </div>
-
                 {/* Contact Info */}
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center gap-3">
-                    <MapPin className="w-4 h-4 text-white flex-shrink-0" />
-                    <span>
-                      Jl. Kreativitas No. 123, Jakarta Selatan, Indonesia
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-4 h-4 text-white flex-shrink-0" />
-                    <span>+62 21 7890 1234</span>
+                    <IconBrandWhatsapp className="w-4 h-4 text-white flex-shrink-0" />
+                    <span>+628176942128</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Mail className="w-4 h-4 text-white flex-shrink-0" />
@@ -194,7 +173,7 @@ export default function Footer() {
                 </ul>
 
                 {/* Newsletter */}
-                <div className="mt-8">
+                {/* <div className="mt-8">
                   <h4 className="text-lg font-semibold mb-4 text-white">
                     Newsletter
                   </h4>
@@ -218,7 +197,7 @@ export default function Footer() {
                       {t["col-3-d"]}
                     </button>
                   </form>
-                </div>
+                </div> */}
               </div>
 
               {/* FAQ */}

@@ -20,9 +20,14 @@ import {
   Baby,
 } from "lucide-react";
 import { fredoka, sniglet } from "@/lib/fonts";
+import { useRouter } from "next/navigation";
 
 export default function AboutPage() {
   const t = useTranslation({ id, en });
+  const router = useRouter();
+  const phone = "628176942128";
+  const waText = encodeURIComponent("Halo saya ingin bertanya");
+  const waUrlWithPhone = `https://wa.me/${phone}?text=${waText}`;
 
   const values = [
     {
@@ -479,7 +484,9 @@ export default function AboutPage() {
       >
         <div className="container mx-auto px-6 lg:px-12 text-center">
           <div className="max-w-4xl mx-auto">
-            <h2 className={`text-4xl lg:text-5xl font-bold mb-6 ${fredoka.className}`}>
+            <h2
+              className={`text-4xl lg:text-5xl font-bold mb-6 ${fredoka.className}`}
+            >
               {t["cta-title"]}
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
@@ -487,13 +494,21 @@ export default function AboutPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-[#35966d] font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2">
+              <button
+                onClick={() => router.push("/product")}
+                className="bg-white text-[#35966d] font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2"
+              >
                 <Palette className="w-5 h-5" />
                 {t["cta-btn-1"]}
               </button>
-              <button className="bg-transparent text-white border-2 border-white font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-white hover:text-[#35966d] transition-all duration-300">
+              <a
+                href={waUrlWithPhone}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-transparent text-white border-2 border-white font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-white hover:text-[#35966d] transition-all duration-300"
+              >
                 {t["cta-btn-2"]}
-              </button>
+              </a>
             </div>
           </div>
         </div>
