@@ -30,7 +30,7 @@ export default function ImageCarousel() {
   const images = dataImage();
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative w-full h-96 md:h-full overflow-hidden">
       {/* Slides */}
       <div
         className="flex transition-transform duration-500 ease-in-out h-full"

@@ -1,25 +1,25 @@
+// hooks/use-cart.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { Product } from "@/types/admin/product";
+import type { Product } from "@/types/admin/product";
 
-// Tambahkan properti 'quantity' ke tipe Product untuk menyimpan jumlah produk di keranjang.
 export type CartItem = Product & {
   quantity: number;
 };
 
 type CartStore = {
   isOpen: boolean;
-  cartItems: CartItem[]; // Ubah tipe menjadi CartItem[]
+  cartItems: CartItem[];
   open: () => void;
   close: () => void;
   toggle: () => void;
-  addItem: (product: Product) => void;
+  addItem: (product: Product & { quantity?: number }) => void;
   removeItem: (id: number) => void;
-  increaseItemQuantity: (id: number) => void; // Fungsi baru untuk menambah kuantitas
-  decreaseItemQuantity: (id: number) => void; // Fungsi baru untuk mengurangi kuantitas
-  clearCart: () => void; // Fungsi baru untuk menghapus semua item dan clear cache
-  getTotalItems: () => number; // Fungsi tambahan untuk mendapatkan total item
-  getTotalPrice: () => number; // Fungsi tambahan untuk mendapatkan total harga
+  increaseItemQuantity: (id: number, by?: number) => void;
+  decreaseItemQuantity: (id: number, by?: number) => void;
+  clearCart: () => void;
+  getTotalItems: () => number;
+  getTotalPrice: () => number;
 };
 
 const useCart = create<CartStore>()(
@@ -27,86 +27,95 @@ const useCart = create<CartStore>()(
     (set, get) => ({
       isOpen: false,
       cartItems: [],
-      
+
       open: () => set({ isOpen: true }),
-      
       close: () => set({ isOpen: false }),
-      
-      toggle: () => set((state) => ({ isOpen: !state.isOpen })),
-      
+      toggle: () => set((s) => ({ isOpen: !s.isOpen })),
+
+      // IMPORTANT: always use get() inside action to obtain freshest state (avoid stale closures)
       addItem: (product) => {
-        set((state) => {
-          const existingItem = state.cartItems.find(
-            (item) => item.id === product.id
+        const qtyToAdd =
+          typeof product.quantity === "number" && product.quantity > 0
+            ? product.quantity
+            : 1;
+
+        // read latest state
+        const current = get().cartItems ?? [];
+
+        const found = current.find((it) => it.id === product.id);
+
+        if (found) {
+          // update existing
+          const updated = current.map((it) =>
+            it.id === product.id
+              ? { ...it, quantity: it.quantity + qtyToAdd }
+              : it
           );
-          
-          if (existingItem) {
-            // Jika produk sudah ada, tambahkan kuantitasnya
-            const updatedCartItems = state.cartItems.map((item) =>
-              item.id === product.id
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-            );
-            return { cartItems: updatedCartItems };
-          } else {
-            // Jika produk belum ada, tambahkan produk baru dengan kuantitas 1
-            return {
-              cartItems: [...state.cartItems, { ...product, quantity: 1 }],
-            };
-          }
-        });
+          set({ cartItems: updated });
+        } else {
+          const newItem: CartItem = { ...product, quantity: qtyToAdd };
+          set({ cartItems: [...current, newItem] });
+        }
+
+        // notify other listeners (legacy code / header that listens to cartUpdated)
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("cartUpdated"));
+        }
       },
-      
-      removeItem: (id) =>
-        set((state) => ({
-          cartItems: state.cartItems.filter((item) => item.id !== id),
-        })),
-      
-      increaseItemQuantity: (id) => {
-        set((state) => ({
-          cartItems: state.cartItems.map((item) =>
-            item.id === id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          ),
-        }));
+
+      removeItem: (id) => {
+        const current = get().cartItems ?? [];
+        const next = current.filter((it) => it.id !== id);
+        set({ cartItems: next });
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("cartUpdated"));
+        }
       },
-      
-      decreaseItemQuantity: (id) => {
-        set((state) => {
-          const itemToDecrease = state.cartItems.find((item) => item.id === id);
-          
-          if (itemToDecrease && itemToDecrease.quantity > 1) {
-            return {
-              cartItems: state.cartItems.map((item) =>
-                item.id === id
-                  ? { ...item, quantity: item.quantity - 1 }
-                  : item
-              ),
-            };
-          } else {
-            // Jika kuantitas 1, hapus item dari keranjang
-            return {
-              cartItems: state.cartItems.filter((item) => item.id !== id),
-            };
-          }
-        });
+
+      increaseItemQuantity: (id, by = 1) => {
+        const current = get().cartItems ?? [];
+        const next = current.map((it) =>
+          it.id === id ? { ...it, quantity: it.quantity + by } : it
+        );
+        set({ cartItems: next });
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("cartUpdated"));
+        }
       },
-      
-      // Fungsi untuk menghapus semua item dari keranjang
-      clearCart: () => set({ cartItems: [] }),
-      
-      // Fungsi tambahan untuk mendapatkan total jumlah item
+
+      decreaseItemQuantity: (id, by = 1) => {
+        const current = get().cartItems ?? [];
+        const item = current.find((it) => it.id === id);
+        if (!item) return;
+        const nextQty = item.quantity - by;
+        const next =
+          nextQty > 0
+            ? current.map((it) =>
+                it.id === id ? { ...it, quantity: nextQty } : it
+              )
+            : current.filter((it) => it.id !== id);
+        set({ cartItems: next });
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("cartUpdated"));
+        }
+      },
+
+      clearCart: () => {
+        set({ cartItems: [] });
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("cartUpdated"));
+        }
+      },
+
       getTotalItems: () => {
-        const state = get();
-        return state.cartItems.reduce((total, item) => total + item.quantity, 0);
+        const s = get();
+        return (s.cartItems ?? []).reduce((acc, it) => acc + it.quantity, 0);
       },
-      
-      // Fungsi tambahan untuk mendapatkan total harga (asumsi ada properti price di Product)
+
       getTotalPrice: () => {
-        const state = get();
-        return state.cartItems.reduce(
-          (total, item) => total + (item.price || 0) * item.quantity,
+        const s = get();
+        return (s.cartItems ?? []).reduce(
+          (acc, it) => acc + (it.price ?? 0) * it.quantity,
           0
         );
       },
@@ -117,6 +126,5 @@ const useCart = create<CartStore>()(
     }
   )
 );
-
 
 export default useCart;

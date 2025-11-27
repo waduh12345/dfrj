@@ -22,12 +22,63 @@ export default function Header() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  // ===== ambil keranjang langsung dari zustand (persisted ke localStorage)
-  const cartItems = useCart((s) => s.cartItems);
-  const cartCount = useMemo(
-    () => cartItems.reduce((t, item) => t + item.quantity, 0),
-    [cartItems]
-  );
+  const readCartFromLocalStorage = () => {
+    try {
+      const raw = localStorage.getItem("cart-storage");
+      if (!raw) return 0;
+      const parsed = JSON.parse(raw);
+      const itemsFromStorage =
+        parsed?.state?.cartItems ??
+        parsed?.cartItems ??
+        (Array.isArray(parsed) ? parsed : []);
+      if (!Array.isArray(itemsFromStorage)) return 0;
+      return itemsFromStorage.reduce(
+        (t: number, it: { quantity?: number }) => t + (it.quantity ?? 0),
+        0
+      );
+    } catch {
+      return 0;
+    }
+  };
+
+  const [cartCount, setCartCount] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    return readCartFromLocalStorage();
+  });
+
+  useEffect(() => {
+    // helper: hitung total dari array cart items
+    const calcFromItems = (items: Array<{ quantity?: number }>) =>
+      items.reduce((t, it) => t + (it.quantity ?? 0), 0);
+
+    // 1) subscribe ke zustand: jika store diubah via aksi useCart -> update langsung
+    const unsubZustand = useCart.subscribe((state) => {
+      const items = state.cartItems ?? [];
+      setCartCount(calcFromItems(items));
+    });
+
+    // onCartUpdated: selalu baca langsung dari localStorage dan set (tidak ada fallback)
+    const onCartUpdated = () => {
+      const count = readCartFromLocalStorage();
+      setCartCount(count);
+    };
+
+    // onStorage: ketika tab lain mengubah localStorage
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "cart-storage") {
+        setCartCount(readCartFromLocalStorage());
+      }
+    };
+
+    window.addEventListener("cartUpdated", onCartUpdated);
+    window.addEventListener("storage", onStorage);
+
+    return () => {
+      unsubZustand();
+      window.removeEventListener("cartUpdated", onCartUpdated);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   // Mapping warna hover untuk setiap menu sesuai palet
   const menuItemColors = [
@@ -94,7 +145,7 @@ export default function Header() {
   };
 
   const handleCartClick = () => {
-    window.location.assign("/cart");
+    router.push("/cart");
     window.dispatchEvent(new CustomEvent("openCart"));
   };
 

@@ -44,10 +44,11 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-/** ====== Helpers & Types ====== */
-const STORAGE_KEY = "cart-storage";
+// IMPORT ZUSTAND HOOK
+import useCart from "@/hooks/use-cart";
 
-type StoredCartItem = Product & { quantity: number };
+/** ====== Helpers & Types ====== */
+// Kita tidak perlu lagi parseStorage/writeStorage manual karena sudah dihandle useCart
 
 interface CartItemView {
   id: number;
@@ -84,34 +85,6 @@ interface ShippingCostOption {
 
 type PaymentType = "automatic" | "manual" | "cod";
 
-function parseStorage(): StoredCartItem[] {
-  if (typeof window === "undefined") return [];
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    const items: unknown = parsed?.state?.cartItems;
-    return Array.isArray(items) ? (items as StoredCartItem[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeStorage(nextItems: StoredCartItem[]) {
-  if (typeof window === "undefined") return;
-  const raw = localStorage.getItem(STORAGE_KEY);
-  let base = {
-    state: { cartItems: [] as StoredCartItem[] },
-    version: 0 as number,
-  };
-  try {
-    base = raw ? JSON.parse(raw) : base;
-  } catch {}
-  base.state = { ...(base.state || {}), cartItems: nextItems };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(base));
-  window.dispatchEvent(new CustomEvent("cartUpdated"));
-}
-
 function getImageUrlFromProduct(p: Product): string {
   if (typeof p.image === "string" && p.image) return p.image;
   const media = (p as unknown as { media?: Array<{ original_url: string }> })
@@ -121,64 +94,40 @@ function getImageUrlFromProduct(p: Product): string {
   return "/api/placeholder/300/300";
 }
 
-function mapStoredToView(items: StoredCartItem[]): CartItemView[] {
-  return items.map((it) => ({
-    id: it.id,
-    name: it.name,
-    price: it.price,
-    originalPrice: undefined,
-    image: getImageUrlFromProduct(it),
-    quantity: it.quantity ?? 1,
-    category: it.category_name,
-    ageGroup: "Semua usia",
-    isEcoFriendly: false,
-    inStock: (it.stock ?? 0) > 0,
-  }));
-}
-
 /** ====== Component ====== */
 export default function PublicTransaction() {
-  /** ——— Cart Logic ——— */
-  const [cartItems, setCartItems] = useState<CartItemView[]>([]);
+  /** ——— Cart Logic (Menggunakan Zustand) ——— */
+  const {
+    cartItems: rawCartItems,
+    removeItem,
+    increaseItemQuantity,
+    decreaseItemQuantity,
+    addItem, // Digunakan untuk related product
+    clearCart,
+  } = useCart();
+
+  // Handle Hydration Mismatch (Agar server & client sync)
+  const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
-    const sync = () => setCartItems(mapStoredToView(parseStorage()));
-    sync();
-    const onStorage = () => sync();
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("cartUpdated", onStorage);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("cartUpdated", onStorage);
-    };
+    setIsMounted(true);
   }, []);
 
-  const updateStorageAndState = (
-    updater: (items: StoredCartItem[]) => StoredCartItem[]
-  ) => {
-    const current = parseStorage();
-    const next = updater(current);
-    writeStorage(next);
-    setCartItems(mapStoredToView(next));
-  };
-
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeItem(id);
-      return;
-    }
-    updateStorageAndState((items) =>
-      items.map((it) => (it.id === id ? { ...it, quantity: newQuantity } : it))
-    );
-  };
-
-  const removeItem = (id: number) => {
-    updateStorageAndState((items) => items.filter((it) => it.id !== id));
-  };
-
-  const clearCart = () => {
-    writeStorage([]);
-    setCartItems([]);
-  };
+  // Map data dari Zustand ke format View
+  const cartItems: CartItemView[] = useMemo(() => {
+    if (!isMounted) return []; // Render kosong saat server-side/initial untuk hindari mismatch
+    return rawCartItems.map((it) => ({
+      id: it.id,
+      name: it.name,
+      price: it.price,
+      originalPrice: undefined,
+      image: getImageUrlFromProduct(it),
+      quantity: it.quantity ?? 1,
+      category: it.category_name,
+      ageGroup: "Semua usia",
+      isEcoFriendly: false,
+      inStock: (it.stock ?? 0) > 0,
+    }));
+  }, [rawCartItems, isMounted]);
 
   const {
     data: relatedResp,
@@ -207,16 +156,7 @@ export default function PublicTransaction() {
   }, [relatedResp]);
 
   const addRelatedToCart = (p: Product) => {
-    updateStorageAndState((items) => {
-      const found = items.find((it) => it.id === p.id);
-      if (found) {
-        return items.map((it) =>
-          it.id === p.id ? { ...it, quantity: (it.quantity ?? 1) + 1 } : it
-        );
-      }
-      const fresh: StoredCartItem = { ...p, quantity: 1 };
-      return [...items, fresh];
-    });
+    addItem({ ...p, quantity: 1 }); // Pakai fungsi dari useCart
     Swal.fire({
       icon: "success",
       title: "Berhasil!",
@@ -371,8 +311,8 @@ export default function PublicTransaction() {
       return;
     }
 
-    const stored = parseStorage();
-    const details = stored.map((item) => ({
+    // Ambil data langsung dari rawCartItems (Zustand)
+    const details = rawCartItems.map((item) => ({
       product_id: item.id,
       quantity: item.quantity ?? 1,
     }));
@@ -423,14 +363,14 @@ export default function PublicTransaction() {
           (res.data as { payment_link: string }).payment_link,
           "_blank"
         );
-        clearCart();
+        clearCart(); // Bersihkan zustand store
       } else {
         await Swal.fire({
           icon: "success",
           title: "Pesanan Berhasil Dibuat",
-          text: " Untuk informasi lebih lanjut bisa melalui WhatsApp,email, dan menu track order lalu masukan code transaksi yang dikirim melalui email atau WhatsApp",
+          text: "Untuk informasi lebih lanjut bisa melalui WhatsApp, email, dan menu track order.",
         });
-        clearCart();
+        clearCart(); // Bersihkan zustand store
       }
     } catch (e) {
       console.error(e);
@@ -443,7 +383,8 @@ export default function PublicTransaction() {
   };
 
   /** ——— Render Empty State ——— */
-  if (cartItems.length === 0) {
+  // Gunakan isMounted agar tidak flickr saat loading hydration
+  if (isMounted && cartItems.length === 0) {
     return (
       <div
         className={`min-h-screen w-full bg-gradient-to-br from-white to-[#A3B18A]/10 pt-24 ${sniglet.className}`}
@@ -496,9 +437,6 @@ export default function PublicTransaction() {
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <button className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors">
-                          <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
-                        </button>
                       </div>
                       <div className="p-6">
                         <span className="text-sm text-[#A3B18A] font-medium">
@@ -507,23 +445,6 @@ export default function PublicTransaction() {
                         <h3 className="text-lg font-bold text-gray-900 mt-1 mb-3">
                           {product.name}
                         </h3>
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={star}
-                                className={`w-4 h-4 ${
-                                  star <= Math.round(product.rating)
-                                    ? "fill-yellow-400 text-yellow-400"
-                                    : "text-gray-300"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-sm text-gray-600">
-                            ({product.rating.toFixed(1)})
-                          </span>
-                        </div>
                         <div className="flex items-center gap-3 mb-4">
                           <span className="text-xl font-bold text-[#A3B18A]">
                             Rp {product.price.toLocaleString("id-ID")}
@@ -663,9 +584,7 @@ export default function PublicTransaction() {
                       <div className="flex items-center gap-3">
                         <div className="flex items-center bg-gray-100 rounded-2xl">
                           <button
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1)
-                            }
+                            onClick={() => decreaseItemQuantity(item.id)}
                             disabled={!item.inStock}
                             className="p-2 hover:bg-gray-200 rounded-l-2xl transition-colors disabled:opacity-50"
                           >
@@ -675,9 +594,7 @@ export default function PublicTransaction() {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1)
-                            }
+                            onClick={() => increaseItemQuantity(item.id)}
                             disabled={!item.inStock}
                             className="p-2 hover:bg-gray-200 rounded-r-2xl transition-colors disabled:opacity-50"
                           >

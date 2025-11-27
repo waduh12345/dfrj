@@ -287,7 +287,7 @@ export default function HomePage() {
                     1000+ {t["hero-other-1"]}
                   </span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex flex-wrap items-center gap-1">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <Star
                       key={i}
@@ -303,7 +303,7 @@ export default function HomePage() {
 
             {/* Hero Image */}
             <div className="relative">
-              <div className="relative w-full h-[600px] rounded-3xl overflow-hidden shadow-2xl mb-2 lg:mb-0">
+              <div className="relative w-full md:h-[600px] rounded-3xl overflow-hidden shadow-2xl mb-2 lg:mb-0">
                 <ImageCarousel />
                 <div className="absolute top-6 right-6 bg-gradient-to-r from-emerald-600 to-teal-600 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-xl">
                   <div className="flex items-center gap-2 text-white">

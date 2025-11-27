@@ -35,7 +35,7 @@ import {
 import {
   useGetCurrentUserQuery,
   useCheckShippingCostQuery,
-} from "@/services/auth.service"; // ✅ Imported new hook
+} from "@/services/auth.service";
 import { useCreateTransactionMutation } from "@/services/admin/transaction.service";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
@@ -47,9 +47,9 @@ import { Voucher } from "@/types/voucher";
 import PaymentMethod from "@/components/payment-method";
 import VoucherPicker from "@/components/voucher-picker";
 
-const STORAGE_KEY = "cart-storage";
+// ✅ Import Hook Zustand
+import useCart from "@/hooks/use-cart";
 
-type StoredCartItem = Product & { quantity: number };
 interface CartItemView {
   id: number;
   name: string;
@@ -83,34 +83,6 @@ interface ShippingCostOption {
   etd: string;
 }
 
-function parseStorage(): StoredCartItem[] {
-  if (typeof window === "undefined") return [];
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    const items: unknown = parsed?.state?.cartItems;
-    return Array.isArray(items) ? (items as StoredCartItem[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeStorage(nextItems: StoredCartItem[]) {
-  if (typeof window === "undefined") return;
-  const raw = localStorage.getItem(STORAGE_KEY);
-  let base = {
-    state: { cartItems: [] as StoredCartItem[] },
-    version: 0 as number,
-  };
-  try {
-    base = raw ? JSON.parse(raw) : base;
-  } catch {}
-  base.state = { ...(base.state || {}), cartItems: nextItems };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(base));
-  window.dispatchEvent(new CustomEvent("cartUpdated"));
-}
-
 function getImageUrlFromProduct(p: Product): string {
   if (typeof p.image === "string" && p.image) return p.image;
   const media = (p as unknown as { media?: Array<{ original_url: string }> })
@@ -120,30 +92,45 @@ function getImageUrlFromProduct(p: Product): string {
   return "/api/placeholder/300/300";
 }
 
-function mapStoredToView(items: StoredCartItem[]): CartItemView[] {
-  return items.map((it) => ({
-    id: it.id,
-    name: it.name,
-    price: it.price,
-    originalPrice: undefined,
-    image: getImageUrlFromProduct(it),
-    quantity: it.quantity ?? 1,
-    category: it.category_name,
-    ageGroup: "Semua usia",
-    isEcoFriendly: false,
-    inStock: (it.stock ?? 0) > 0,
-  }));
-}
-
 type ErrorBag = Record<string, string[] | string>;
 type PaymentType = "automatic" | "manual" | "cod";
 
 export default function CartPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const sessionName = useMemo(() => session?.user?.name ?? "", [session]);
 
-  const [cartItems, setCartItems] = useState<CartItemView[]>([]);
+  // ✅ Menggunakan useCart Zustand
+  const {
+    cartItems: rawCartItems,
+    removeItem,
+    increaseItemQuantity,
+    decreaseItemQuantity,
+    addItem,
+    clearCart,
+  } = useCart();
+
+  // Handle Hydration Mismatch
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Map data dari Zustand ke format View
+  const cartItems: CartItemView[] = useMemo(() => {
+    if (!isMounted) return [];
+    return rawCartItems.map((it) => ({
+      id: it.id,
+      name: it.name,
+      price: it.price,
+      originalPrice: undefined,
+      image: getImageUrlFromProduct(it),
+      quantity: it.quantity ?? 1,
+      category: it.category_name,
+      ageGroup: "Semua usia",
+      isEcoFriendly: false,
+      inStock: (it.stock ?? 0) > 0,
+    }));
+  }, [rawCartItems, isMounted]);
 
   const [shippingCourier, setShippingCourier] = useState<string | null>(null);
   const [shippingMethod, setShippingMethod] =
@@ -172,8 +159,10 @@ export default function CartPage() {
     const regex = /^(?:\+62|62|0)8\d{8,11}$/;
     return regex.test(phone);
   };
+
   const { data: currentUserResp } = useGetCurrentUserQuery();
   const currentUser = useMemo(() => currentUserResp || null, [currentUserResp]);
+
   useEffect(() => {
     setIsPhoneValid(validatePhone(shippingInfo.phone));
   }, [shippingInfo.phone]);
@@ -186,24 +175,31 @@ export default function CartPage() {
     page: 1,
     paginate: 100,
   });
+
   const defaultAddress: Address | undefined = userAddressList?.data?.find(
     (a) => a.is_default
   );
-  const didPrefill = useRef(false);
 
+  // ✅ Logic Pre-fill Data Profile (Nama, Email, HP) & Alamat Default
   useEffect(() => {
-    if (didPrefill.current) return;
-    if (sessionName) {
-      setShippingInfo((prev) => ({ ...prev, fullName: sessionName }));
+    if (currentUser) {
+      setShippingInfo((prev) => ({
+        ...prev,
+        fullName:
+          prev.fullName || currentUser.name || session?.user?.name || "",
+        email: prev.email || currentUser.email || session?.user?.email || "",
+        phone: prev.phone || currentUser.phone || "",
+      }));
     }
-  }, [sessionName]);
+  }, [currentUser, session]);
 
+  // ✅ Logic Pre-fill Alamat Default
   useEffect(() => {
-    if (didPrefill.current) return;
     if (defaultAddress) {
       setShippingInfo((prev) => ({
         ...prev,
-        phone: currentUser?.phone || "",
+        // Jika phone kosong dari profile, coba ambil dari alamat (opsional)
+        phone: prev.phone || currentUser?.phone || "",
         address_line_1: defaultAddress.address_line_1 ?? prev.address_line_1,
         postal_code: defaultAddress.postal_code ?? prev.postal_code,
         rajaongkir_province_id:
@@ -213,7 +209,6 @@ export default function CartPage() {
         rajaongkir_district_id:
           defaultAddress.rajaongkir_district_id ?? prev.rajaongkir_district_id,
       }));
-      didPrefill.current = true;
     }
   }, [defaultAddress, currentUser]);
 
@@ -230,14 +225,13 @@ export default function CartPage() {
 
   const [createTransaction] = useCreateTransactionMutation();
 
-  // ✅ New RTK Query hook for fetching shipping costs
   const {
     data: shippingOptions = [],
     isLoading: isShippingLoading,
     isError: isShippingError,
   } = useCheckShippingCostQuery(
     {
-      shop_id: 1, // Assuming shop ID is 1 for this example
+      shop_id: 1,
       destination: String(shippingInfo.rajaongkir_district_id),
       weight: 1000,
       height: 10,
@@ -252,55 +246,13 @@ export default function CartPage() {
     }
   );
 
-  // Reset shipping method when options change
   useEffect(() => {
     if (!isShippingLoading && shippingOptions.length > 0) {
-      // You can set a default option here, e.g., the cheapest one
       setShippingMethod(shippingOptions[0]);
     } else {
       setShippingMethod(null);
     }
   }, [shippingOptions, isShippingLoading]);
-
-  // Initial load + listen to changes
-  useEffect(() => {
-    const sync = () => setCartItems(mapStoredToView(parseStorage()));
-    sync();
-    window.addEventListener("storage", sync);
-    window.addEventListener("cartUpdated", sync);
-    return () => {
-      window.removeEventListener("storage", sync);
-      window.removeEventListener("cartUpdated", sync);
-    };
-  }, []);
-
-  const updateStorageAndState = (
-    updater: (items: StoredCartItem[]) => StoredCartItem[]
-  ) => {
-    const current = parseStorage();
-    const next = updater(current);
-    writeStorage(next);
-    setCartItems(mapStoredToView(next));
-  };
-
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeItem(id);
-      return;
-    }
-    updateStorageAndState((items) =>
-      items.map((it) => (it.id === id ? { ...it, quantity: newQuantity } : it))
-    );
-  };
-
-  const removeItem = (id: number) => {
-    updateStorageAndState((items) => items.filter((it) => it.id !== id));
-  };
-
-  const clearCart = () => {
-    writeStorage([]);
-    setCartItems([]);
-  };
 
   const {
     data: relatedResp,
@@ -329,52 +281,28 @@ export default function CartPage() {
   }, [relatedResp]);
 
   const addRelatedToCart = (p: Product) => {
-    updateStorageAndState((items) => {
-      const found = items.find((it) => it.id === p.id);
-      if (found) {
-        return items.map((it) =>
-          it.id === p.id ? { ...it, quantity: (it.quantity ?? 1) + 1 } : it
-        );
-      }
-      const fresh: StoredCartItem = { ...p, quantity: 1 };
-      return [...items, fresh];
-    });
+    addItem({ ...p, quantity: 1 }); // ✅ Gunakan fungsi dari useCart
 
     Swal.fire({
       icon: "success",
       title: "Berhasil!",
       text: "Produk berhasil ditambahkan ke keranjang",
-      position: "top-end", // Position it to the top-right
-      toast: true, // Makes it appear as a toast
-      showConfirmButton: false, // Hides the confirm button for a toast effect
-      timer: 3000, // Time for the toast to stay before disappearing (in ms)
-      timerProgressBar: true, // Adds a progress bar on the toast
-      background: "#ffffff", // White background for the toast
-      color: "#333333", // Text color
-      iconColor: "#4CAF50", // Color for the success icon (green)
-      customClass: {
-        popup: "toast-popup", // Custom class to style the popup if needed
-      },
-      willOpen: (toast) => {
-        // Adding a gradient background to make the alert colorful and lively
-        toast.style.background =
-          "linear-gradient(45deg, #ff7f50, #ff6347, #ff1493, #ff4500)";
-      },
+      position: "top-end",
+      toast: true,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: "#ffffff",
+      color: "#333333",
+      iconColor: "#4CAF50",
     });
   };
-
-  // const discount =
-  //   appliedCoupon === "COLORE10" ? Math.round(subtotal * 0.1) : 0;
-
-  // const shippingCost = shippingMethod?.cost ?? 0;
-  // const total = subtotal - discount + shippingCost;
 
   const subtotal = cartItems.reduce(
     (sum, it) => sum + it.price * it.quantity,
     0
   );
 
-  // Diskon dari voucher terpilih
   const voucherDiscount = useMemo(() => {
     if (!selectedVoucher) return 0;
     if (selectedVoucher.type === "fixed") {
@@ -411,14 +339,15 @@ export default function CartPage() {
 
     setIsSubmitting(true);
     try {
-      const stored = parseStorage();
+      // ✅ Mengambil data dari rawCartItems (Zustand)
       const payload = {
         address_line_1: shippingInfo.address_line_1,
         postal_code: shippingInfo.postal_code,
+        payment_type: paymentMethod,
         data: [
           {
             shop_id: 1,
-            details: stored.map((item) => ({
+            details: rawCartItems.map((item) => ({
               product_id: item.id,
               quantity: item.quantity ?? 1,
             })),
@@ -439,13 +368,13 @@ export default function CartPage() {
             customer_info: {
               name: shippingInfo.fullName,
               phone: shippingInfo.phone,
+              email: shippingInfo.email, // ✅ Kirim email
               address_line_1: shippingInfo.address_line_1,
               postal_code: shippingInfo.postal_code,
               province_id: shippingInfo.rajaongkir_province_id,
               city_id: shippingInfo.rajaongkir_city_id,
               district_id: shippingInfo.rajaongkir_district_id,
             },
-            payment_type: paymentMethod,
           },
         ],
       };
@@ -473,7 +402,6 @@ export default function CartPage() {
           router.push("/me");
         }, 2000);
       } else {
-        console.warn("Unexpected response format:", result);
         await Swal.fire({
           icon: "info",
           title: "Pesanan Dibuat",
@@ -525,7 +453,7 @@ export default function CartPage() {
     }
   };
 
-  if (cartItems.length === 0) {
+  if (isMounted && cartItems.length === 0) {
     return (
       <div
         className={`min-h-screen w-full bg-gradient-to-br from-white to-[#A3B18A]/10 pt-24 ${sniglet.className}`}
@@ -577,9 +505,6 @@ export default function CartPage() {
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <button className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors">
-                          <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
-                        </button>
                       </div>
                       <div className="p-6">
                         <span className="text-sm text-[#A3B18A] font-medium">
@@ -609,11 +534,6 @@ export default function CartPage() {
                           <span className="text-xl font-bold text-[#A3B18A]">
                             Rp {product.price.toLocaleString("id-ID")}
                           </span>
-                          {product.originalPrice && (
-                            <span className="text-sm text-gray-400 line-through">
-                              Rp {product.originalPrice.toLocaleString("id-ID")}
-                            </span>
-                          )}
                         </div>
                         <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
                           <button
@@ -746,9 +666,7 @@ export default function CartPage() {
                       <div className="flex items-center gap-3">
                         <div className="flex items-center bg-gray-100 rounded-2xl">
                           <button
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1)
-                            }
+                            onClick={() => decreaseItemQuantity(item.id)}
                             disabled={!item.inStock}
                             className="p-2 hover:bg-gray-200 rounded-l-2xl transition-colors disabled:opacity-50"
                           >
@@ -758,9 +676,7 @@ export default function CartPage() {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1)
-                            }
+                            onClick={() => increaseItemQuantity(item.id)}
                             disabled={!item.inStock}
                             className="p-2 hover:bg-gray-200 rounded-r-2xl transition-colors disabled:opacity-50"
                           >
@@ -845,11 +761,15 @@ export default function CartPage() {
                         placeholder="Masukkan email"
                         className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
                       />
-                      {!isPhoneValid && shippingInfo.email && (
-                        <p className="text-sm text-red-500 mt-0.5">
-                          Email tidak valid
-                        </p>
-                      )}
+                      {/* Validasi email sederhana */}
+                      {shippingInfo.email &&
+                        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                          shippingInfo.email
+                        ) && (
+                          <p className="text-sm text-red-500 mt-0.5">
+                            Email tidak valid
+                          </p>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -1045,7 +965,6 @@ export default function CartPage() {
                   onChange={(val) => setPaymentMethod(val)}
                 />
                 <hr className="my-6" />
-                {/* === Ringkasan Pesanan (update baris diskon) === */}
                 <div className="bg-white rounded-3xl p-6 shadow-lg">
                   <h3 className="font-bold text-gray-900 mb-4">
                     Ringkasan Pesanan

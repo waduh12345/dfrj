@@ -86,7 +86,7 @@ export default function ProductsPage() {
 
   // === Add to cart via zustand (persist ke localStorage)
   const addToCart = (product: Product) => {
-    addItem(product);
+    addItem({ ...product, quantity: 1 });
 
     // dispatch global event (kompatibel dgn logic globalmu)
     if (typeof window !== "undefined") {
