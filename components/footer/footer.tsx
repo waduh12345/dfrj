@@ -1,38 +1,51 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "@/hooks/use-translation";
 import id from "@/translations/footer/id";
 import en from "@/translations/footer/en";
 import {
   ChevronDown,
   ChevronUp,
-  MapPin,
-  Phone,
   Mail,
   Heart,
-  Leaf,
   Shield,
-  Award,
   ArrowRight,
-  Send,
 } from "lucide-react";
-import {
-  FaInstagram,
-  FaFacebookF,
-  FaYoutube,
-  FaTiktok,
-  FaWhatsapp,
-} from "react-icons/fa";
+import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 import Image from "next/image";
 import { IconBrandWhatsapp } from "@tabler/icons-react";
+
+import { useGetProductCategoryListQuery } from "@/services/public/product-category.service";
+import type { ProductCategory } from "@/types/master/product-category";
 
 export default function Footer() {
   const router = useRouter();
   const t = useTranslation({ id, en });
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [email, setEmail] = useState("");
+
+  // Fetch categories from API (first page, many items)
+  const {
+    data: categoriesResponse,
+    isLoading,
+    isError,
+  } = useGetProductCategoryListQuery({ page: 1, paginate: 100 });
+
+  // Map API response to link items
+  const productCategories = useMemo(() => {
+    const list: ProductCategory[] = categoriesResponse?.data ?? [];
+    return list.map((cat) => {
+      const name = cat.name ?? "Unknown";
+
+      // PERUBAHAN: Kita menggunakan 'name' sebagai identifier di URL
+      // agar cocok dengan logika filter 'product.category_name' di halaman Product.
+      const href = `/product?category=${encodeURIComponent(name)}`;
+
+      return { name, href };
+    });
+  }, [categoriesResponse]);
 
   const goTofaqPage = () => {
     router.push("/faq");
@@ -65,19 +78,10 @@ export default function Footer() {
     { name: t["col-2-g"], href: "/how-to-order" },
   ];
 
-  const productCategories = [
-    { name: "Art Supplies", href: "/product?category=art-supplies" },
-    { name: "Craft Kits", href: "/product?category=craft-kits" },
-    { name: "Educational Toys", href: "/product?category=educational-toys" },
-    { name: "Workshop Kits", href: "/product?category=workshop-kits" },
-  ];
-
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle newsletter subscription
     console.log("Newsletter subscription:", email);
     setEmail("");
-    // You can add actual subscription logic here
   };
 
   return (
@@ -151,53 +155,42 @@ export default function Footer() {
                 </ul>
               </div>
 
-              {/* Product Categories */}
+              {/* Product Categories (from API) */}
               <div>
                 <h4 className="text-lg font-semibold mb-6 text-white">
                   {t["col-3-a"]}
                 </h4>
-                <ul className="space-y-3">
-                  {productCategories.map((category, index) => (
-                    <li key={index}>
-                      <a
-                        href={category.href}
-                        className="text-white hover:text-gray-100 transition-colors flex items-center group"
-                      >
-                        <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity text-white" />
-                        <span className="group-hover:translate-x-1 transition-transform">
-                          {category.name}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
 
-                {/* Newsletter */}
-                {/* <div className="mt-8">
-                  <h4 className="text-lg font-semibold mb-4 text-white">
-                    Newsletter
-                  </h4>
-                  <p className="text-white text-sm mb-4">{t["col-3-b"]}</p>
-                  <form onSubmit={handleNewsletterSubmit} className="space-y-3">
-                    <div className="relative">
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder={t["col-3-c"]}
-                        className="w-full bg-white/10 border border-white/30 rounded-2xl px-4 py-3 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
-                        required
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full bg-white text-[#A3B18A] py-3 rounded-2xl font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Send className="w-4 h-4" />
-                      {t["col-3-d"]}
-                    </button>
-                  </form>
-                </div> */}
+                {/* Basic loading / error handling */}
+                {isLoading ? (
+                  <p className="text-white/80 text-sm">Loading...</p>
+                ) : isError ? (
+                  <p className="text-white/80 text-sm">
+                    Failed to load categories.
+                  </p>
+                ) : (
+                  <ul className="space-y-3">
+                    {productCategories.length === 0 ? (
+                      <li className="text-white/80 text-sm">
+                        No categories found.
+                      </li>
+                    ) : (
+                      productCategories.map((category, index) => (
+                        <li key={index}>
+                          <a
+                            href={category.href}
+                            className="text-white hover:text-gray-100 transition-colors flex items-center group"
+                          >
+                            <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity text-white" />
+                            <span className="group-hover:translate-x-1 transition-transform">
+                              {category.name}
+                            </span>
+                          </a>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
               </div>
 
               {/* FAQ */}
@@ -257,19 +250,28 @@ export default function Footer() {
               <div className="flex flex-col sm:flex-row items-center gap-6">
                 <p className="text-white text-sm">{t["bottom-1"]}:</p>
                 <div className="flex gap-4">
-                  <a className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-white hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500">
+                  <a
+                    href="https://www.instagram.com/coloreartcrafts.id/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-white hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all"
+                  >
                     <FaInstagram size={18} />
                   </a>
-                  <a className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-white hover:bg-blue-600">
+                  <a
+                    href="https://www.facebook.com/p/Colore-Art-and-Crafts-100092742074013/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-white hover:bg-blue-600 transition-all"
+                  >
                     <FaFacebookF size={18} />
                   </a>
-                  <a className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-white hover:bg-red-600">
-                    <FaYoutube size={18} />
-                  </a>
-                  <a className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-white hover:bg-black">
-                    <FaTiktok size={18} />
-                  </a>
-                  <a className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-white hover:bg-green-500">
+                  <a
+                    href="https://wa.me/628176942128"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center text-white hover:bg-green-500 transition-all"
+                  >
                     <FaWhatsapp size={18} />
                   </a>
                 </div>
@@ -303,19 +305,19 @@ export default function Footer() {
               <div className="flex gap-6">
                 <a
                   href="/privacy-policy"
-                  className="hover:text-gray-100 transition-colors"
+                  className="hover:text-gray-300 transition-colors"
                 >
                   Privacy Policy
                 </a>
                 <a
                   href="/terms-of-service"
-                  className="hover:text-gray-100 transition-colors"
+                  className="hover:text-gray-300 transition-colors"
                 >
                   Terms of Service
                 </a>
                 <a
                   href="/sitemap"
-                  className="hover:text-gray-100 transition-colors"
+                  className="hover:text-gray-300 transition-colors"
                 >
                   Sitemap
                 </a>

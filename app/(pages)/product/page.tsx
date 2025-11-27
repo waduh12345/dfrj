@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import {
   Heart,
   ShoppingCart,
@@ -30,26 +30,57 @@ import en from "@/translations/product/en";
 
 // SweetAlert2
 import Swal from "sweetalert2";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type ViewMode = "grid" | "list";
 
+// Komponen utama (Wrapper untuk Suspense jika diperlukan di Next.js)
 export default function ProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <ProductsContent />
+    </Suspense>
+  );
+}
+
+function ProductsContent() {
   const t = useTranslation({ id, en });
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [wishlist, setWishlist] = useState<number[]>([]);
+
   const [filter, setFilter] = useState({
     category: "all",
-    ageGroup: "all", // tidak ada di data API; dibiarkan agar UI tidak berubah
+    ageGroup: "all",
     priceRange: "all",
     sort: "featured",
   });
 
-  const router = useRouter();
+  // === Effect: Ambil query param dari URL (untuk kategori) ===
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    if (categoryParam) {
+      setFilter((prev) => ({
+        ...prev,
+        category: categoryParam,
+      }));
+    } else {
+      // Opsional: jika ingin reset ke 'all' saat tidak ada param
+      // setFilter((prev) => ({ ...prev, category: "all" }));
+    }
+  }, [searchParams]);
 
   // Cart actions
   const { addItem } = useCart();
@@ -91,16 +122,14 @@ export default function ProductsPage() {
     router.push(`/product/detail?slug=${slug}`);
   };
 
-  // === Add to cart via zustand (persist ke localStorage)
+  // === Add to cart via zustand
   const addToCart = (product: Product) => {
     addItem(product);
 
-    // dispatch global event (kompatibel dgn logic globalmu)
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("cartUpdated"));
     }
 
-    // SweetAlert2 toast notification
     Swal.fire({
       toast: true,
       position: "top-end",
@@ -141,13 +170,14 @@ export default function ProductsPage() {
     return Number.isFinite(parsed) ? parsed : 0;
   };
 
-  // === Client-side filter & sort (hanya pada page aktif dari API) ===
+  // === Client-side filter & sort ===
   const filteredProducts = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     return products.filter((p) => {
       const matchSearch =
         p.name.toLowerCase().includes(term) ||
         p.category_name.toLowerCase().includes(term);
+
       const matchCategory =
         filter.category === "all" || p.category_name === filter.category;
 
@@ -160,7 +190,6 @@ export default function ProductsPage() {
           price <= 200_000) ||
         (filter.priceRange === "above-200k" && price > 200_000);
 
-      // ageGroup tidak ada di data; diabaikan
       return matchSearch && matchCategory && matchPrice;
     });
   }, [products, searchTerm, filter.category, filter.priceRange]);
@@ -175,15 +204,25 @@ export default function ProductsPage() {
       case "rating":
         return arr.sort((a, b) => toNumber(b.rating) - toNumber(a.rating));
       case "newest":
-        // tidak ada field tanggal urut khusus; dibiarkan apa adanya
         return arr;
       default:
-        // featured: tidak ada flag; biarkan urutan dari API
         return arr;
     }
   }, [filteredProducts, filter.sort]);
 
-  // === Loading & Error states sederhana (UI tetap) ===
+  // Handle manual category change (juga update URL agar konsisten)
+  const handleCategoryChange = (categoryName: string) => {
+    setFilter({ ...filter, category: categoryName });
+    // Opsional: Update URL tanpa refresh page agar bisa di-bookmark/share
+    const params = new URLSearchParams(searchParams.toString());
+    if (categoryName === "all") {
+      params.delete("category");
+    } else {
+      params.set("category", categoryName);
+    }
+    router.replace(`/product?${params.toString()}`, { scroll: false });
+  };
+
   if (isError) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -204,9 +243,8 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10">
-      {/* ===================== Header / Hero (Tema #DFF19D + blend) ===================== */}
+      {/* ===================== Header / Hero ===================== */}
       <section className="relative pt-24 pb-12 px-6 lg:px-12 overflow-hidden bg-[#F6CCD0]">
-        {/* layer blend background */}
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-24 -left-24 w-[40rem] h-[40rem] rounded-full bg-[#DFF19D] blur-3xl opacity-80" />
           <div className="absolute -top-10 right-[-10%] w-[28rem] h-[28rem] rounded-full bg-[#F6CCD0] blur-3xl opacity-40" />
@@ -269,7 +307,7 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {/* ===================== Filters & Search (aksen #DFF19D) ===================== */}
+      {/* ===================== Filters & Search ===================== */}
       <section className="px-6 lg:px-12 mb-8">
         <div className="container mx-auto">
           <div className="bg-white rounded-3xl p-6 shadow-lg border border-[#DFF19D]/40">
@@ -290,9 +328,7 @@ export default function ProductsPage() {
               <div className="flex flex-wrap gap-3">
                 <select
                   value={filter.category}
-                  onChange={(e) =>
-                    setFilter({ ...filter, category: e.target.value })
-                  }
+                  onChange={(e) => handleCategoryChange(e.target.value)}
                   className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
                 >
                   <option value="all">{t["filter-category"]}</option>
@@ -303,20 +339,6 @@ export default function ProductsPage() {
                       {cat}
                     </option>
                   ))}
-                </select>
-
-                <select
-                  value={filter.ageGroup}
-                  onChange={(e) =>
-                    setFilter({ ...filter, ageGroup: e.target.value })
-                  }
-                  className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
-                >
-                  <option value="all">{t["filter-age"]}</option>
-                  <option value="0-3">{t["filter-age-0-3"]}</option>
-                  <option value="4-7">{t["filter-age-4-7"]}</option>
-                  <option value="8-12">{t["filter-age-8-12"]}</option>
-                  <option value="13+">{t["filter-age-13+"]}</option>
                 </select>
 
                 <select
@@ -331,20 +353,6 @@ export default function ProductsPage() {
                   <option value="100k-200k">{t["filter-price-mid"]}</option>
                   <option value="above-200k">{t["filter-price-above"]}</option>
                 </select>
-
-                {/* <select
-                  value={filter.sort}
-                  onChange={(e) =>
-                    setFilter({ ...filter, sort: e.target.value })
-                  }
-                  className="px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#DFF19D] bg-white"
-                >
-                  <option value="featured">{t["filter-sort-featured"]}</option>
-                  <option value="newest">{t["filter-sort-newest"]}</option>
-                  <option value="price-low">{t["filter-sort-low"]}</option>
-                  <option value="price-high">{t["filter-sort-high"]}</option>
-                  <option value="rating">{t["filter-sort-rating"]}</option>
-                </select> */}
               </div>
 
               {/* View Mode */}
@@ -388,6 +396,11 @@ export default function ProductsPage() {
                 {t["list-showing"]
                   .replace("{count}", String(sortedProducts?.length ?? 0))
                   .replace("{total}", String(products?.length ?? 0))}
+                {filter.category !== "all" && (
+                  <span className="ml-2 bg-[#A3B18A]/20 text-[#A3B18A] px-2 py-1 rounded-lg text-sm font-medium">
+                    Filter: {filter.category}
+                  </span>
+                )}
               </p>
             )}
           </div>
@@ -406,7 +419,7 @@ export default function ProductsPage() {
                   >
                     <div
                       onClick={() => openProductDetailPage(product.slug)}
-                      className="relative"
+                      className="relative cursor-pointer"
                     >
                       <Image
                         src={img}
@@ -418,24 +431,11 @@ export default function ProductsPage() {
 
                       {/* Actions */}
                       <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {/* <button
-                          onClick={() => toggleWishlist(product.id)}
-                          className={`p-2 rounded-full shadow-lg transition-colors ${
-                            wishlist.includes(product.id)
-                              ? "bg-red-500 text-white"
-                              : "bg-white text-gray-600 hover:text-red-500"
-                          }`}
-                        >
-                          <Heart
-                            className={`w-5 h-5 ${
-                              wishlist.includes(product.id)
-                                ? "fill-current"
-                                : ""
-                            }`}
-                          />
-                        </button> */}
                         <button
-                          onClick={() => openProductDetailPage(product.slug)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openProductDetailPage(product.slug);
+                          }}
                           className="p-2 bg-white text-gray-600 hover:text-[#A3B18A] rounded-full shadow-lg transition-colors"
                         >
                           <Eye className="w-5 h-5" />
@@ -525,22 +525,6 @@ export default function ProductsPage() {
                                 {product.name}
                               </h3>
                             </div>
-                            {/* <button
-                              onClick={() => toggleWishlist(product.id)}
-                              className={`p-2 rounded-full transition-colors ${
-                                wishlist.includes(product.id)
-                                  ? "bg-red-500 text-white"
-                                  : "bg-gray-100 text-gray-600 hover:text-red-500"
-                              }`}
-                            >
-                              <Heart
-                                className={`w-5 h-5 ${
-                                  wishlist.includes(product.id)
-                                    ? "fill-current"
-                                    : ""
-                                }`}
-                              />
-                            </button> */}
                           </div>
 
                           <p className="text-gray-600 mb-4 line-clamp-3">
@@ -616,6 +600,10 @@ export default function ProductsPage() {
                     priceRange: "all",
                     sort: "featured",
                   });
+                  // Reset URL param as well
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.delete("category");
+                  router.replace(`/product?${params.toString()}`);
                 }}
                 className="bg-[#A3B18A] text-white px-6 py-3 rounded-2xl hover:bg-[#A3B18A]/90 transition-colors"
               >
