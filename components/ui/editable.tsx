@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  ChangeEvent,
-  ReactNode,
-} from "react";
+import React, { useState, useRef, useEffect, ChangeEvent } from "react";
 import Link from "next/link";
 import Image, { ImageProps } from "next/image";
 import {
@@ -17,7 +11,7 @@ import {
   Link as LinkIcon,
   ImageIcon,
 } from "lucide-react";
-import { cn } from "@/lib/utils"; // Pastikan Anda punya utility cn (clsx + tailwind-merge)
+import { cn } from "@/lib/utils";
 
 // --- Helper: Upload File ---
 export const handleFileUpload = (
@@ -34,14 +28,15 @@ export const handleFileUpload = (
 };
 
 // =========================================
-// 1. EditableText
+// 1. EditableText (DIPERBAIKI)
 // =========================================
-interface EditableTextProps {
+
+// PERUBAHAN 1: Extend HTMLAttributes agar bisa menerima 'style'
+interface EditableTextProps extends React.HTMLAttributes<HTMLElement> {
   text: string;
   onSave: (val: string) => void;
   isEditMode: boolean;
-  as?: React.ElementType; // Agar bisa jadi h1, h2, p, span, dll.
-  className?: string;
+  as?: React.ElementType;
   multiline?: boolean;
 }
 
@@ -52,6 +47,7 @@ export const EditableText = ({
   as: Component = "div",
   className,
   multiline = false,
+  ...props // PERUBAHAN 2: Tangkap sisa props (termasuk style)
 }: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(text);
@@ -60,11 +56,9 @@ export const EditableText = ({
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
-      // inputRef.current.select(); // Optional: auto select text
     }
   }, [isEditing]);
 
-  // Reset temp value jika prop text berubah dari luar
   useEffect(() => {
     setTempValue(text);
   }, [text]);
@@ -81,7 +75,10 @@ export const EditableText = ({
 
   if (isEditMode && isEditing) {
     return (
-      <div className="relative z-20 my-1 font-normal w-full">
+      <div
+        className="relative z-20 my-1 font-normal w-full"
+        style={props.style}
+      >
         {multiline ? (
           <textarea
             ref={inputRef as React.RefObject<HTMLTextAreaElement>}
@@ -130,7 +127,7 @@ export const EditableText = ({
     <Component
       onClick={(e: React.MouseEvent) => {
         if (isEditMode) {
-          e.preventDefault();
+          e.preventDefault(); // Mencegah link berpindah jika tagnya <a>
           setIsEditing(true);
         }
       }}
@@ -140,10 +137,11 @@ export const EditableText = ({
           ? "cursor-text hover:outline-2 hover:outline-dashed hover:outline-blue-500 hover:bg-blue-50/50 rounded px-1 -mx-1 transition-all relative group"
           : ""
       )}
+      {...props} // PERUBAHAN 3: Teruskan props (seperti style) ke komponen asli
     >
       {text}
       {isEditMode && (
-        <span className="absolute -top-2 -right-2 hidden group-hover:flex h-5 w-5 bg-blue-500 text-white rounded-full items-center justify-center shadow-sm pointer-events-none">
+        <span className="absolute -top-2 -right-2 hidden group-hover:flex h-5 w-5 bg-blue-500 text-white rounded-full items-center justify-center shadow-sm pointer-events-none z-50">
           <Pencil size={10} />
         </span>
       )}
@@ -154,13 +152,14 @@ export const EditableText = ({
 // =========================================
 // 2. EditableLink (Button/Link)
 // =========================================
-interface EditableLinkProps {
+interface EditableLinkProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   label: string;
   href: string;
   onSave: (label: string, href: string) => void;
   isEditMode: boolean;
   className?: string;
-  icon?: React.ElementType; // Komponen Icon (opsional)
+  icon?: React.ElementType;
 }
 
 export const EditableLink = ({
@@ -170,6 +169,7 @@ export const EditableLink = ({
   isEditMode,
   className,
   icon: Icon,
+  ...props
 }: EditableLinkProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempLabel, setTempLabel] = useState(label);
@@ -224,7 +224,7 @@ export const EditableLink = ({
         <div className="flex gap-2 justify-end mt-1">
           <button
             onClick={handleCancel}
-            className="px-3 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
+            className="px-3 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300 text-gray-800"
           >
             Batal
           </button>
@@ -260,6 +260,7 @@ export const EditableLink = ({
           className,
           "relative group cursor-pointer flex items-center gap-2 hover:outline-2 hover:outline-dashed hover:outline-blue-500"
         )}
+        style={props.style}
       >
         {Content}
       </div>
@@ -267,7 +268,11 @@ export const EditableLink = ({
   }
 
   return (
-    <Link href={href} className={cn(className, "flex items-center gap-2")}>
+    <Link
+      href={href}
+      className={cn(className, "flex items-center gap-2")}
+      {...props}
+    >
       {Content}
     </Link>
   );
@@ -277,7 +282,7 @@ export const EditableLink = ({
 // 3. EditableImage
 // =========================================
 interface EditableImageProps extends Omit<ImageProps, "src" | "onLoad"> {
-  src: string; // Force string
+  src: string;
   onSave: (newSrc: string) => void;
   isEditMode: boolean;
   containerClassName?: string;
@@ -311,7 +316,6 @@ export const EditableImage = ({
         className="hidden"
       />
 
-      {/* Overlay Edit */}
       {isEditMode && (
         <div
           onClick={handleImageClick}

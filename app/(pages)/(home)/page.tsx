@@ -12,7 +12,7 @@ import {
 import { useTranslation } from "@/hooks/use-translation";
 import en from "@/translations/home/en";
 import id from "@/translations/home/id";
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo, useState, useEffect, Suspense } from "react";
 import {
   Dialog,
   DialogContent,
@@ -47,7 +47,7 @@ import {
   BackgroundConfig,
 } from "@/components/ui/editable-section";
 
-export default function HomePage() {
+function HomeContent() {
   const router = useRouter();
 
   // Hook translation akan mentrigger re-render jika bahasa berubah
@@ -986,5 +986,19 @@ export default function HomePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <DotdLoader />
+        </div>
+      }
+    >
+      <HomeContent />
+    </Suspense>
   );
 }
