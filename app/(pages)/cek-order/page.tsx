@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Swal from "sweetalert2";
 import {
   Search,
@@ -16,7 +16,6 @@ import {
   CreditCard,
   AlertCircle,
   Calendar,
-  HelpCircle,
   FileQuestion,
   SearchX,
   Info,
@@ -26,7 +25,7 @@ import { fredoka, sniglet } from "@/lib/fonts";
 import DotdLoader from "@/components/loader/3dot";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
-import { getEncryptedTransactionId } from "@/app/actions/security"; 
+import { getEncryptedTransactionId } from "@/app/actions/security";
 
 // Importing the service hook to fetch data from the API
 import { useGetPublicTransactionByReferenceQuery } from "@/services/public-transactions.service";
@@ -52,6 +51,8 @@ interface TrackResult {
   service: string;
   buyer_name: string;
   buyer_address: string;
+  payment_type?: string;
+  payment_link?: string;
   items: {
     id: number;
     name: string;
@@ -79,26 +80,106 @@ interface TransactionDetail {
   price: number;
 }
 
+// --- KOMPONEN UTAMA DENGAN SUSPENSE ---
 export default function TrackOrderPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen pt-24 pb-12 flex items-center justify-center bg-gradient-to-br from-white to-[#DFF19D]/10">
+          <div className="flex flex-col items-center">
+            <DotdLoader />
+            <p className="mt-4 text-gray-500 font-medium">Memuat halaman...</p>
+          </div>
+        </div>
+      }
+    >
+      <TrackOrderContent />
+    </Suspense>
+  );
+}
+
+// --- KONTEN HALAMAN (LOGIC UTAMA) ---
+function TrackOrderContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // --- STATE ---
+  // 1. Pisahkan searchTerm (Input User) dan searchCode (Trigger API)
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchCode, setSearchCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false); // New state untuk mendeteksi apakah sudah pernah mencari
+
+  const [isLoading, setIsLoading] = useState(false); // Hanya untuk initial load URL
+  const [hasSearched, setHasSearched] = useState(false);
   const [result, setResult] = useState<TrackResult | null>(null);
-  const [encryptedPaymentId, setEncryptedPaymentId] = useState<string | null>(null);
+  const [encryptedPaymentId, setEncryptedPaymentId] = useState<string | null>(
+    null
+  );
 
   // Service hook
+  // Gunakan 'refetch' untuk memaksa update saat tombol diklik
   const {
     data: transactionData,
     isLoading: isFetching,
     isError,
+    refetch,
   } = useGetPublicTransactionByReferenceQuery(searchCode, {
     skip: !searchCode,
   });
 
-  // Efek samping untuk generate encrypted ID setiap kali result berubah
+  // 1. LOGIC OTOMATIS DARI URL
+  useEffect(() => {
+    const codeFromUrl = searchParams.get("code");
+    if (codeFromUrl) {
+      setSearchTerm(codeFromUrl); // Isi input field
+      setSearchCode(codeFromUrl); // Trigger API
+      setHasSearched(true);
+      setIsLoading(true); // Loading visual untuk URL flow
+    }
+  }, [searchParams]);
+
+  // 2. LOGIC PEMETAAN DATA
+  useEffect(() => {
+    if (transactionData) {
+      const mockData: TrackResult = {
+        id: transactionData.id,
+        reference: transactionData.reference,
+        encypted_id: transactionData.encypted_id || "",
+        status: transactionData.status === 0 ? "PENDING" : "SHIPPED",
+        created_at: transactionData.created_at,
+        grand_total: transactionData.grand_total,
+        resi_number: transactionData.resi_number,
+        courier: transactionData.stores?.[0]?.courier || "",
+        service: transactionData.stores?.[0]?.shipment_detail || "",
+        buyer_name: transactionData.guest_name,
+        buyer_address: transactionData.address_line_1,
+        payment_type: transactionData.payment_type,
+        payment_link: transactionData.payment_link || "",
+        items:
+          transactionData.stores?.[0]?.details.map(
+            (detail: TransactionDetail) => ({
+              id: detail.id,
+              name: detail.product.name,
+              image: detail.product.image,
+              qty: detail.quantity,
+              price: detail.price,
+            })
+          ) || [],
+        history: [
+          {
+            status: "PENDING",
+            description: "Pesanan dibuat, menunggu pembayaran",
+            date: transactionData.created_at,
+          },
+        ],
+      };
+      setResult(mockData);
+      setIsLoading(false); // Stop loading manual (jika dari URL)
+    } else if (isError) {
+      setIsLoading(false);
+    }
+  }, [transactionData, isError]);
+
+  // Efek samping untuk generate encrypted ID
   useEffect(() => {
     const generateEncryptedId = async () => {
       if (result && result.id) {
@@ -114,8 +195,8 @@ export default function TrackOrderPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!searchCode.trim()) {
+
+    if (!searchTerm.trim()) {
       Swal.fire({
         icon: "warning",
         title: "Oops...",
@@ -124,69 +205,45 @@ export default function TrackOrderPage() {
       return;
     }
 
-    setIsLoading(true);
-    setHasSearched(true); // Tandai bahwa user sudah menekan tombol cari
-    setResult(null);
+    setHasSearched(true);
 
-    // Simulasi delay sedikit agar UX loading terasa (opsional)
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Logic Perbaikan:
+    // 1. Set searchCode agar API terpanggil (jika berbeda)
+    setSearchCode(searchTerm);
 
-    if (transactionData) {
-      const mockData: TrackResult = {
-        id: transactionData.id,
-        reference: transactionData.reference,
-        encypted_id: transactionData.encypted_id || "",
-        status: transactionData.status === 0 ? "PENDING" : "SHIPPED", 
-        created_at: transactionData.created_at,
-        grand_total: transactionData.grand_total,
-        resi_number: transactionData.resi_number,
-        courier: transactionData.stores?.[0]?.courier || "",
-        service: transactionData.stores?.[0]?.shipment_detail || "",
-        buyer_name: transactionData.guest_name,
-        buyer_address: transactionData.address_line_1,
-        items:
-          transactionData.stores?.[0]?.details.map(
-            (detail: TransactionDetail) => ({
-              id: detail.id,
-              name: detail.product.name,
-              image: detail.product.image,
-              qty: detail.quantity,
-              price: detail.price,
-            })
-          ) || [],
-        history: [
-          {
-            status: "PENDING",
-            description: "Pesanan dibuat, menunggu pembayaran",
-            date: new Date().toISOString(),
-          },
-          {
-            status: "PAID",
-            description: "Pembayaran diterima",
-            date: new Date().toISOString(),
-          },
-          // ... logic history lainnya
-        ],
-      };
-      setResult(mockData);
-    } else {
-      // Jika data tidak ditemukan di API (atau API error)
-      // Tidak perlu Swal, cukup biarkan UI 'Not Found' di bawah yang muncul
+    // 2. Jika user menekan tombol lagi dengan kode yang sama,
+    //    transactionData tidak berubah, jadi useEffect tidak jalan.
+    //    Kita panggil refetch() untuk memastikan status terbaru dan mengaktifkan isFetching.
+    if (searchCode === searchTerm) {
+      refetch();
     }
 
-    setIsLoading(false);
+    // Note: Jangan set setIsLoading(true) di sini agar tidak stuck.
+    // Gunakan 'isFetching' dari hook untuk indikator loading.
   };
+
+  // Gabungkan loading state:
+  // - isLoading: Loading manual saat pertama kali buka link URL
+  // - isFetching: Loading otomatis dari RTK Query saat fetch data
+  const showLoading = isLoading || isFetching;
 
   // --- HELPER UTILS ---
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
-      case "PENDING": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "PAID": return "bg-blue-100 text-blue-700 border-blue-200";
-      case "PROCESSED": return "bg-indigo-100 text-indigo-700 border-indigo-200";
-      case "SHIPPED": return "bg-purple-100 text-purple-700 border-purple-200";
-      case "COMPLETED": return "bg-green-100 text-green-700 border-green-200";
-      case "CANCELLED": return "bg-red-100 text-red-700 border-red-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-200";
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "PAID":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "PROCESSED":
+        return "bg-indigo-100 text-indigo-700 border-indigo-200";
+      case "SHIPPED":
+        return "bg-purple-100 text-purple-700 border-purple-200";
+      case "COMPLETED":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "CANCELLED":
+        return "bg-red-100 text-red-700 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
     }
   };
 
@@ -202,7 +259,9 @@ export default function TrackOrderPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24 pb-12 ${sniglet.className}`}>
+    <div
+      className={`min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24 pb-12 ${sniglet.className}`}
+    >
       <div className="container mx-auto px-6 lg:px-12">
         {/* TITLE SECTION */}
         <div className="text-center max-w-3xl mx-auto mb-10">
@@ -212,7 +271,9 @@ export default function TrackOrderPage() {
               Lacak Kiriman
             </span>
           </div>
-          <h1 className={`text-4xl font-bold text-gray-900 mb-4 ${fredoka.className}`}>
+          <h1
+            className={`text-4xl font-bold text-gray-900 mb-4 ${fredoka.className}`}
+          >
             Lacak Status <span className="text-[#A3B18A]">Pesanan Anda</span>
           </h1>
           <p className="text-gray-600">
@@ -228,17 +289,17 @@ export default function TrackOrderPage() {
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 w-6 h-6 group-focus-within:text-[#A3B18A] transition-colors" />
               <input
                 type="text"
-                value={searchCode}
-                onChange={(e) => setSearchCode(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Masukkan Kode Transaksi..."
                 className="w-full pl-14 pr-32 py-5 rounded-full border-2 border-gray-200 focus:border-[#A3B18A] focus:ring-4 focus:ring-[#A3B18A]/20 shadow-lg text-lg outline-none transition-all"
               />
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={showLoading}
                 className="absolute right-2 top-2 bottom-2 bg-[#A3B18A] text-white px-6 rounded-full font-bold hover:bg-[#A3B18A]/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {isLoading ? "Mencari..." : "Lacak"}
+                {showLoading ? "Mencari..." : "Lacak"}
               </button>
             </div>
             {/* Decorative shadow */}
@@ -248,67 +309,86 @@ export default function TrackOrderPage() {
 
         {/* MAIN CONTENT AREA */}
         <div className="min-h-[400px]">
-          
           {/* 1. LOADING STATE */}
-          {isLoading && (
+          {showLoading && (
             <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
               <DotdLoader />
-              <p className="mt-4 text-gray-500 font-medium">Sedang mencari data transaksi...</p>
+              <p className="mt-4 text-gray-500 font-medium">
+                Sedang mencari data transaksi...
+              </p>
             </div>
           )}
 
           {/* 2. INITIAL STATE (Belum mencari) */}
-          {!isLoading && !hasSearched && (
+          {!showLoading && !hasSearched && (
             <div className="max-w-3xl mx-auto bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-sm text-center animate-fade-in-up">
               <div className="w-20 h-20 bg-[#A3B18A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <FileQuestion className="w-10 h-10 text-[#A3B18A]" />
               </div>
-              <h3 className={`text-2xl font-bold text-gray-800 mb-3 ${fredoka.className}`}>
+              <h3
+                className={`text-2xl font-bold text-gray-800 mb-3 ${fredoka.className}`}
+              >
                 Belum Melacak Pesanan?
               </h3>
               <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                Silakan masukkan <strong>Kode Referensi (TRX-...)</strong> {`yang Anda dapatkan pada halaman "Terima Kasih" atau yang kami kirimkan melalui Email/WhatsApp.`}
+                Silakan masukkan <strong>Kode Referensi (TRX-...)</strong>{" "}
+                {`yang Anda dapatkan pada halaman "Terima Kasih" atau yang kami kirimkan melalui Email/WhatsApp.`}
               </p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
                 <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-3">
                     <Search className="w-4 h-4 text-blue-600" />
                   </div>
-                  <h4 className="font-bold text-gray-800 text-sm mb-1">1. Masukkan Kode</h4>
-                  <p className="text-xs text-gray-500">Input kode transaksi dengan benar.</p>
+                  <h4 className="font-bold text-gray-800 text-sm mb-1">
+                    1. Masukkan Kode
+                  </h4>
+                  <p className="text-xs text-gray-500">
+                    Input kode transaksi dengan benar.
+                  </p>
                 </div>
                 <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
                   <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mb-3">
                     <Truck className="w-4 h-4 text-purple-600" />
                   </div>
-                  <h4 className="font-bold text-gray-800 text-sm mb-1">2. Cek Status</h4>
-                  <p className="text-xs text-gray-500">Lihat posisi terkini paket Anda.</p>
+                  <h4 className="font-bold text-gray-800 text-sm mb-1">
+                    2. Cek Status
+                  </h4>
+                  <p className="text-xs text-gray-500">
+                    Lihat posisi terkini paket Anda.
+                  </p>
                 </div>
                 <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mb-3">
                     <CheckCircle className="w-4 h-4 text-green-600" />
                   </div>
-                  <h4 className="font-bold text-gray-800 text-sm mb-1">3. Selesai</h4>
-                  <p className="text-xs text-gray-500">Paket diterima dengan aman.</p>
+                  <h4 className="font-bold text-gray-800 text-sm mb-1">
+                    3. Selesai
+                  </h4>
+                  <p className="text-xs text-gray-500">
+                    Paket diterima dengan aman.
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
           {/* 3. NOT FOUND STATE (Sudah mencari tapi hasil kosong) */}
-          {!isLoading && hasSearched && !result && (
+          {!showLoading && hasSearched && !result && (
             <div className="max-w-2xl mx-auto bg-red-50 rounded-3xl p-8 border border-red-100 text-center animate-shake">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <SearchX className="w-8 h-8 text-red-500" />
               </div>
-              <h3 className={`text-xl font-bold text-gray-900 mb-2 ${fredoka.className}`}>
+              <h3
+                className={`text-xl font-bold text-gray-900 mb-2 ${fredoka.className}`}
+              >
                 Data Tidak Ditemukan
               </h3>
               <p className="text-gray-600 mb-6">
-                Maaf, kami tidak dapat menemukan data transaksi dengan kode <br/>
+                Maaf, kami tidak dapat menemukan data transaksi dengan kode{" "}
+                <br />
                 <span className="font-mono font-bold text-red-500 bg-red-100 px-2 py-1 rounded-md mx-1">
-                  {searchCode}
+                  {searchTerm}
                 </span>
               </p>
               <div className="bg-white p-4 rounded-xl text-left border border-red-100 inline-block w-full md:w-auto">
@@ -325,11 +405,10 @@ export default function TrackOrderPage() {
           )}
 
           {/* 4. RESULT SECTION (Data Ditemukan) */}
-          {!isLoading && result && (
+          {!showLoading && result && (
             <div className="max-w-4xl mx-auto animate-fade-in-up">
               {/* Header Card */}
               <div className="bg-white rounded-3xl p-6 lg:p-8 shadow-lg border border-gray-100 mb-6">
-                {/* ... (Kode Card Header sama seperti sebelumnya) ... */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-6 border-b border-gray-100">
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Kode Transaksi</p>
@@ -337,18 +416,28 @@ export default function TrackOrderPage() {
                       <h2 className="text-2xl font-bold text-gray-900">
                         {result.reference}
                       </h2>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(result.status)}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(
+                          result.status
+                        )}`}
+                      >
                         {result.status}
                       </span>
                     </div>
                   </div>
                   <div className="text-left md:text-right">
-                    <p className="text-sm text-gray-500 mb-1">Tanggal Pemesanan</p>
+                    <p className="text-sm text-gray-500 mb-1">
+                      Tanggal Pemesanan
+                    </p>
                     <div className="flex items-center gap-2 text-gray-900 font-medium">
                       <Calendar className="w-4 h-4 text-[#A3B18A]" />
-                      {format(new Date(result.created_at), "dd MMM yyyy, HH:mm", {
-                        locale: idLocale,
-                      })}
+                      {format(
+                        new Date(result.created_at),
+                        "dd MMM yyyy, HH:mm",
+                        {
+                          locale: idLocale,
+                        }
+                      )}
                     </div>
                   </div>
                 </div>
@@ -363,68 +452,146 @@ export default function TrackOrderPage() {
                           Menunggu Pembayaran
                         </p>
                         <p className="text-sm text-yellow-700">
-                          Pesanan belum dibayar. Silakan upload bukti transfer.
+                          {result.payment_type === "automatic"
+                            ? "Selesaikan pembayaran otomatis Anda."
+                            : "Pesanan belum dibayar. Silakan upload bukti transfer."}
                         </p>
                       </div>
                     </div>
 
-                    {/* Logic Tombol Bayar dengan Encrypted ID */}
-                    {result.status === "PENDING" ? (
-                      <Link
-                        // Menggunakan encodeURIComponent agar karakter spesial (:, +) di string enkripsi aman di URL
-                        href={`/guest/transaction/${result.encypted_id}`}
-                        className="bg-yellow-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-600 transition-colors whitespace-nowrap shadow-lg shadow-yellow-500/30"
-                      >
-                        Bayar Sekarang
-                      </Link>
-                    ) : (
-                      // Tampilkan loading state pada tombol saat proses enkripsi berjalan
-                      <div className="h-10 w-32 bg-yellow-200 rounded-xl animate-pulse flex items-center justify-center text-yellow-600 text-xs">
-                        Menyiapkan...
-                      </div>
-                    )}
+                    {/* Logic Tombol Bayar */}
+                    <div>
+                      {result.payment_type === "automatic" ? (
+                        // CASE 1: Automatic Payment -> window.open
+                        result.payment_link ? (
+                          <button
+                            onClick={() =>
+                              window.open(result.payment_link!, "_blank")
+                            }
+                            className="bg-yellow-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-600 transition-colors whitespace-nowrap shadow-lg shadow-yellow-500/30"
+                          >
+                            Bayar Sekarang
+                          </button>
+                        ) : (
+                          <div className="h-10 w-32 bg-yellow-200 rounded-xl flex items-center justify-center text-yellow-600 text-xs">
+                            Link Error
+                          </div>
+                        )
+                      ) : // CASE 2: Manual Payment -> Logic Enkripsi ID (Existing)
+                      result.encypted_id ? (
+                        <Link
+                          href={`/guest/transaction/${result.encypted_id}`}
+                          className="bg-yellow-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-600 transition-colors whitespace-nowrap shadow-lg shadow-yellow-500/30"
+                        >
+                          Bayar Sekarang
+                        </Link>
+                      ) : (
+                        <div className="h-10 w-32 bg-yellow-200 rounded-xl animate-pulse flex items-center justify-center text-yellow-600 text-xs">
+                          Menyiapkan...
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
-                {/* Timeline Visual (Horizontal/Vertical logic sama seperti sebelumnya) */}
+                {/* Timeline Visual */}
                 <div className="relative px-4 py-4">
-                   {/* ... (Kode Timeline sama seperti sebelumnya) ... */}
-                   {/* Untuk menghemat tempat, saya tidak menulis ulang bagian Timeline dan History log karena tidak berubah logikanya, 
-                       hanya pastikan bagian ini ada di dalam blok `!isLoading && result` */}
-                    
-                    {/* Desktop Timeline Visualization (Simplified for brevity) */}
-                    <div className="hidden md:flex justify-between items-center relative mb-8">
-                        {/* Line Background */}
-                        <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -z-0 -translate-y-1/2 rounded-full" />
+                  {/* Mobile Timeline (Vertical) */}
+                  <div className="md:hidden space-y-6 relative">
+                    <div className="absolute top-0 left-5 h-full w-1 bg-gray-100 -z-10 rounded-full" />
+                    {[
+                      { key: "PENDING", label: "Dibuat", icon: Package },
+                      { key: "PAID", label: "Dibayar", icon: CreditCard },
+                      { key: "PROCESSED", label: "Diproses", icon: Clock },
+                      { key: "SHIPPED", label: "Dikirim", icon: Truck },
+                      {
+                        key: "COMPLETED",
+                        label: "Selesai",
+                        icon: CheckCircle,
+                      },
+                    ].map((step, idx) => {
+                      const status = getStepStatus(step.key, result.status);
+                      const isActive =
+                        status === "current" || status === "completed";
+                      return (
+                        <div key={idx} className="flex items-center gap-4">
+                          <div
+                            className={`w-10 h-10 rounded-full flex items-center justify-center border-4 z-10 ${
+                              isActive
+                                ? "border-[#A3B18A] bg-[#A3B18A] text-white"
+                                : "border-gray-100 bg-white text-gray-300"
+                            }`}
+                          >
+                            <step.icon className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p
+                              className={`text-sm font-bold ${
+                                isActive ? "text-[#A3B18A]" : "text-gray-400"
+                              }`}
+                            >
+                              {step.label}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Desktop Timeline (Horizontal) */}
+                  <div className="hidden md:flex justify-between items-center relative mb-8">
+                    {/* Line Background */}
+                    <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -z-0 -translate-y-1/2 rounded-full" />
+                    <div
+                      className="absolute top-1/2 left-0 h-1 bg-[#A3B18A] -z-0 -translate-y-1/2 rounded-full transition-all duration-1000"
+                      style={{
+                        width:
+                          result.status === "COMPLETED"
+                            ? "100%"
+                            : result.status === "SHIPPED"
+                            ? "75%"
+                            : result.status === "PROCESSED"
+                            ? "50%"
+                            : result.status === "PAID"
+                            ? "25%"
+                            : "0%",
+                      }}
+                    />
+                    {[
+                      { key: "PENDING", label: "Dibuat", icon: Package },
+                      { key: "PAID", label: "Dibayar", icon: CreditCard },
+                      { key: "PROCESSED", label: "Diproses", icon: Clock },
+                      { key: "SHIPPED", label: "Dikirim", icon: Truck },
+                      { key: "COMPLETED", label: "Selesai", icon: CheckCircle },
+                    ].map((step, idx) => {
+                      const status = getStepStatus(step.key, result.status);
+                      const isActive =
+                        status === "current" || status === "completed";
+                      return (
                         <div
-                            className="absolute top-1/2 left-0 h-1 bg-[#A3B18A] -z-0 -translate-y-1/2 rounded-full transition-all duration-1000"
-                            style={{
-                            width:
-                                result.status === "COMPLETED" ? "100%" :
-                                result.status === "SHIPPED" ? "75%" :
-                                result.status === "PROCESSED" ? "50%" :
-                                result.status === "PAID" ? "25%" : "0%",
-                            }}
-                        />
-                         {[
-                            { key: "PENDING", label: "Dibuat", icon: Package },
-                            { key: "PAID", label: "Dibayar", icon: CreditCard },
-                            { key: "PROCESSED", label: "Diproses", icon: Clock },
-                            { key: "SHIPPED", label: "Dikirim", icon: Truck },
-                            { key: "COMPLETED", label: "Selesai", icon: CheckCircle },
-                        ].map((step, idx) => {
-                            const status = getStepStatus(step.key, result.status);
-                            const isActive = status === "current" || status === "completed";
-                            return (
-                            <div key={idx} className="relative z-10 flex flex-col items-center bg-white px-2">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-4 mb-3 transition-all duration-300 ${isActive ? "border-[#A3B18A] bg-[#A3B18A] text-white" : "border-gray-100 bg-gray-50 text-gray-400"}`}>
-                                <step.icon className="w-5 h-5" />
-                                </div>
-                                <span className={`text-sm font-bold ${isActive ? "text-[#A3B18A]" : "text-gray-400"}`}>{step.label}</span>
-                            </div>
-                            );
-                        })}
-                    </div>
+                          key={idx}
+                          className="relative z-10 flex flex-col items-center bg-white px-2"
+                        >
+                          <div
+                            className={`w-12 h-12 rounded-full flex items-center justify-center border-4 mb-3 transition-all duration-300 ${
+                              isActive
+                                ? "border-[#A3B18A] bg-[#A3B18A] text-white"
+                                : "border-gray-100 bg-gray-50 text-gray-400"
+                            }`}
+                          >
+                            <step.icon className="w-5 h-5" />
+                          </div>
+                          <span
+                            className={`text-sm font-bold ${
+                              isActive ? "text-[#A3B18A]" : "text-gray-400"
+                            }`}
+                          >
+                            {step.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -433,24 +600,35 @@ export default function TrackOrderPage() {
                 {/* Shipping Info */}
                 <div className="bg-white rounded-3xl p-6 shadow-lg h-full">
                   <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-[#A3B18A]" /> Informasi Pengiriman
+                    <MapPin className="w-5 h-5 text-[#A3B18A]" /> Informasi
+                    Pengiriman
                   </h3>
                   <div className="space-y-4 text-sm">
                     <div className="bg-gray-50 p-4 rounded-2xl">
                       <p className="text-gray-500 text-xs mb-1">Penerima</p>
-                      <p className="font-bold text-gray-900">{result.buyer_name}</p>
-                      <p className="text-gray-600 mt-1">{result.buyer_address}</p>
+                      <p className="font-bold text-gray-900">
+                        {result.buyer_name}
+                      </p>
+                      <p className="text-gray-600 mt-1">
+                        {result.buyer_address}
+                      </p>
                     </div>
                     <div className="flex items-center justify-between p-4 border border-gray-100 rounded-2xl">
                       <div>
                         <p className="text-gray-500 text-xs">Ekspedisi</p>
-                        <p className="font-bold text-gray-900 text-lg">{result.courier.toUpperCase()}</p>
-                        <p className="text-xs text-gray-400">{result.service}</p>
+                        <p className="font-bold text-gray-900 text-lg">
+                          {result.courier.toUpperCase()}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {result.service}
+                        </p>
                       </div>
                       {result.resi_number && (
                         <div className="text-right">
                           <p className="text-gray-500 text-xs">No. Resi</p>
-                          <p className="font-mono font-bold text-[#A3B18A]">{result.resi_number}</p>
+                          <p className="font-mono font-bold text-[#A3B18A]">
+                            {result.resi_number}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -460,26 +638,46 @@ export default function TrackOrderPage() {
                 {/* Items Info */}
                 <div className="bg-white rounded-3xl p-6 shadow-lg h-full">
                   <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <ShoppingBag className="w-5 h-5 text-[#A3B18A]" /> Detail Produk
+                    <ShoppingBag className="w-5 h-5 text-[#A3B18A]" /> Detail
+                    Produk
                   </h3>
                   <div className="space-y-4 max-h-[250px] overflow-y-auto custom-scrollbar pr-2">
                     {result.items.map((item) => (
                       <div key={item.id} className="flex gap-3 items-center">
                         <div className="w-14 h-14 relative flex-shrink-0">
-                          <Image src={item.image} alt={item.name} fill className="object-cover rounded-xl bg-gray-100" />
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-cover rounded-xl bg-gray-100"
+                          />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-bold text-gray-800 line-clamp-2">{item.name}</p>
-                          <p className="text-xs text-gray-500">{item.qty} x Rp {item.price.toLocaleString("id-ID")}</p>
+                          <p className="text-sm font-bold text-gray-800 line-clamp-2">
+                            {item.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {item.qty} x Rp {item.price.toLocaleString("id-ID")}
+                          </p>
                         </div>
-                        <p className="font-bold text-[#A3B18A] text-sm">Rp {(item.qty * item.price).toLocaleString("id-ID")}</p>
+                        <p className="font-bold text-[#A3B18A] text-sm">
+                          Rp {(item.qty * item.price).toLocaleString("id-ID")}
+                        </p>
                       </div>
                     ))}
                   </div>
                   <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <span className="text-gray-600 font-medium">Total Belanja</span>
+                    <span className="text-gray-600 font-medium">
+                      Total Belanja
+                    </span>
                     <span className="text-xl font-bold text-[#A3B18A]">
-                      Rp {result.items.reduce((total, item) => total + item.qty * item.price, 0).toLocaleString("id-ID")}
+                      Rp{" "}
+                      {result.items
+                        .reduce(
+                          (total, item) => total + item.qty * item.price,
+                          0
+                        )
+                        .toLocaleString("id-ID")}
                     </span>
                   </div>
                 </div>

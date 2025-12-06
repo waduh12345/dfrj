@@ -46,6 +46,7 @@ import {
 
 // IMPORT ZUSTAND HOOK
 import useCart from "@/hooks/use-cart";
+import { useRouter } from "next/navigation";
 
 /** ====== Helpers & Types ====== */
 // Kita tidak perlu lagi parseStorage/writeStorage manual karena sudah dihandle useCart
@@ -94,8 +95,15 @@ function getImageUrlFromProduct(p: Product): string {
   return "/api/placeholder/300/300";
 }
 
+export interface TransactionResponseData {
+  reference: string;
+  id?: string;
+  payment_link?: string;
+}
+
 /** ====== Component ====== */
 export default function PublicTransaction() {
+  const router = useRouter();
   /** ——— Cart Logic (Menggunakan Zustand) ——— */
   const {
     cartItems: rawCartItems,
@@ -352,25 +360,52 @@ export default function PublicTransaction() {
 
     try {
       const res = await createPublicTransaction(payload).unwrap();
-      if (res && typeof res.data === "object" && "payment_link" in res.data) {
-        await Swal.fire({
-          icon: "success",
-          title: "Pesanan Berhasil Dibuat",
-          text: "Kami arahkan ke halaman pembayaran.",
-          confirmButtonText: "Lanjut",
-        });
-        window.open(
-          (res.data as { payment_link: string }).payment_link,
-          "_blank"
-        );
-        clearCart(); // Bersihkan zustand store
-      } else {
-        await Swal.fire({
-          icon: "success",
-          title: "Pesanan Berhasil Dibuat",
-          text: "Untuk informasi lebih lanjut bisa melalui WhatsApp, email, dan menu track order.",
-        });
-        clearCart(); // Bersihkan zustand store
+
+      if (res && typeof res.data === "object") {
+        const responseData = res.data as unknown as TransactionResponseData;
+
+        // 1. JIKA PEMBAYARAN MANUAL
+        if (paymentMethod === "manual") {
+          await Swal.fire({
+            icon: "success",
+            title: "Pesanan Berhasil Dibuat",
+            text: "Silakan lakukan pembayaran dan upload bukti transfer.",
+            confirmButtonText: "Lanjut",
+          });
+
+          clearCart();
+
+          // Redirect ke halaman guest transaction (upload bukti) menggunakan encrypted_id
+          router.push(`/guest/transaction/${responseData.id}`);
+        }
+
+        // 2. JIKA PEMBAYARAN OTOMATIS (Ada payment_link)
+        else if ("payment_link" in responseData) {
+          await Swal.fire({
+            icon: "success",
+            title: "Pesanan Berhasil Dibuat",
+            text: "Kami arahkan ke halaman pembayaran dan pelacakan.",
+            confirmButtonText: "Lanjut",
+          });
+
+          // Buka Link Pembayaran di Tab Baru
+          window.open(responseData.payment_link, "_blank");
+
+          clearCart();
+
+          // Redirect ke halaman Cek Order menggunakan reference code
+          router.push(`/cek-order?code=${responseData.reference}`);
+        }
+
+        // 3. FALLBACK (COD atau lainnya)
+        else {
+          await Swal.fire({
+            icon: "success",
+            title: "Pesanan Berhasil Dibuat",
+            text: "Untuk informasi lebih lanjut cek menu track order.",
+          });
+          clearCart();
+        }
       }
     } catch (e) {
       console.error(e);

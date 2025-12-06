@@ -49,6 +49,7 @@ import VoucherPicker from "@/components/voucher-picker";
 
 // ✅ Import Hook Zustand
 import useCart from "@/hooks/use-cart";
+import { TransactionResponseData } from "./public-transactions";
 
 interface CartItemView {
   id: number;
@@ -379,34 +380,56 @@ export default function CartPage() {
         ],
       };
 
-      const result = await createTransaction(payload).unwrap();
+      const res = await createTransaction(payload).unwrap();
 
-      if (
-        result &&
-        result.data &&
-        typeof result.data === "object" &&
-        "payment_link" in result.data
-      ) {
-        await Swal.fire({
-          icon: "success",
-          title: "Pesanan Berhasil Dibuat",
-          text: "Silakan lanjutkan ke halaman pembayaran.",
-          confirmButtonText: "Lanjut ke Pembayaran",
-        });
-        window.open(
-          (result.data as { payment_link: string }).payment_link,
-          "_blank"
-        );
-        clearCart();
-        setTimeout(() => {
+      if (res && typeof res.data === "object") {
+        // Double casting untuk keamanan tipe data
+        const responseData = res.data as unknown as TransactionResponseData;
+
+        // 1. JIKA PEMBAYARAN MANUAL
+        if (paymentMethod === "manual") {
+          await Swal.fire({
+            icon: "success",
+            title: "Pesanan Berhasil Dibuat",
+            text: "Silakan lakukan pembayaran dan upload bukti transfer.",
+            confirmButtonText: "Lanjut",
+          });
+
+          clearCart();
+
+          // Redirect ke halaman upload bukti (sesuaikan path jika untuk member logged-in, misal: /user/transaction/...)
+          router.push(`/guest/transaction/${responseData.id}`);
+        }
+
+        // 2. JIKA PEMBAYARAN OTOMATIS (Ada payment_link)
+        else if ("payment_link" in responseData) {
+          await Swal.fire({
+            icon: "success",
+            title: "Pesanan Berhasil Dibuat",
+            text: "Kami arahkan ke halaman pembayaran dan pelacakan.",
+            confirmButtonText: "Lanjut",
+          });
+
+          // Buka Link Pembayaran di Tab Baru
+          if (responseData.payment_link) {
+            window.open(responseData.payment_link, "_blank");
+          }
+
+          clearCart();
+
+          // Redirect ke halaman Cek Order
+          router.push(`/cek-order?code=${responseData.reference}`);
+        }
+
+        else {
+          await Swal.fire({
+            icon: "success",
+            title: "Pesanan Berhasil Dibuat",
+            text: "Untuk informasi lebih lanjut cek menu track order.",
+          });
+          clearCart();
           router.push("/me");
-        }, 2000);
-      } else {
-        await Swal.fire({
-          icon: "info",
-          title: "Pesanan Dibuat",
-          text: "Pesanan berhasil dibuat, tetapi tidak dapat membuka link pembayaran.",
-        });
+        }
       }
     } catch (err: unknown) {
       console.error("Error creating transaction:", err);
