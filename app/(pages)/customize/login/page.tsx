@@ -64,7 +64,7 @@ function LoginContent() {
         if (callbackUrl) {
           router.push(decodeURIComponent(callbackUrl));
         } else {
-          router.push("/?mode=edit");
+          router.push("/customize/client");
         }
       }
     } catch (err: unknown) {

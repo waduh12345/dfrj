@@ -16,7 +16,7 @@ export default function PagesLayout({
 }) {
   const { isOpen, close, cartItems, removeItem } = useCart();
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login" || pathname === "/customize/login";
+  const isLoginPage = pathname === "/login" || pathname === "/customize/login" || pathname === "/customize/client";
   const isWisataPage = pathname === "/wisata" || pathname === "/profile";
 
   useEffect(() => {
