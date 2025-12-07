@@ -11,6 +11,7 @@ const translations = {
   "col-2-e": "Gallery",
   "col-2-f": "News",
   "col-2-g": "How to Order",
+  "col-2-h": "Track Order",
   "col-3-a": "Product Categories",
   "col-3-b": "Get creative tips and the latest product updates!",
   "col-3-c": "Your Email",

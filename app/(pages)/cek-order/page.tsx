@@ -272,7 +272,7 @@ function TrackOrderContent() {
             </span>
           </div>
           <h1
-            className={`text-4xl font-bold text-gray-900 mb-4 ${fredoka.className}`}
+            className={`text-4xl font-bold text-[#5C4A3B] mb-4 ${fredoka.className}`}
           >
             Lacak Status <span className="text-[#A3B18A]">Pesanan Anda</span>
           </h1>
@@ -326,7 +326,7 @@ function TrackOrderContent() {
                 <FileQuestion className="w-10 h-10 text-[#A3B18A]" />
               </div>
               <h3
-                className={`text-2xl font-bold text-gray-800 mb-3 ${fredoka.className}`}
+                className={`text-2xl font-bold text-[#5C4A3B] mb-3 ${fredoka.className}`}
               >
                 Belum Melacak Pesanan?
               </h3>
@@ -380,7 +380,7 @@ function TrackOrderContent() {
                 <SearchX className="w-8 h-8 text-red-500" />
               </div>
               <h3
-                className={`text-xl font-bold text-gray-900 mb-2 ${fredoka.className}`}
+                className={`text-xl font-bold text-[#5C4A3B] mb-2 ${fredoka.className}`}
               >
                 Data Tidak Ditemukan
               </h3>
@@ -413,7 +413,7 @@ function TrackOrderContent() {
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Kode Transaksi</p>
                     <div className="flex items-center gap-3">
-                      <h2 className="text-2xl font-bold text-gray-900">
+                      <h2 className="text-2xl font-bold text-[#5C4A3B]">
                         {result.reference}
                       </h2>
                       <span
@@ -429,7 +429,7 @@ function TrackOrderContent() {
                     <p className="text-sm text-gray-500 mb-1">
                       Tanggal Pemesanan
                     </p>
-                    <div className="flex items-center gap-2 text-gray-900 font-medium">
+                    <div className="flex items-center gap-2 text-[#5C4A3B] font-medium">
                       <Calendar className="w-4 h-4 text-[#A3B18A]" />
                       {format(
                         new Date(result.created_at),
@@ -599,14 +599,14 @@ function TrackOrderContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Shipping Info */}
                 <div className="bg-white rounded-3xl p-6 shadow-lg h-full">
-                  <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h3 className="font-bold text-[#5C4A3B] mb-4 flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-[#A3B18A]" /> Informasi
                     Pengiriman
                   </h3>
                   <div className="space-y-4 text-sm">
                     <div className="bg-gray-50 p-4 rounded-2xl">
                       <p className="text-gray-500 text-xs mb-1">Penerima</p>
-                      <p className="font-bold text-gray-900">
+                      <p className="font-bold text-[#5C4A3B]">
                         {result.buyer_name}
                       </p>
                       <p className="text-gray-600 mt-1">
@@ -616,7 +616,7 @@ function TrackOrderContent() {
                     <div className="flex items-center justify-between p-4 border border-gray-100 rounded-2xl">
                       <div>
                         <p className="text-gray-500 text-xs">Ekspedisi</p>
-                        <p className="font-bold text-gray-900 text-lg">
+                        <p className="font-bold text-[#5C4A3B] text-lg">
                           {result.courier.toUpperCase()}
                         </p>
                         <p className="text-xs text-gray-400">
@@ -637,7 +637,7 @@ function TrackOrderContent() {
 
                 {/* Items Info */}
                 <div className="bg-white rounded-3xl p-6 shadow-lg h-full">
-                  <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h3 className="font-bold text-[#5C4A3B] mb-4 flex items-center gap-2">
                     <ShoppingBag className="w-5 h-5 text-[#A3B18A]" /> Detail
                     Produk
                   </h3>

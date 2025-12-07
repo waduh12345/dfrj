@@ -294,7 +294,7 @@ function ProductsContent() {
           <h1
             className={cn(
               fredoka.className,
-              "text-4xl lg:text-6xl font-bold text-gray-900 mb-6"
+              "text-4xl lg:text-6xl font-bold text-[#5C4A3B] mb-6"
             )}
           >
             <EditableText

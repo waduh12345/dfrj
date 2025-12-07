@@ -132,7 +132,7 @@ function GaleriModal({ isOpen, onClose, item }: GaleriModalProps) {
           </div>
         </div>
         <div className="p-6 overflow-y-auto">
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-2xl font-bold text-[#5C4A3B] mb-3">
             {item.title}
           </h2>
           <p className="text-gray-600 mb-4">{item.__raw.description}</p>
@@ -369,7 +369,7 @@ function GaleriContent() {
           <div className="bg-white rounded-3xl p-6 shadow-lg border border-[#A3B18A]/10 mt-8">
             <div className="flex items-center gap-3 mb-4">
               <Filter className="w-5 h-5 text-[#A3B18A]" />
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-[#5C4A3B]">
                 {t["category-filter"]}
               </h3>
             </div>
@@ -480,7 +480,7 @@ function GaleriContent() {
                     </div>
                   </div>
                   <div className="p-3 sm:hidden">
-                    <h3 className="font-semibold text-gray-900 text-center text-sm">
+                    <h3 className="font-semibold text-[#5C4A3B] text-center text-sm">
                       {item.title}
                     </h3>
                     <p className="text-xs text-gray-600 text-center mt-0.5">
@@ -497,7 +497,7 @@ function GaleriContent() {
               <div className="w-24 h-24 bg-[#A3B18A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Camera className="w-12 h-12 text-[#A3B18A]" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl font-bold text-[#5C4A3B] mb-4">
                 {t["empty-title"]}
               </h3>
               <p className="text-gray-600 mb-6">{t["empty-subtile"]}</p>
@@ -561,7 +561,7 @@ function GaleriContent() {
         <div className="container mx-auto">
           <div className="bg-white rounded-3xl p-8 text-center shadow-lg border border-[#A3B18A]/10">
             <h3
-              className={`text-4xl font-bold text-gray-900 mb-4 ${fredoka.className}`}
+              className={`text-4xl font-bold text-[#5C4A3B] mb-4 ${fredoka.className}`}
             >
               <EditableText
                 isEditMode={isEditMode}

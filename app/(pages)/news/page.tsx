@@ -322,11 +322,11 @@ function NewsContent() {
                         .replace(/\n/g, "<br/>")
                         .replace(
                           /## (.*?)(<br\/>|$)/g,
-                          '<h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">$1</h2>'
+                          '<h2 class="text-2xl font-bold text-[#5C4A3B] mt-8 mb-4">$1</h2>'
                         )
                         .replace(
                           /### (.*?)(<br\/>|$)/g,
-                          '<h3 class="text-xl font-semibold text-gray-900 mt-6 mb-3">$1</h3>'
+                          '<h3 class="text-xl font-semibold text-[#5C4A3B] mt-6 mb-3">$1</h3>'
                         ),
                     }}
                   />
@@ -360,7 +360,7 @@ function NewsContent() {
               <div className="lg:col-span-1">
                 <div className="sticky top-8 space-y-8">
                   <div className="bg-gray-50 rounded-3xl p-6">
-                    <h4 className="font-bold text-gray-900 mb-4">
+                    <h4 className="font-bold text-[#5C4A3B] mb-4">
                       Tentang Penulis
                     </h4>
                     <div className="flex items-center gap-3 mb-3">
@@ -368,7 +368,7 @@ function NewsContent() {
                         <User className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <div className="font-semibold text-gray-900">
+                        <div className="font-semibold text-[#5C4A3B]">
                           COLORE Team
                         </div>
                         <div className="text-sm text-gray-600">Penulis</div>
@@ -380,7 +380,7 @@ function NewsContent() {
                   </div>
                   {listItems.length > 1 && (
                     <div className="bg-gray-50 rounded-3xl p-6">
-                      <h4 className="font-bold text-gray-900 mb-4">
+                      <h4 className="font-bold text-[#5C4A3B] mb-4">
                         Artikel Lainnya
                       </h4>
                       <div className="space-y-4">
@@ -393,7 +393,7 @@ function NewsContent() {
                               onClick={() => openArticle(a)}
                               className="cursor-pointer group"
                             >
-                              <h5 className="font-medium text-gray-900 group-hover:text-[#35966d] transition-colors text-sm leading-snug">
+                              <h5 className="font-medium text-[#5C4A3B] group-hover:text-[#35966d] transition-colors text-sm leading-snug">
                                 {a.title}
                               </h5>
                               <p className="text-xs text-gray-500 mt-1">
@@ -449,7 +449,7 @@ function NewsContent() {
           </div>
 
           <h1
-            className={`text-4xl lg:text-6xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
+            className={`text-4xl lg:text-6xl font-bold text-[#5C4A3B] mb-6 ${fredoka.className}`}
           >
             <EditableText
               isEditMode={isEditMode}
@@ -576,7 +576,7 @@ function NewsContent() {
                     Berita
                   </span>
                   <h2
-                    className={`text-3xl lg:text-4xl font-bold text-gray-900 mb-4 group-hover:text-[#35966d] transition-colors ${fredoka.className}`}
+                    className={`text-3xl lg:text-4xl font-bold text-[#5C4A3B] mb-4 group-hover:text-[#35966d] transition-colors ${fredoka.className}`}
                   >
                     {featured.title}
                   </h2>
@@ -637,7 +637,7 @@ function NewsContent() {
             <div
               className={`flex items-center justify-between mb-8 ${fredoka.className}`}
             >
-              <h3 className="text-2xl font-bold text-gray-900">
+              <h3 className="text-2xl font-bold text-[#5C4A3B]">
                 {selectedCategory === "Semua"
                   ? t["header-title"]
                   : selectedCategory}
@@ -667,7 +667,7 @@ function NewsContent() {
                     </div>
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#35966d] transition-colors line-clamp-2">
+                    <h3 className="text-xl font-bold text-[#5C4A3B] mb-3 group-hover:text-[#35966d] transition-colors line-clamp-2">
                       {article.title}
                     </h3>
                     <p className="text-gray-600 mb-4 line-clamp-3">
@@ -721,7 +721,7 @@ function NewsContent() {
                 <div className="w-24 h-24 bg-[#35966d]/10 rounded-full flex items-center justify-center mx-auto mb-6">
                   <BookOpen className="w-12 h-12 text-[#35966d]" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                <h3 className="text-2xl font-bold text-[#5C4A3B] mb-4">
                   {t["empty-title"]}
                 </h3>
                 <p className="text-gray-600 mb-6">{t["empty-subtitle"]}</p>
@@ -813,7 +813,7 @@ function NewsContent() {
               <input
                 type="email"
                 placeholder={texts.nlPlaceholder} // Placeholder not strictly editable via our component, usually kept static or separate config
-                className="flex-1 px-6 py-4 rounded-2xl text-gray-900 outline-none ring-2 ring-white focus:outline-none focus:ring-2 focus:ring-white"
+                className="flex-1 px-6 py-4 rounded-2xl text-[#5C4A3B] outline-none ring-2 ring-white focus:outline-none focus:ring-2 focus:ring-white"
               />
               <button className="bg-white text-[#35966d] px-8 py-4 rounded-2xl font-semibold hover:bg-gray-100 transition-colors">
                 <EditableText

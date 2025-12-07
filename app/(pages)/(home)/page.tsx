@@ -370,7 +370,7 @@ function HomeContent() {
               </div>
 
               <h1
-                className={`${fredoka.className} text-5xl lg:text-6xl font-semibold text-gray-900 leading-tight`}
+                className={`${fredoka.className} text-5xl lg:text-6xl font-semibold text-[#5C4A3B] leading-tight`}
               >
                 <EditableText
                   isEditMode={isEditMode}
@@ -493,7 +493,7 @@ function HomeContent() {
       >
         <div className="container mx-auto px-6 lg:px-12">
           <div className={`text-center mb-10 ${fredoka.className}`}>
-            <h2 className="text-4xl lg:text-5xl font-semibold text-gray-900 mb-6 flex flex-col items-center justify-center">
+            <h2 className="text-4xl lg:text-5xl font-semibold text-[#5C4A3B] mb-6 flex flex-col items-center justify-center">
               <EditableText
                 isEditMode={isEditMode}
                 text={editableData.sec2Title1}
@@ -555,7 +555,7 @@ function HomeContent() {
                         </div>
                         <div className="p-6 bg-white flex flex-col flex-1">
                           <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-xl font-bold text-gray-900">
+                            <h3 className="text-xl font-bold text-[#5C4A3B]">
                               {category.name}
                             </h3>
                             {Boolean(category.status) ? (
@@ -625,7 +625,7 @@ function HomeContent() {
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mx-auto">
             <h2
-              className={`text-4xl lg:text-5xl font-extrabold text-gray-900 ${fredoka.className} flex flex-col items-center`}
+              className={`text-4xl lg:text-5xl font-extrabold text-[#5C4A3B] ${fredoka.className} flex flex-col items-center`}
             >
               <EditableText
                 isEditMode={isEditMode}
@@ -663,7 +663,7 @@ function HomeContent() {
                     />
                   </div>
                 </div>
-                <h3 className="mt-5 text-center text-base font-semibold text-gray-900">
+                <h3 className="mt-5 text-center text-base font-semibold text-[#5C4A3B]">
                   <EditableText
                     isEditMode={isEditMode}
                     text={f.title}
@@ -769,7 +769,7 @@ function HomeContent() {
       >
         <div className="container mx-auto px-6 lg:px-12">
           <div className={`text-center mb-16 ${fredoka.className}`}>
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 flex justify-center gap-2 items-center">
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#5C4A3B] mb-6 flex justify-center gap-2 items-center">
               <EditableText
                 isEditMode={isEditMode}
                 text={editableData.sec4Title1}
@@ -843,7 +843,7 @@ function HomeContent() {
                           </div>
                         </div>
                         <div className="p-4 md:p-6">
-                          <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
+                          <h3 className="text-lg md:text-xl font-bold text-[#5C4A3B] mb-2">
                             {product.name}
                           </h3>
                           <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -910,7 +910,7 @@ function HomeContent() {
 
         <div className="container mx-auto px-6 lg:px-12 text-center relative z-10">
           <div className={`max-w-4xl mx-auto ${fredoka.className}`}>
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-gray-900 flex flex-wrap justify-center gap-2">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-[#5C4A3B] flex flex-wrap justify-center gap-2">
               <EditableText
                 isEditMode={isEditMode}
                 text={editableData.sec5Title1}

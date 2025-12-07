@@ -73,9 +73,10 @@ export default function Footer() {
     { name: t["col-2-b"], href: "/" },
     { name: t["col-2-c"], href: "/about" },
     { name: t["col-2-d"], href: "/product" },
-    { name: t["col-2-e"], href: "/gallery" },
-    { name: t["col-2-f"], href: "/news" },
     { name: t["col-2-g"], href: "/how-to-order" },
+    { name: t["col-2-h"], href: "/lacak-pesanan" },
+    { name: t["col-2-f"], href: "/news" },
+    { name: t["col-2-e"], href: "/gallery" },
   ];
 
   return (
@@ -106,7 +107,7 @@ export default function Footer() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-white">COLORE</h3>
-                    <p className="text-sm text-white">Art & Crafts</p>
+                    <p className="text-sm text-white">Art & Crafts for kids </p>
                   </div>
                 </div>
 

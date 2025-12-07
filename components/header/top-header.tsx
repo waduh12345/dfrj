@@ -90,17 +90,17 @@ export default function Header() {
       textColor: "text-[#6B7280]",
     },
     {
-      name: t.products,
-      href: "/product",
-      hoverBg: "hover:bg-[#F6CCD0]", // Light pink
-      activeBg: "bg-[#F6CCD0]",
-      textColor: "text-[#6B7280]",
-    },
-    {
       name: t.howToOrder,
       href: "/how-to-order",
       hoverBg: "hover:bg-[#BFF0F5]", // Light blue
       activeBg: "bg-[#BFF0F5]",
+      textColor: "text-[#6B7280]",
+    },
+    {
+      name: t.products,
+      href: "/product",
+      hoverBg: "hover:bg-[#F6CCD0]", // Light pink
+      activeBg: "bg-[#F6CCD0]",
       textColor: "text-[#6B7280]",
     },
     {
