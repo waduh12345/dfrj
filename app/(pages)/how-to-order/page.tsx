@@ -466,125 +466,14 @@ function HowToOrderContent() {
       className="min-h-screen"
     >
       {/* ============== HERO SECTION ============== */}
-      <EditableSection
-        isEditMode={isEditMode}
-        config={heroBg}
-        onSave={setHeroBg}
-        className="relative"
-      >
-        {/* Background Blobs (Static) */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div
-            className="absolute -top-24 -left-24 w-64 h-64 lg:w-[40rem] lg:h-[40rem] rounded-full opacity-70 blur-[80px]"
-            style={{ background: THEME.primary }}
-          />
-          <div
-            className="absolute top-1/4 -right-20 w-48 h-48 lg:w-[28rem] lg:h-[28rem] rounded-full opacity-40 blur-[60px]"
-            style={{ background: THEME.bubbleA }}
-          />
-        </div>
-
-        <div className="container mx-auto text-center relative z-10 pt-28 pb-12 px-4 lg:px-12 overflow-hidden">
-          <div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 shadow-sm backdrop-blur-sm"
-            style={{
-              backgroundColor: `${THEME.primary}1A`,
-              border: `1px solid ${THEME.primary}33`,
-            }}
-          >
-            <Sparkles className="w-4 h-4" style={{ color: THEME.primary }} />
-            <EditableText
-              isEditMode={isEditMode}
-              text={heroText.badge}
-              onSave={(v) => updateHeroText("badge", v)}
-              as="span"
-              className={cn(fredoka.className, "text-sm font-medium")}
-              style={{ color: THEME.primary }}
-            />
-          </div>
-
-          <h1
-            className={cn(
-              fredoka.className,
-              "text-4xl md:text-5xl lg:text-6xl font-bold text-[#5B4A3B] mb-6 leading-tight"
-            )}
-          >
-            <EditableText
-              isEditMode={isEditMode}
-              text={heroText.title1}
-              onSave={(v) => updateHeroText("title1", v)}
-            />
-            <EditableText
-              isEditMode={isEditMode}
-              text={heroText.title2}
-              onSave={(v) => updateHeroText("title2", v)}
-              as="span"
-              className="block mt-2"
-              style={{ color: THEME.primary }}
-            />
-          </h1>
-
-          <EditableText
-            isEditMode={isEditMode}
-            text={heroText.subtitle}
-            onSave={(v) => updateHeroText("subtitle", v)}
-            as="p"
-            multiline
-            className={cn(
-              sniglet.className,
-              "text-lg md:text-xl text-[#5B4A3B]/80 text-center mx-auto mb-10"
-            )}
-          />
-
-          {/* Benefits Cards */}
-          <div
-            className={cn(
-              sniglet.className,
-              "grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto"
-            )}
-          >
-            {benefitsList.map((benefit, i) => (
-              <div
-                key={i}
-                className="bg-white/80 backdrop-blur-md rounded-2xl p-5 shadow-sm border border-white/50 hover:shadow-md transition-all"
-              >
-                <div className="flex items-center gap-4 md:block md:text-center">
-                  <div
-                    className="p-3 rounded-xl inline-flex mb-0 md:mb-3"
-                    style={{ backgroundColor: `${THEME.primary}1A` }}
-                  >
-                    {benefit.icon}
-                  </div>
-                  <div className="text-left md:text-center">
-                    <h3 className="font-bold text-[#5B4A3B] text-base mb-1">
-                      <EditableText
-                        isEditMode={isEditMode}
-                        text={benefit.title}
-                        onSave={(v) => updateBenefit(i, "title", v)}
-                      />
-                    </h3>
-                    <EditableText
-                      isEditMode={isEditMode}
-                      text={benefit.description}
-                      onSave={(v) => updateBenefit(i, "description", v)}
-                      as="p"
-                      multiline
-                      className="text-sm text-[#5B4A3B]/70"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </EditableSection>
+      
 
       {/* ============== STEPS SECTION ============== */}
       <EditableSection
         isEditMode={isEditMode}
         config={stepsBg}
         onSave={setStepsBg}
-        className="px-4 lg:px-12 mb-16 relative z-10"
+        className="px-4 lg:px-12 mb-16 md:pt-32 relative z-10"
       >
         <div className="container mx-auto">
           {/* Section Header */}

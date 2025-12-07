@@ -96,7 +96,7 @@ function AboutContent() {
     heroItem2Content: t["hero-item-2-content"],
     heroItem3Content: t["hero-item-3-content"],
     heroImage:
-      "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brtLyODtex0OYVvL2QeijZs4TN9tB6HcnbPodI",
+      "3.webp",
 
     misiTitle: t["misi-title"],
     misiSubtitle: t["misi-subtitle"],
@@ -288,7 +288,7 @@ function AboutContent() {
         className="relative min-h-screen flex items-center justify-center overflow-hidden"
       >
         {/* Decorative Elements (Static) */}
-        <div className="absolute top-20 left-10 w-24 h-24 bg-[#d43893ff] rounded-full opacity-60 animate-pulse pointer-events-none"></div>
+
         <div className="absolute bottom-32 right-16 w-20 h-20 bg-[#BFF0F5] rounded-full opacity-60 animate-pulse delay-1000 pointer-events-none"></div>
         <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-[#DFF19D] rounded-full opacity-40 animate-pulse delay-500 pointer-events-none"></div>
 
@@ -296,7 +296,7 @@ function AboutContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Text Content */}
             <div className="text-center lg:text-left space-y-8">
-              <div className="inline-flex items-center gap-2 bg-[#35966d]/10 px-4 py-2 rounded-full">
+              {/* <div className="inline-flex items-center gap-2 bg-[#35966d]/10 px-4 py-2 rounded-full">
                 <Sparkles className="w-4 h-4 text-[#35966d]" />
                 <EditableText
                   isEditMode={isEditMode}
@@ -305,6 +305,17 @@ function AboutContent() {
                   as="span"
                   className={`text-sm font-medium text-[#35966d] ${sniglet.className}`}
                 />
+              </div> */}
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-full shadow-lg">
+                <Image
+                  src="https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brl2xfj3HmgY8fkG9iJeAzFQyqLh5pudMZH7l2"
+                  alt="Logo"
+                  width={15}
+                  height={15}
+                />
+                <span className={`text-sm font-medium ${sniglet.className}`}>
+                  Tentang Colore
+                </span>
               </div>
 
               <h1

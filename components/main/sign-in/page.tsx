@@ -129,9 +129,7 @@ export default function LoginPage() {
     if (!registerData.password) newErrors.push("Password wajib diisi");
     if (registerData.password !== registerData.confirmPassword)
       newErrors.push("Konfirmasi password tidak sesuai");
-    if (!registerData.agreeToTerms)
-      newErrors.push("Anda harus menyetujui syarat dan ketentuan");
-
+    
     if (newErrors.length > 0) {
       setErrors(newErrors);
       return;
@@ -246,7 +244,7 @@ export default function LoginPage() {
       {/* Main Container */}
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white rounded-[2rem] shadow-2xl overflow-hidden my-4 lg:my-0">
         {/* Left Side (Branding Panel) */}
-        <div className="bg-gradient-to-br from-[#A3B18A] to-[#DFF19D] p-8 lg:p-12 flex flex-col justify-center text-white relative overflow-hidden min-h-[200px] lg:min-h-[600px]">
+        <div className="bg-[#8B9A71] p-8 lg:p-12 flex flex-col justify-center text-white relative overflow-hidden min-h-[200px] lg:min-h-[600px]">
           {/* Desktop Back Button (Absolute on card) */}
           <Button
             variant="outline"
@@ -267,16 +265,14 @@ export default function LoginPage() {
 
           <div className="relative z-10 flex flex-col items-center lg:items-start text-center lg:text-left">
             {/* Logo */}
-            <div className="flex justify-center items-center mb-8 w-full">
-              <div className="bg-white/20 p-3 rounded-3xl backdrop-blur-sm flex justify-center items-center">
-                <Image
-                  src="/logo-colore.png"
+            <div className="flex justify-center items-center w-full">
+              <Image
+                  src="/logo-colore-white.png"
                   alt="Colore Logo"
                   width={96}
                   height={96}
-                  className="w-24 h-24 lg:w-32 lg:h-32 object-contain"
+                  className="w-24 h-24 lg:w-82 lg:h-82 object-contain"
                 />
-              </div>
             </div>
 
             {/* Title & Subtitle */}
@@ -289,24 +285,6 @@ export default function LoginPage() {
                   ? t["left-login-subtitle"]
                   : t["left-register-subtitle"]}
               </p>
-            </div>
-
-            {/* Feature List (Hidden on Mobile to save space) */}
-            <div
-              className={`hidden lg:flex flex-col space-y-4 ${fredoka.className}`}
-            >
-              <div className="flex items-center gap-3">
-                <Leaf className="w-6 h-6 text-white/90" />
-                <span className="text-white/90">{t["left-item-1"]}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Shield className="w-6 h-6 text-white/90" />
-                <span className="text-white/90">{t["left-item-2"]}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Heart className="w-6 h-6 text-white/90" />
-                <span className="text-white/90">{t["left-item-3"]}</span>
-              </div>
             </div>
           </div>
         </div>
@@ -587,40 +565,6 @@ export default function LoginPage() {
                       </button>
                     </div>
                   </div>
-                </div>
-
-                <div className="flex items-start pt-2">
-                  <input
-                    type="checkbox"
-                    id="terms"
-                    checked={registerData.agreeToTerms}
-                    onChange={(e) =>
-                      setRegisterData((prev) => ({
-                        ...prev,
-                        agreeToTerms: e.target.checked,
-                      }))
-                    }
-                    className="w-4 h-4 text-[#A3B18A] border-gray-300 rounded focus:ring-[#A3B18A] mt-1 cursor-pointer"
-                  />
-                  <label
-                    htmlFor="terms"
-                    className="ml-3 text-sm text-gray-600 cursor-pointer"
-                  >
-                    {t["terms-1"]}{" "}
-                    <a
-                      href="/terms"
-                      className="text-[#A3B18A] hover:underline font-medium"
-                    >
-                      {t["terms-2"]}
-                    </a>{" "}
-                    {t["terms-3"]}{" "}
-                    <a
-                      href="/privacy"
-                      className="text-[#A3B18A] hover:underline font-medium"
-                    >
-                      {t["terms-4"]}
-                    </a>
-                  </label>
                 </div>
 
                 <button

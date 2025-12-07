@@ -1,24 +1,29 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useEffect } from "react";
-import { useGetProductBySlugQuery } from "@/services/product.service"; // API service
+import { useGetProductBySlugQuery } from "@/services/product.service";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, ShoppingCart, X } from "lucide-react";
 import useCart from "@/hooks/use-cart";
 import Swal from "sweetalert2";
 import { useTranslation } from "@/hooks/use-translation";
+// Pastikan path import terjemahan sesuai struktur project Anda
 import id from "@/translations/product/id";
 import en from "@/translations/product/en";
-import Link from "next/link";
 
-// Komponen yang merender halaman detail Produk berdasarkan slug
+// --- Konstanta ---
+const THUMBNAILS_VISIBLE = 4; // Jumlah thumbnail yang muncul sekaligus
+
+// 1. Komponen Utama Halaman
 const ProductDetailPage = () => {
   return (
     <Suspense
       fallback={
-        <div className="text-center text-lg text-gray-600 py-20">
-          Memuat detail produk...
+        <div className="flex h-screen w-full items-center justify-center bg-white">
+          <div className="text-lg font-medium text-gray-500 animate-pulse">
+            Memuat detail produk...
+          </div>
         </div>
       }
     >
@@ -27,19 +32,27 @@ const ProductDetailPage = () => {
   );
 };
 
-// Komponen yang bertanggung jawab untuk mengambil detail produk berdasarkan slug
+// 2. Wrapper untuk mengambil Search Params
 const ProductDetailContent = () => {
-  const searchParams = useSearchParams(); // Dapatkan search params dari URL
-  const slug = searchParams.get("slug"); // Ekstrak 'slug' dari query URL
+  const searchParams = useSearchParams();
+  const slug = searchParams.get("slug");
 
   if (!slug) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="p-8 bg-white rounded-xl shadow-lg">
-          <h2 className="text-2xl font-semibold text-red-600">
-            Produk tidak ditemukan
+      <div className="flex min-h-[60vh] items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-md rounded-xl bg-white p-8 text-center shadow-lg border border-gray-100">
+          <h2 className="text-2xl font-bold text-red-500 mb-2">
+            Produk Tidak Ditemukan
           </h2>
-          <p className="text-gray-600 mt-2">Slug produk tidak tersedia.</p>
+          <p className="text-gray-600">
+            Parameter URL tidak valid atau produk tidak tersedia.
+          </p>
+          <a
+            href="/product"
+            className="mt-6 inline-block rounded-lg bg-gray-900 px-6 py-2 text-sm font-semibold text-white transition hover:bg-gray-700"
+          >
+            Kembali ke Katalog
+          </a>
         </div>
       </div>
     );
@@ -48,39 +61,63 @@ const ProductDetailContent = () => {
   return <ProductDetail slug={slug} />;
 };
 
-// Komponen yang bertanggung jawab untuk mengambil detail produk berdasarkan slug
+// 3. Komponen Detail Produk (Logic Utama)
 const ProductDetail = ({ slug }: { slug: string }) => {
+  const router = useRouter();
   const { data: product, isLoading, isError } = useGetProductBySlugQuery(slug);
   const { addItem } = useCart();
-    const t = useTranslation({ id, en });
+  const t = useTranslation({ id, en });
 
-  // State untuk menyimpan gambar yang dipilih, diinisialisasi dengan gambar utama produk jika ada
+  // -- State --
   const [selectedImage, setSelectedImage] = useState<string>("");
-  // State untuk lightbox modal
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
-  // optional index of selected image
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  
+  // State untuk sliding thumbnail (indeks awal dari window thumbnail)
+  const [thumbStartIndex, setThumbStartIndex] = useState<number>(0);
 
+  // -- Effects --
+  // Set gambar utama saat data produk selesai dimuat
   useEffect(() => {
-    if (product && selectedImage === "") {
-      const first = (product.image as string) || "";
-      setSelectedImage(first);
-      setSelectedIndex(0);
+    if (product && !selectedImage) {
+      const firstImg = (product.image as string) || "";
+      setSelectedImage(firstImg);
     }
   }, [product, selectedImage]);
 
+  // -- Data Preparation --
+  const productImageUrl =
+    product && typeof product.image === "string"
+      ? product.image
+      : "/fallback-image.jpg"; // Ganti dengan path placeholder Anda jika ada
+
+  // Mengumpulkan semua gambar valid ke dalam satu array
+  const allImages = product
+    ? [
+        product.image,
+        product.image_2,
+        product.image_3,
+        product.image_4,
+        product.image_5,
+        product.image_6,
+        product.image_7,
+      ].filter((img): img is string => Boolean(img) && img !== "")
+    : [];
+
+  // Gambar yang sedang aktif (ditampilkan besar)
+  const currentActiveImage = selectedImage || productImageUrl;
+  // Index global gambar aktif (untuk keperluan lightbox navigasi)
+  const currentGlobalIndex = allImages.indexOf(currentActiveImage);
+
+  // -- Handlers --
+
   const addToCart = () => {
     if (product) {
-      const productWithDetails = {
-        ...product,
-      };
-
-      addItem(productWithDetails);
+      addItem({ ...product });
       Swal.fire({
         toast: true,
         position: "top-end",
         icon: "success",
-        title: `"${product.name}" \n Berhasil ditambahkan ke keranjang!`,
+        title: `"${product.name}" ditambahkan!`,
         showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true,
@@ -88,230 +125,264 @@ const ProductDetail = ({ slug }: { slug: string }) => {
     }
   };
 
+  // Handler Thumbnail
+  const handleThumbClick = (url: string) => {
+    setSelectedImage(url);
+  };
+
+  // Logic Slider Thumbnail (Next/Prev untuk strip kecil)
+  const slideNext = () => {
+    if (thumbStartIndex + THUMBNAILS_VISIBLE < allImages.length) {
+      setThumbStartIndex((prev) => prev + 1);
+    }
+  };
+
+  const slidePrev = () => {
+    if (thumbStartIndex > 0) {
+      setThumbStartIndex((prev) => prev - 1);
+    }
+  };
+
+  // Logic Lightbox
+  const openLightbox = () => {
+    if (allImages.length > 0) setLightboxOpen(true);
+  };
+
+  const lightboxNext = () => {
+    if (allImages.length === 0) return;
+    const nextIndex = (currentGlobalIndex + 1) % allImages.length;
+    setSelectedImage(allImages[nextIndex]);
+  };
+
+  const lightboxPrev = () => {
+    if (allImages.length === 0) return;
+    const prevIndex =
+      (currentGlobalIndex - 1 + allImages.length) % allImages.length;
+    setSelectedImage(allImages[prevIndex]);
+  };
+
+  // -- Loading / Error States --
   if (isLoading) {
     return (
-      <div className="text-center text-xl font-medium text-gray-700 py-32 animate-pulse">
-        Memuat detail produk...
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-red-600"></div>
       </div>
     );
   }
 
-  if (isError) {
+  if (isError || !product) {
     return (
-      <div className="text-center text-xl font-medium text-red-500 py-32">
-        Gagal memuat detail produk. Silakan coba lagi.
+      <div className="flex h-[60vh] flex-col items-center justify-center text-center">
+        <p className="text-lg font-medium text-red-500">
+          Gagal memuat data produk.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 text-sm underline text-gray-600 hover:text-black"
+        >
+          Muat Ulang Halaman
+        </button>
       </div>
     );
   }
 
-  if (!product) {
-    return (
-      <div className="text-center text-xl font-medium text-gray-700 py-32">
-        Produk tidak ditemukan.
-      </div>
-    );
-  }
-
-  // Fallback image untuk memastikan `Image` memiliki URL yang valid
-  const productImageUrl =
-    typeof product.image === "string" ? product.image : "/fallback-image.jpg";
-
-  // Mendapatkan semua gambar yang tersedia dan memfilter yang tidak ada (falsy)
-  const images = [
-    product.image,
-    product.image_2,
-    product.image_3,
-    product.image_4,
-    product.image_5,
-    product.image_6,
-    product.image_7,
-  ].filter(Boolean) as string[];
-
-  // Handler klik thumbnail: set selected image and index
-  function handleClickThumb(url: string, idx: number) {
-    setSelectedImage(url);
-    setSelectedIndex(idx);
-  }
-
-  // Handler klik utama: buka lightbox dengan gambar yang sedang dipilih
-  function handleOpenLightbox() {
-    if (!selectedImage) return;
-    setLightboxOpen(true);
-  }
-
-  // navigate next/prev in lightbox
-  function lightboxNext() {
-    if (!images.length) return;
-    const next = (selectedIndex + 1) % images.length;
-    setSelectedIndex(next);
-    setSelectedImage(images[next]);
-  }
-  function lightboxPrev() {
-    if (!images.length) return;
-    const prev = (selectedIndex - 1 + images.length) % images.length;
-    setSelectedIndex(prev);
-    setSelectedImage(images[prev]);
-  }
+  // Slice array gambar untuk thumbnail slider
+  const visibleThumbnails = allImages.slice(
+    thumbStartIndex,
+    thumbStartIndex + THUMBNAILS_VISIBLE
+  );
 
   return (
-    <div className="relative w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-[6rem] bg-white">
-      <div className="absolute fixed top-[7rem] left-[3rem] z-50">
-        <Link
-          href="/product"
-          className="flex items-center bg-white hover:bg-gray-200 px-4 py-2 rounded-lg shadow-xl font-bold"
+    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-24 bg-white">
+      {/* Tombol Back Fixed/Sticky */}
+      <div className="fixed top-24 left-4 z-40 lg:absolute lg:top-0 lg:left-0 lg:mb-8">
+        <button
+          onClick={() => router.push("/product")} // Gunakan router.push agar lebih cepat (SPA navigation)
+          className="flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-gray-100 border border-gray-200 px-4 py-2 rounded-full shadow-lg font-semibold text-sm transition-all duration-200 text-gray-700 hover:text-black"
         >
-          <ChevronLeft className="w-6 h-6" />
-          {t["button-back"]}
-        </Link>
+          <ChevronLeft className="w-5 h-5" />
+          <span>{t["button-back"] || "Kembali"}</span>
+        </button>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16">
-        {/* Kolom Kiri: Galeri Gambar Produk */}
-        <div className="lg:sticky lg:top-8 self-start relative">
-          {/* Gambar Utama yang Dipilih */}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mt-16 lg:mt-12">
+        {/* === KOLOM KIRI: Galeri === */}
+        <div className="flex flex-col gap-6">
+          {/* 1. Main Image */}
           <div
-            className="relative w-full aspect-square mb-4 overflow-hidden rounded-xl shadow-2xl cursor-zoom-in"
-            onClick={handleOpenLightbox}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleOpenLightbox();
-            }}
+            className="group relative w-full aspect-square overflow-hidden rounded-2xl bg-gray-50 border border-gray-100 cursor-zoom-in"
+            onClick={openLightbox}
           >
             <Image
-              src={selectedImage || productImageUrl}
+              src={currentActiveImage}
               alt={product.name}
-              width={1200}
-              height={1200}
-              className="w-full h-full object-cover transform transition-all duration-500 hover:scale-105"
+              fill
+              className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
               priority
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
           </div>
 
-          {/* Thumbnails */}
-          {images.length > 1 && (
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-3 overflow-x-auto backdrop-blur-md rounded-lg py-2 px-4">
-              {images.map((img, i) => {
-                const isActive = img === (selectedImage || productImageUrl);
-                return (
-                  <button
-                    key={i}
-                    onClick={() => handleClickThumb(img, i)}
-                    className={`relative h-20 w-20 flex-shrink-0 rounded-md overflow-hidden ring-1 ${
-                      isActive
-                        ? "ring-sky-500 shadow-lg"
-                        : "ring-zinc-200 hover:ring-sky-200"
-                    }`}
-                    aria-pressed={isActive}
-                    title={`Gambar ${i + 1}`}
-                  >
-                    <Image
-                      src={img}
-                      alt={`${product.name} ${i + 1}`}
-                      width={160}
-                      height={160}
-                      className="object-cover w-full h-full"
-                    />
-                  </button>
-                );
-              })}
+          {/* 2. Thumbnail Slider (Hanya muncul jika > 1 gambar) */}
+          {allImages.length > 1 && (
+            <div className="relative flex items-center justify-center gap-3 select-none">
+              
+              {/* Tombol Prev (Hanya muncul jika bisa geser kiri) */}
+              <button
+                onClick={slidePrev}
+                disabled={thumbStartIndex === 0}
+                className={`p-2 rounded-full border shadow-sm transition-all ${
+                  thumbStartIndex === 0
+                    ? "text-gray-300 border-gray-100 cursor-default opacity-0" // Hide if disabled
+                    : "text-gray-700 border-gray-300 hover:bg-gray-100 hover:scale-110 opacity-100"
+                }`}
+                aria-label="Previous thumbnails"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* List Thumbnail */}
+              <div className="flex gap-3 overflow-hidden py-1">
+                {visibleThumbnails.map((img, index) => {
+                  // Karena visibleThumbnails adalah potongan, kita butuh index asli jika ingin key unik yang absolut
+                  // Tapi menggunakan URL img sebagai key cukup aman jika URL unik.
+                  const isActive = img === currentActiveImage;
+                  return (
+                    <button
+                      key={`${img}-${index}`}
+                      onClick={() => handleThumbClick(img)}
+                      className={`relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                        isActive
+                          ? "border-[#E91E63] shadow-md opacity-100 scale-100"
+                          : "border-transparent opacity-60 hover:opacity-100 hover:border-gray-300 scale-95"
+                      }`}
+                    >
+                      <Image
+                        src={img}
+                        alt="thumbnail"
+                        fill
+                        className="object-cover"
+                        sizes="100px"
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Tombol Next (Hanya muncul jika bisa geser kanan) */}
+              <button
+                onClick={slideNext}
+                disabled={thumbStartIndex + THUMBNAILS_VISIBLE >= allImages.length}
+                className={`p-2 rounded-full border shadow-sm transition-all ${
+                  thumbStartIndex + THUMBNAILS_VISIBLE >= allImages.length
+                    ? "text-gray-300 border-gray-100 cursor-default opacity-0" // Hide if disabled
+                    : "text-gray-700 border-gray-300 hover:bg-gray-100 hover:scale-110 opacity-100"
+                }`}
+                aria-label="Next thumbnails"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
           )}
         </div>
 
-        {/* Kolom Kanan: Informasi Produk & Aksi */}
-        <div className="flex flex-col">
-          <div className="mb-8 border-b pb-6">
-            <h1 className="text-5xl font-extrabold text-gray-900 mt-3 mb-4 leading-tight">
+        {/* === KOLOM KANAN: Info === */}
+        <div className="flex flex-col h-full">
+          <div className="border-b border-gray-100 pb-8 mb-8">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight mb-4">
               {product.name}
             </h1>
-
-            {/* Harga */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-extrabold text-[#E91E63]">
-                Rp {product.price.toLocaleString("id-ID")}
-              </span>
-            </div>
+            <p className="text-3xl font-bold text-[#E91E63]">
+              Rp {product.price.toLocaleString("id-ID")}
+            </p>
           </div>
 
-          {/* Deskripsi */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-3">
-              Deskripsi Produk
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
+          <div className="prose prose-sm md:prose-base text-gray-600 mb-10 flex-grow">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Deskripsi
+            </h3>
+            <p className="whitespace-pre-line leading-relaxed">
               {product.description}
             </p>
           </div>
 
-          {/* Tombol Aksi Utama */}
-          <div className="flex gap-4">
+          <div className="mt-auto pt-4">
             <button
               onClick={addToCart}
               disabled={product.stock === 0}
-              className={`flex-1 flex items-center justify-center gap-3 bg-[#4CAF50] text-white py-4 px-6 rounded-xl font-bold text-lg uppercase transition-all duration-300 shadow-lg hover:bg-[#45A049] ${
-                product.stock === 0 ? "opacity-50 cursor-not-allowed" : ""
+              className={`w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl font-bold text-lg uppercase tracking-wide shadow-xl transition-all duration-300 transform active:scale-[0.98] ${
+                product.stock > 0
+                  ? "bg-[#4CAF50] text-white hover:bg-[#43a047] hover:shadow-2xl"
+                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
               }`}
             >
               <ShoppingCart className="w-6 h-6" />
-              {product.stock > 0 ? "Tambahkan ke Keranjang" : "Stok Habis"}
+              {product.stock > 0 ? "Tambah ke Keranjang" : "Stok Habis"}
             </button>
+            {product.stock > 0 && product.stock <= 5 && (
+              <p className="text-center text-red-500 text-sm mt-3 font-medium animate-pulse">
+                Segera! Stok tinggal {product.stock} unit.
+              </p>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Lightbox Modal */}
+      {/* === Lightbox Modal === */}
       {lightboxOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           onClick={() => setLightboxOpen(false)}
-          role="dialog"
-          aria-modal="true"
         >
-          <div
-            className="relative max-w-[1200px] w-full max-h-[90vh] flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
+          {/* Tombol Close */}
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-6 right-6 z-20 p-2 bg-white/10 rounded-full hover:bg-white/20 text-white transition-colors"
           >
-            {/* Prev */}
-            {images.length > 1 && (
+            <X className="w-8 h-8" />
+          </button>
+
+          <div
+            className="relative w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()} // Mencegah klik gambar menutup modal
+          >
+            {/* Prev Lightbox */}
+            {allImages.length > 1 && (
               <button
                 onClick={lightboxPrev}
-                aria-label="Sebelumnya"
-                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow hover:bg-white"
+                className="absolute left-2 md:left-8 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all z-10"
               >
-                <ChevronLeft />
+                <ChevronLeft className="w-8 h-8" />
               </button>
             )}
 
-            <div className="w-full h-full flex items-center justify-center">
+            {/* Gambar Lightbox */}
+            <div className="relative w-full h-full max-h-[85vh] max-w-[1200px]">
               <Image
-                src={selectedImage || productImageUrl}
-                alt={product.name}
-                width={1200}
-                height={1200}
-                className="max-h-[88vh] object-contain"
+                src={currentActiveImage}
+                alt="Product Zoom"
+                fill
+                className="object-contain"
                 priority
+                sizes="100vw"
               />
             </div>
 
-            {/* Next */}
-            {images.length > 1 && (
+            {/* Next Lightbox */}
+            {allImages.length > 1 && (
               <button
                 onClick={lightboxNext}
-                aria-label="Berikutnya"
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow hover:bg-white"
+                className="absolute right-2 md:right-8 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all z-10"
               >
-                <ChevronRight />
+                <ChevronRight className="w-8 h-8" />
               </button>
             )}
-
-            {/* Close */}
-            <button
-              onClick={() => setLightboxOpen(false)}
-              aria-label="Tutup"
-              className="absolute top-4 right-4 rounded-lg bg-white/80 p-2 shadow hover:bg-white"
-            >
-              <X />
-            </button>
+            
+            {/* Counter Lightbox */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 px-4 py-1 rounded-full text-white text-sm font-medium">
+              {currentGlobalIndex + 1} / {allImages.length}
+            </div>
           </div>
         </div>
       )}

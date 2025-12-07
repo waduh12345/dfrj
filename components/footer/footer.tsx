@@ -78,12 +78,6 @@ export default function Footer() {
     { name: t["col-2-g"], href: "/how-to-order" },
   ];
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Newsletter subscription:", email);
-    setEmail("");
-  };
-
   return (
     <footer className="bg-[#A3B18A] text-white relative overflow-hidden">
       {/* Background Pattern */}

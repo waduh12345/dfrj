@@ -323,41 +323,6 @@ function ProductsContent() {
               "text-xl text-gray-700 text-center mx-auto mb-8"
             )}
           />
-
-          <div
-            className={cn(
-              fredoka.className,
-              "flex flex-wrap justify-center gap-4 text-sm text-gray-700"
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-[#DFF19D] rounded-full" />
-              <EditableText
-                isEditMode={isEditMode}
-                text={heroTexts.heroBullet1}
-                onSave={(v) => updateHeroText("heroBullet1", v)}
-                as="span"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-[#F6CCD0] rounded-full" />
-              <EditableText
-                isEditMode={isEditMode}
-                text={heroTexts.heroBullet2}
-                onSave={(v) => updateHeroText("heroBullet2", v)}
-                as="span"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-[#BFF0F5] rounded-full" />
-              <EditableText
-                isEditMode={isEditMode}
-                text={heroTexts.heroBullet3}
-                onSave={(v) => updateHeroText("heroBullet3", v)}
-                as="span"
-              />
-            </div>
-          </div>
         </div>
       </EditableSection>
 
@@ -410,7 +375,7 @@ function ProductsContent() {
               </div>
 
               {/* View Mode */}
-              <div className="flex bg-gray-100 rounded-2xl p-1">
+              {/* <div className="flex bg-gray-100 rounded-2xl p-1">
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`p-2 rounded-xl transition-colors ${
@@ -431,7 +396,7 @@ function ProductsContent() {
                 >
                   <List className="w-5 h-5" />
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

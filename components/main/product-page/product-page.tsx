@@ -359,6 +359,29 @@ export default function ProductsPage() {
                   <List className="w-5 h-5" />
                 </button>
               </div>
+              {/* View Mode */}
+              <div className="flex bg-gray-100 rounded-2xl p-1">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 rounded-xl transition-colors ${
+                    viewMode === "grid"
+                      ? "bg-white shadow-sm text-emerald-700"
+                      : "text-gray-500 hover:text-emerald-700"
+                  }`}
+                >
+                  <Grid3X3 className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-2 rounded-xl transition-colors ${
+                    viewMode === "list"
+                      ? "bg-white shadow-sm text-emerald-700"
+                      : "text-gray-500 hover:text-emerald-700"
+                  }`}
+                >
+                  <List className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>

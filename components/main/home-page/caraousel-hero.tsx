@@ -7,12 +7,12 @@ import { EditableImage } from "@/components/ui/editable"; // Komponen Gambar Edi
 
 // Default data (Initial State)
 const defaultImages = [
-  { url: "/hero-colore.webp" },
+  { url: "/1.webp" },
   {
-    url: "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brtLyODtex0OYVvL2QeijZs4TN9tB6HcnbPodI",
+    url: "2.webp",
   },
   {
-    url: "https://8nc5ppykod.ufs.sh/f/H265ZJJzf6bri3rJ2rdJLrZYECsOD7ov0VHgdItKxMcf2my3",
+    url: "4.webp",
   },
 ];
 

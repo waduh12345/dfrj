@@ -223,70 +223,128 @@ export default function GuestConfirmationPage() {
             {/* 1. Informasi Rekening & Nominal */}
             <div className="bg-white rounded-3xl p-6 shadow-lg border-l-4 border-[#A3B18A]">
               <h3 className="font-bold text-xl text-gray-900 mb-6 flex items-center gap-2">
-                <CreditCard className="w-6 h-6 text-[#A3B18A]" />
-                Transfer Pembayaran
+              <CreditCard className="w-6 h-6 text-[#A3B18A]" />
+              Transfer Pembayaran
               </h3>
 
+              {/* Tabs for transfer method */}
+              <div className="mb-6 flex gap-2">
+                <button
+                  className={`px-4 py-2 rounded-full font-bold transition-colors border ${
+                    previewUrl !== "qris"
+                      ? "bg-[#A3B18A] text-white border-[#A3B18A]"
+                      : "bg-gray-100 text-gray-700 hover:bg-[#A3B18A]/10 border-transparent"
+                  }`}
+                  onClick={() => setPreviewUrl(null)}
+                  type="button"
+                >
+                  Transfer ke Rekening BCA
+                </button>
+                <button
+                  className={`px-4 py-2 rounded-full font-bold transition-colors border ${
+                    previewUrl === "qris"
+                      ? "bg-[#A3B18A] text-white border-[#A3B18A]"
+                      : "bg-gray-100 text-gray-700 hover:bg-[#A3B18A]/10 border-transparent"
+                  }`}
+                  onClick={() => setPreviewUrl("qris")}
+                  type="button"
+                >
+                  QRIS
+                </button>
+              </div>
+
+              {/* Show BCA or QRIS based on previewUrl state */}
+              {previewUrl !== "qris" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Bank Info */}
                 <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
-                  <div className="flex items-center gap-4 mb-4">
-                    {/* Logo Bank Dummy */}
-                    <div className="w-16 h-10 bg-blue-800 rounded flex items-center justify-center text-white font-bold italic">
-                      BCA
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Bank Central Asia</p>
-                      <p className="font-bold text-gray-900">
-                        PT. KREASI ANAK BANGSA
-                      </p>
-                    </div>
+                <div className="flex items-center gap-4 mb-4">
+                  {/* Logo Bank Dummy */}
+                  <div className="w-16 h-10 bg-blue-800 rounded flex items-center justify-center text-white font-bold italic">
+                  BCA
                   </div>
+                  <div>
+                  <p className="text-sm text-gray-500">Bank Central Asia</p>
+                  <p className="font-bold text-gray-900">
+                    Warna Kreasi Alam PT
+                  </p>
+                  </div>
+                </div>
 
-                  <div className="mb-2">
-                    <p className="text-sm text-gray-500 mb-1">Nomor Rekening</p>
-                    <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-gray-200">
-                      <span className="text-xl font-mono font-bold text-gray-800 tracking-wider">
-                        8735089123
-                      </span>
-                      <button
-                        onClick={() => handleCopyRekening("8735089123")}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-[#A3B18A]"
-                        title="Salin"
-                      >
-                        <Copy className="w-5 h-5" />
-                      </button>
-                    </div>
+                <div className="mb-2">
+                  <p className="text-sm text-gray-500 mb-1">Nomor Rekening</p>
+                  <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-gray-200">
+                  <span className="text-xl font-mono font-bold text-gray-800 tracking-wider">
+                    7311087405
+                  </span>
+                  <button
+                    onClick={() => handleCopyRekening("7311087405")}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-[#A3B18A]"
+                    title="Salin"
+                  >
+                    <Copy className="w-5 h-5" />
+                  </button>
                   </div>
+                </div>
                 </div>
 
                 {/* Total Info */}
                 <div className="flex flex-col justify-center">
-                  <p className="text-gray-600 mb-2">
-                    Total yang harus dibayar:
+                <p className="text-gray-600 mb-2">
+                  Total yang harus dibayar:
+                </p>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-3xl lg:text-4xl font-bold text-[#A3B18A]">
+                  {formatRupiahWithRp(totalWithShipping)}
+                  </span>
+                  <button
+                  onClick={() =>
+                    handleCopyRekening(totalWithShipping.toString())
+                  }
+                  className="text-gray-400 hover:text-[#A3B18A]"
+                  >
+                  <Copy className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="bg-yellow-50 text-yellow-800 px-4 py-3 rounded-xl text-sm flex items-start gap-2">
+                  <Clock className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <p>
+                  Mohon transfer tepat hingga 3 digit terakhir untuk
+                  mempercepat verifikasi otomatis.
                   </p>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-3xl lg:text-4xl font-bold text-[#A3B18A]">
-                      {formatRupiahWithRp(totalWithShipping)}
-                    </span>
-                    <button
-                      onClick={() =>
-                        handleCopyRekening(totalWithShipping.toString())
-                      }
-                      className="text-gray-400 hover:text-[#A3B18A]"
-                    >
-                      <Copy className="w-5 h-5" />
-                    </button>
+                </div>
+                </div>
+              </div>
+              ) : (
+              <div className="flex flex-col items-center justify-center gap-4 py-8">
+                <div className="flex flex-col md:flex-row items-center gap-6 w-full">
+                  {/* QRIS Image on the left */}
+                  <div className="flex-shrink-0">
+                    <div className="relative w-56 h-56 md:w-64 md:h-64">
+                      <Image
+                        src="/images/qris-transfer.jpeg"
+                        alt="QRIS"
+                        fill
+                        className="object-contain rounded-2xl border shadow"
+                      />
+                    </div>
                   </div>
-                  <div className="bg-yellow-50 text-yellow-800 px-4 py-3 rounded-xl text-sm flex items-start gap-2">
-                    <Clock className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                    <p>
-                      Mohon transfer tepat hingga 3 digit terakhir untuk
-                      mempercepat verifikasi otomatis.
+                  {/* Info on the right */}
+                  <div className="flex-1 flex flex-col items-center md:items-start">
+                    <p className="font-bold text-gray-900 mb-2 text-lg md:text-xl">Scan QRIS</p>
+                    <p className="text-gray-600 text-center md:text-left text-sm mb-4">
+                      Scan QRIS di samping menggunakan aplikasi pembayaran favorit Anda (GoPay, OVO, ShopeePay, DANA, dll).
                     </p>
+                    <div className="flex flex-col items-center md:items-start mt-2">
+                      <span className="text-gray-600 mb-1">Total yang harus dibayar:</span>
+                      <span className="text-2xl font-bold text-[#A3B18A]">
+                        {formatRupiahWithRp(totalWithShipping)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
+              )}
             </div>
 
             {/* 2. Upload Bukti Bayar */}
