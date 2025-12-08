@@ -47,6 +47,7 @@ export default function VoucherPage() {
         start_date: form.start_date ?? "",
         end_date: form.end_date ?? "",
         usage_limit: form.usage_limit ?? 0,
+        minimum_transaction: form.minimum_transaction ?? 0,
         status: form.status ?? true,
       };
 
@@ -174,6 +175,7 @@ export default function VoucherPage() {
                 <th className="px-4 py-2">Deskripsi</th>
                 <th className="px-4 py-2">Tipe</th>
                 <th className="px-4 py-2">Jumlah</th>
+                <th className="px-4 py-2">Min. Transaksi</th>
                 <th className="px-4 py-2">Status</th>
               </tr>
             </thead>
@@ -215,6 +217,7 @@ export default function VoucherPage() {
                         ? `Rp${item.fixed_amount.toLocaleString("id-ID")}`
                         : `${item.percentage_amount}%`}
                     </td>
+                    <td className="px-4 py-2">{item.minimum_transaction.toLocaleString("id-ID")}</td>
                     <td className="px-4 py-2">
                       <Badge
                         variant={item.status ? "success" : "destructive"}

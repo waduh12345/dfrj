@@ -11,5 +11,6 @@ export interface Voucher {
   status: boolean;
   updated_at: string;
   created_at: string;
+  minimum_transaction: number;
   id: number;
 }

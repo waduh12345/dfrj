@@ -142,8 +142,21 @@ export default function VoucherForm({
           />
         </div>
 
+        <div className="flex flex-col gap-y-1">
+          <Label>Min. Nominal Transaksi</Label>
+          <Input
+            type="number"
+            min={0}
+            value={form.minimum_transaction || ""}
+            onChange={(e) =>
+              setForm({ ...form, minimum_transaction: Number(e.target.value) })
+            }
+            placeholder="Masukkan nominal transaksi"
+          />
+        </div>
+
         {/* Status */}
-        <div className="flex flex-col gap-y-1 col-span-2">
+        <div className="flex flex-col gap-y-1">
           <Label>Status</Label>
           <select
             className="border rounded-md px-3 py-2 text-sm bg-white dark:bg-zinc-800"
