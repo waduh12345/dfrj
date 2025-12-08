@@ -44,21 +44,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
     },
     {
       id: "master",
-      label: "Master",
+      label: "Kategori Produk",
       icon: <Database className="h-5 w-5" />,
-      href: "#",
-      children: [
-        {
-          id: "master-product-category",
-          label: "Kategori Produk",
-          href: "/admin/product-category",
-        },
-        {
-          id: "master-product-merk",
-          label: "Merk Produk",
-          href: "/admin/product-merk",
-        },
-      ],
+      href: "/admin/product-category",
+      // children: [
+      //   {
+      //     id: "master-product-category",
+      //     label: "Kategori Produk",
+      //     href: "/admin/product-category",
+      //   },
+      //   {
+      //     id: "master-product-merk",
+      //     label: "Merk Produk",
+      //     href: "/admin/product-merk",
+      //   },
+      // ],
     },
     {
       id: "product",
