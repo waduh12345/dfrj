@@ -7,7 +7,7 @@ const translations = {
   "col-2-a": "Menu Utama",
   "col-2-b": "Beranda",
   "col-2-c": "Tentang Kami",
-  "col-2-d": "Produk",
+  "col-2-d": "Belanja",
   "col-2-e": "Kolaborasi",
   "col-2-f": "Cerita",
   "col-2-g": "Cara Pemesanan",

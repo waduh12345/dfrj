@@ -19,14 +19,58 @@ export interface Transaction {
   updated_at: string;
   user_name: string;
   user_email: string;
+  user_phone?: string;
+  guest_name?: string;
+  guest_email?: string;
+  guest_phone?: string;
   address_line_1: string;
   postal_code: string;
+  receipt_code?: string;
+  shipment_status?: number;
+  stores: TransactionStore[];
+}
+// Transaction per shop (for multi-shop transactions)
+export interface TransactionStore {
+  id: number;
+  transaction_id: number;
+  shop_id: number;
+  receipt_code: string;
+  shipment_status: number;
+  created_at: string;
+  updated_at: string;
+  shop: {
+    id: number;
+    user_id: number;
+    name: string;
+    slug: string;
+    phone: string;
+    email: string;
+    address: string;
+    description: string;
+    latitude: string;
+    longitude: string;
+    rating: string;
+    total_reviews: number;
+    status: boolean;
+    created_at: string;
+    updated_at: string;
+    rajaongkir_province_id: number;
+    rajaongkir_city_id: number;
+    rajaongkir_district_id: string;
+  };
+  details: TransactionDetail[];
 }
 
 // Transaction Detail (for individual products in the transaction)
 export interface TransactionDetail {
   product_id: number;
   quantity: number;
+  price?: number;
+  total_price?: number;
+  product_name?: string;
+  product_image?: string;
+  product_slug?: string;
+  variant?: string;
 }
 
 // Shipment information

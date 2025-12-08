@@ -25,7 +25,6 @@ export const transactionApi = apiSlice.injectEndpoints({
           page,
           paginate,
           user_id,
-          include: "details.product", // atau with: "details.product"
         },
       }),
       transformResponse: (response: {
@@ -150,6 +149,25 @@ export const transactionApi = apiSlice.injectEndpoints({
       }) => response.data,
     }),
 
+    updateTransactionShipmentStatus: builder.mutation<
+      Transaction,
+      { id: string; receipt_code: string; shipment_status: number }
+    >({
+      query: ({ id, receipt_code, shipment_status }) => ({
+        url: `/transaction/shop/${id}`,
+        method: "PUT",
+        body: {
+          receipt_code,
+          shipment_status,
+        },
+      }),
+      transformResponse: (response: {
+        code: number;
+        message: string;
+        data: Transaction;
+      }) => response.data,
+    }),
+
     // ❌ Delete Transaction Category by Slug
     deleteTransaction: builder.mutation<
       { code: number; message: string },
@@ -177,5 +195,6 @@ export const {
   useCreateTransactionFormDataMutation, // New export for FormData version
   useUpdateTransactionMutation,
   useUpdateTransactionStatusMutation,
+  useUpdateTransactionShipmentStatusMutation,
   useDeleteTransactionMutation,
 } = transactionApi;

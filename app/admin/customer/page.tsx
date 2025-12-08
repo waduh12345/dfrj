@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Swal from "sweetalert2";
+// 1. Import library XLSX
+import * as XLSX from "xlsx"; 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -9,12 +11,13 @@ import {
   useDeleteCustomerMutation,
 } from "@/services/admin/customer.service";
 import { Customer } from "@/types/admin/customer";
+import { Download } from "lucide-react"; // Optional: Icon untuk tombol export
 
 export default function CustomerPage() {
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Helper function to format datetime to Indonesian format
+  // Helper function to format datetime
   const formatDateTime = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -43,6 +46,47 @@ export default function CustomerPage() {
 
   const [deleteCustomer] = useDeleteCustomerMutation();
 
+  // --- 2. Fungsi Export Excel ---
+  const handleExportExcel = () => {
+    // Cek apakah ada data
+    if (customerList.length === 0) {
+      Swal.fire("Info", "Tidak ada data untuk diexport", "info");
+      return;
+    }
+
+    // Mapping data agar header tabel Excel rapi (sesuai keinginan)
+    const dataToExport = customerList.map((item) => ({
+      "ID": item.id,
+      "Nama Lengkap": item.name,
+      "No. Handphone": item.phone || "-",
+      "Email": item.email,
+      "Tanggal Daftar": formatDateTime(item.created_at), // Gunakan helper yang sama
+    }));
+
+    // Membuat Worksheet dari data JSON
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+    // Mengatur lebar kolom (Optional, agar lebih rapi)
+    const columnWidths = [
+      { wch: 5 },  // ID
+      { wch: 25 }, // Nama
+      { wch: 15 }, // HP
+      { wch: 25 }, // Email
+      { wch: 20 }, // Tanggal
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    // Membuat Workbook baru
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data Customer");
+
+    // Generate file nama dengan timestamp
+    const fileName = `Data_Customer_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+    // Download file
+    XLSX.writeFile(workbook, fileName);
+  };
+
   const handleDelete = async (item: Customer) => {
     const confirm = await Swal.fire({
       title: "Yakin hapus Customer?",
@@ -69,6 +113,18 @@ export default function CustomerPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Data Customer</h1>
+        
+        {/* 3. Tombol Export */}
+        <Button 
+          variant="outline" 
+          onClick={handleExportExcel}
+          disabled={isLoading || customerList.length === 0}
+          className="flex gap-2"
+        >
+          {/* Jika punya lucide-react, bisa pakai icon */}
+          <Download className="w-4 h-4" /> 
+          Export Excel
+        </Button>
       </div>
 
       <Card>

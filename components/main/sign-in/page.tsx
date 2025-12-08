@@ -9,8 +9,6 @@ import {
   ArrowRight,
   Sparkles,
   Shield,
-  Heart,
-  Leaf,
   CheckCircle,
   AlertCircle,
   User,

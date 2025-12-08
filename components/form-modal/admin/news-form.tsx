@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useCallback } from "react"; // Tambahkan useCallback
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { News } from "@/types/admin/news";
 import { toDatetimeLocalInput } from "@/lib/format";
+// PENTING: Import CSS SunEditor agar tampilan tidak berantakan
+import "suneditor/dist/css/suneditor.min.css"; 
+
+const SunEditor = dynamic(() => import("suneditor-react"), { 
+  ssr: false,
+  loading: () => <div className="h-32 w-full bg-muted animate-pulse rounded-md" /> // Loading skeleton opsional
+});
 
 interface FormNewsProps {
   form: Partial<News> | undefined;
@@ -26,6 +33,8 @@ export default function FormNews({
   readonly = false,
   isLoading = false,
 }: FormNewsProps) {
+  
+  // -- Setup Default Values --
   useEffect(() => {
     if (!form) {
       setForm({
@@ -35,6 +44,55 @@ export default function FormNews({
       });
     }
   }, [form, setForm]);
+
+  // -- Handler Upload Gambar di SunEditor --
+  // Catatan: Pastikan function 'uploadFile', 'buildServiceUploadFormData', 
+  // dan 'extractUrlFromResponse' sudah di-import atau didefinisikan di file ini 
+  // atau dipassing via props jika ingin fitur ini berjalan.
+  const handleSunUpload = useCallback(
+    (
+      files: File[],
+      _info: object,
+      uploadHandler: (data: {
+        result?: { url: string; name?: string; size?: number }[];
+        errorMessage?: string;
+      }) => void
+    ): boolean => {
+      const file = files?.[0];
+      if (!file) {
+        uploadHandler({ errorMessage: "File tidak ditemukan" });
+        return false;
+      }
+
+      // --- LOGIKA UPLOAD ---
+      // Karena dependencies (uploadFile, dll) tidak ada di snippet asli,
+      // pastikan Anda sudah memilikinya. Jika belum, uncomment kode di bawah
+      // dan sesuaikan dengan API call Anda.
+      
+      /*
+      uploadFile(buildServiceUploadFormData({ file }))
+        .unwrap()
+        .then((res) => {
+          const url = extractUrlFromResponse(res);
+          if (!url) {
+            uploadHandler({ errorMessage: "Gagal dapat URL" });
+            return;
+          }
+          uploadHandler({
+            result: [{ url, name: file.name, size: file.size }],
+          });
+        })
+        .catch((err) => {
+          uploadHandler({ errorMessage: "Upload gagal" });
+        });
+      */
+
+      // Return false untuk mematikan upload handler default (base64)
+      // Ubah jadi true jika ingin pakai base64 default sementara waktu
+      return true; 
+    },
+    [] // Masukkan dependencies [uploadFile] jika sudah ada
+  );
 
   if (!form) return null;
 
@@ -50,6 +108,7 @@ export default function FormNews({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Judul */}
         <div className="flex flex-col gap-y-1 col-span-2">
           <Label>Judul</Label>
           <Input
@@ -60,17 +119,38 @@ export default function FormNews({
           />
         </div>
 
+        {/* Konten (SunEditor) */}
         <div className="flex flex-col gap-y-1 col-span-2">
           <Label>Konten</Label>
-          <Textarea
-            value={form.content || ""}
-            onChange={(e) => setForm({ ...form, content: e.target.value })}
-            readOnly={readonly}
-            placeholder="Masukkan konten/isi news"
-            rows={6}
-          />
+          <div className="sun-editor-wrapper text-black"> 
+            {/* Wrapper div berguna jika ingin override css dark mode khusus editor */}
+            <SunEditor
+              // Binding ke form.content
+              setContents={form.content || ""} 
+              onChange={(content) => {
+                // Update state form saat diketik
+                setForm({ ...form, content }); 
+              }}
+              setOptions={{
+                minHeight: "200px",
+                maxHeight: "500px",
+                buttonList: [
+                  ["undo", "redo"],
+                  ["bold", "italic", "underline", "strike"],
+                  ["fontColor", "hiliteColor"],
+                  ["align", "list"],
+                  ["link", "image", "video"],
+                  ["codeView"],
+                  ["fullScreen", "showBlocks"]
+                ],
+              }}
+              // Sambungkan handler upload (opsional, jika logika upload sudah siap)
+              onImageUploadBefore={handleSunUpload}
+            />
+          </div>
         </div>
 
+        {/* Published At */}
         <div className="flex flex-col gap-y-1 col-span-2">
           <Label>Published At</Label>
           <Input
@@ -81,11 +161,12 @@ export default function FormNews({
           />
         </div>
 
+        {/* Upload Gambar Thumbnail */}
         <div className="flex flex-col gap-y-1 col-span-2">
-          <Label>Upload Gambar</Label>
+          <Label>Thumbnail Gambar</Label>
           {readonly ? (
             form.image && typeof form.image === "string" ? (
-              <div className="border rounded-lg p-2">
+              <div className="border rounded-lg p-2 bg-gray-50 dark:bg-zinc-800">
                 <Image
                   src={form.image}
                   alt="Preview"
@@ -95,7 +176,7 @@ export default function FormNews({
                 />
               </div>
             ) : (
-              <span className="text-sm text-gray-500 p-2 border rounded-lg">
+              <span className="text-sm text-gray-500 p-2 border rounded-lg block">
                 Tidak ada gambar
               </span>
             )
@@ -110,7 +191,7 @@ export default function FormNews({
                 }}
               />
               {form.image && (
-                <div className="border rounded-lg p-2">
+                <div className="border rounded-lg p-2 bg-gray-50 dark:bg-zinc-800">
                   {typeof form.image === "string" ? (
                     <Image
                       src={form.image}
@@ -120,7 +201,7 @@ export default function FormNews({
                       height={80}
                     />
                   ) : (
-                    <span className="text-sm text-green-600">
+                    <span className="text-sm text-green-600 font-medium">
                       File baru dipilih: {form.image.name}
                     </span>
                   )}
@@ -131,6 +212,7 @@ export default function FormNews({
         </div>
       </div>
 
+      {/* Tombol Action */}
       {!readonly && (
         <div className="pt-4 flex justify-end gap-2">
           <Button variant="outline" onClick={onCancel} disabled={isLoading}>

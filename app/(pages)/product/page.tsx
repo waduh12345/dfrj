@@ -2,13 +2,10 @@
 
 import { useState, useEffect, useMemo, Suspense } from "react";
 import {
-  Heart,
   ShoppingCart,
   Eye,
   Star,
   Search,
-  Grid3X3,
-  List,
   Sparkles,
   Package,
 } from "lucide-react";

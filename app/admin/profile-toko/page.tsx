@@ -221,42 +221,6 @@ export default function ShopProfilePage() {
     );
   };
 
-  // ===== Handlers - Settings =====
-  const handleSettingsChange =
-    (field: keyof typeof settingsForm) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value =
-        e.target.type === "checkbox"
-          ? (e.target as HTMLInputElement).checked
-          : e.target.value;
-      setSettingsForm((s) => {
-        // cast angka bila perlu
-        if (
-          field === "rajaongkir_province_id" ||
-          field === "rajaongkir_city_id"
-        ) {
-          const v = value === "" ? null : Number(value);
-          return { ...s, [field]: Number.isNaN(v) ? null : v };
-        }
-        if (field === "latitude" || field === "longitude") {
-          const v = value === "" ? null : Number(value);
-          return { ...s, [field]: Number.isNaN(v) ? null : v };
-        }
-        if (field === "rajaongkir_district_id") {
-          if (typeof value !== "string") {
-            return { ...s, rajaongkir_district_id: null };
-          }
-          const v =
-            value === "" ? null : /^\d+$/.test(value) ? Number(value) : value;
-          return { ...s, rajaongkir_district_id: v };
-        }
-        if (field === "status") {
-          return { ...s, status: Boolean(value) };
-        }
-        return { ...s, [field]: value as unknown as (typeof s)[typeof field] };
-      });
-    };
-
   const saveSettings = async () => {
     // TODO: panggil API update settings toko
     alert(

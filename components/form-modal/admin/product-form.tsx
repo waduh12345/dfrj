@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types/admin/product";
 import { Combobox } from "@/components/ui/combo-box";
@@ -11,6 +11,15 @@ import { useGetProductCategoryListQuery } from "@/services/master/product-catego
 import { useGetProductMerkListQuery } from "@/services/master/product-merk.service";
 import Image from "next/image";
 import { formatNumber } from "@/lib/format";
+
+// PENTING: Import CSS SunEditor
+import "suneditor/dist/css/suneditor.min.css";
+
+// Setup SunEditor dengan dynamic import (No SSR)
+const SunEditor = dynamic(() => import("suneditor-react"), { 
+  ssr: false,
+  loading: () => <div className="h-32 w-full bg-muted animate-pulse rounded-md" />
+});
 
 interface FormProductProps {
   form: Partial<Product>;
@@ -38,21 +47,30 @@ export default function FormProduct({
 
   // Effect to initialize default form values once on the client
   useEffect(() => {
-    // We only want this to run once after mounting, for new products
     if (mounted && !form.id && form.status === undefined) {
       setForm({
         ...form,
         status: true, // Default status to active for new products
       });
     }
-    // This effect should only run when `mounted` changes.
-    // The other dependencies can cause re-initialization loops.
-  }, [mounted]);
+  }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ✨ IMPROVEMENT: This useEffect was creating a memory leak by generating
-  // URLs inside the cleanup function. Since no preview URLs are being created
-  // in the first place, this entire effect can be safely removed.
-  // useEffect(() => { ... });
+  // -- Handler Upload Gambar di dalam Editor Deskripsi --
+  const handleSunUpload = useCallback(
+    (
+      files: File[],
+      _info: object,
+      uploadHandler: (data: {
+        result?: { url: string; name?: string; size?: number }[];
+        errorMessage?: string;
+      }) => void
+    ): boolean => {
+      // Jika ingin upload ke server, masukkan logika API di sini.
+      // Return true agar fallback menggunakan Base64 (default behavior)
+      return true; 
+    },
+    []
+  );
 
   const { data: categoryResponse, isLoading: categoryLoading } =
     useGetProductCategoryListQuery({
@@ -60,14 +78,14 @@ export default function FormProduct({
       paginate: 100,
     });
 
-  const { data: merkResponse, isLoading: merkLoading } =
-    useGetProductMerkListQuery({
-      page: 1,
-      paginate: 100,
-    });
+  // const { data: merkResponse, isLoading: merkLoading } =
+  //   useGetProductMerkListQuery({
+  //     page: 1,
+  //     paginate: 100,
+  //   });
 
   const categoryData = categoryResponse?.data ?? [];
-  const merkData = merkResponse?.data ?? [];
+  // const merkData = merkResponse?.data ?? [];
 
   // Show a loading skeleton before the component is mounted on the client
   if (!mounted) {
@@ -106,7 +124,7 @@ export default function FormProduct({
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-y-1">
+          <div className="flex flex-col gap-y-1 col-span-2">
             <Label>Kategori Produk</Label>
             {readonly ? (
               <Input
@@ -126,34 +144,10 @@ export default function FormProduct({
                 isLoading={categoryLoading}
                 getOptionLabel={(item) => item.name}
                 placeholder="Pilih Kategori Produk"
-                // ✨ IMPROVEMENT: The key prop is no longer needed.
               />
             )}
           </div>
-
-          <div className="flex flex-col gap-y-1">
-            <Label>Merk Produk</Label>
-            {readonly ? (
-              <Input
-                readOnly
-                value={
-                  merkData.find((m) => m.id === form.product_merk_id)?.name ??
-                  "-"
-                }
-              />
-            ) : (
-              <Combobox
-                value={form.product_merk_id ?? null}
-                onChange={(val) => setForm({ ...form, product_merk_id: val })}
-                data={merkData}
-                isLoading={merkLoading}
-                getOptionLabel={(item) => item.name}
-                placeholder="Pilih Merk Produk"
-                // ✨ IMPROVEMENT: The key prop is no longer needed.
-              />
-            )}
-          </div>
-
+          
           <div className="flex flex-col gap-y-1 col-span-2">
             <Label>Nama</Label>
             <Input
@@ -163,15 +157,31 @@ export default function FormProduct({
             />
           </div>
 
+          {/* --- BAGIAN DESKRIPSI (SunEditor) --- */}
           <div className="flex flex-col gap-y-1 col-span-2">
             <Label>Deskripsi</Label>
-            <Textarea
-              value={form.description || ""}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-              readOnly={readonly}
-            />
+            <div className="sun-editor-wrapper text-black">
+              <SunEditor
+                setContents={form.description || ""}
+                onChange={(content) =>
+                  setForm({ ...form, description: content })
+                }
+                setOptions={{
+                  minHeight: "200px",
+                  maxHeight: "500px", // Opsional: batas tinggi scroll
+                  buttonList: [
+                    ["undo", "redo"],
+                    ["bold", "italic", "underline", "strike"],
+                    ["fontColor", "hiliteColor"],
+                    ["align", "list"],
+                    ["link", "image", "video"],
+                    ["codeView"],
+                    ["fullScreen", "showBlocks"]
+                  ],
+                }}
+                onImageUploadBefore={handleSunUpload}
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-y-1">
@@ -212,8 +222,7 @@ export default function FormProduct({
               readOnly={readonly}
             />
           </div>
-          
-          {/* ... other input fields remain the same ... */}
+
           <div className="flex flex-col gap-y-1">
             <Label>Berat (gram)</Label>
             <Input

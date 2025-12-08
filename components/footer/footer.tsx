@@ -24,7 +24,6 @@ export default function Footer() {
   const router = useRouter();
   const t = useTranslation({ id, en });
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [email, setEmail] = useState("");
 
   // Fetch categories from API (first page, many items)
   const {
@@ -72,8 +71,8 @@ export default function Footer() {
   const quickLinks = [
     { name: t["col-2-b"], href: "/" },
     { name: t["col-2-c"], href: "/about" },
-    { name: t["col-2-d"], href: "/product" },
     { name: t["col-2-g"], href: "/how-to-order" },
+    { name: t["col-2-d"], href: "/product" },
     { name: t["col-2-h"], href: "/lacak-pesanan" },
     { name: t["col-2-f"], href: "/news" },
     { name: t["col-2-e"], href: "/gallery" },

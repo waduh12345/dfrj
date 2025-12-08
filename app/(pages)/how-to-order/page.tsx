@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect, Suspense } from "react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { fredoka, sniglet } from "@/lib/fonts";
 import { useTranslation } from "@/hooks/use-translation";
@@ -398,15 +397,6 @@ function HowToOrderContent() {
   const updateHeroText = (key: keyof typeof heroText, val: string) =>
     setHeroText((prev) => ({ ...prev, [key]: val }));
 
-  const updateBenefit = (
-    index: number,
-    field: "title" | "description",
-    val: string
-  ) => {
-    const newData = [...benefitsList];
-    newData[index][field] = val;
-    setBenefitsList(newData);
-  };
 
   const updateOrderStep = (
     stepId: number,

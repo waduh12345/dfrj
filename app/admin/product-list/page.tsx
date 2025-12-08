@@ -48,6 +48,8 @@ export default function ProductPage() {
       if (session?.user.shop?.id) {
         payload.append("shop_id", `${session.user.shop.id}`);
       } else {
+        // Fallback jika session belum load, sesuaikan dengan logic aplikasi Anda
+        // payload.append("shop_id", "1"); 
         throw new Error("Session shop ID not found");
       }
 
@@ -65,12 +67,14 @@ export default function ProductPage() {
       if (form.product_category_id)
         payload.append("product_category_id", `${form.product_category_id}`);
       if (form.product_merk_id)
-        payload.append("product_merk_id", `${form.product_merk_id}`);
-      if (typeof form.status === "boolean") {
-        payload.append("status", form.status ? "1" : "0");
-      }
+        payload.append("product_merk_id", `${form.product_merk_id}`); // Pastikan ambil dari form
+      
+      // Status handling
+      // Pastikan konversi boolean ke "1" atau "0" konsisten
+      const statusValue = form.status === true || form.status === 1 ? "1" : "0";
+      payload.append("status", statusValue);
 
-      // === IMAGE HANDLING ===
+      // === IMAGE HANDLING (PERBAIKAN UTAMA DISINI) ===
       const imageFields = [
         "image",
         "image_2",
@@ -81,57 +85,67 @@ export default function ProductPage() {
         "image_7",
       ];
 
+      imageFields.forEach((fieldName) => {
+        const imageValue = form[fieldName as keyof Product];
+
+        // HANYA append jika user mengupload file baru (File Object)
+        if (imageValue instanceof File) {
+          payload.append(fieldName, imageValue);
+        }
+        
+      });
+
       if (editingSlug) {
         // === MODE EDIT ===
-        // Kirim method override untuk PATCH/PUT
-        payload.append("_method", "PUT"); // atau "PATCH"
-
-        imageFields.forEach((fieldName) => {
-          const imageValue = form[fieldName as keyof Product];
-
-          if (imageValue instanceof File) {
-            // Upload gambar baru
-            payload.append(fieldName, imageValue);
-          } else if (typeof imageValue === "string" && imageValue) {
-            // Pertahankan gambar lama dengan mengirim URL-nya
-            payload.append(`${fieldName}`, imageValue);
-          }
-          // Jika undefined/null = hapus gambar
-        });
-
+        payload.append("_method", "PUT"); // Method spoofing untuk Laravel/PHP
         await updateProduct({ slug: editingSlug, payload }).unwrap();
         Swal.fire("Sukses", "Produk diperbarui", "success");
       } else {
         // === MODE CREATE ===
-        // Validasi minimal gambar utama untuk create
+        // Validasi: Gambar utama wajib ada saat create
         if (!(form.image instanceof File)) {
-          throw new Error("Gambar utama wajib diisi untuk produk baru");
+          // Opsional: Anda bisa throw error atau biarkan backend validasi
+          // throw new Error("Gambar utama wajib diisi");
         }
-
-        imageFields.forEach((fieldName) => {
-          const imageValue = form[fieldName as keyof Product];
-          if (imageValue instanceof File) {
-            payload.append(fieldName, imageValue);
-          }
-        });
-
         await createProduct(payload).unwrap();
         Swal.fire("Sukses", "Produk ditambahkan", "success");
       }
 
+      // Reset & Close
       setForm({ status: true });
       setEditingSlug(null);
       await refetch();
       closeModal();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Submit error:", error);
-
-      Swal.fire("Gagal", "error");
+      let msg = "Terjadi kesalahan";
+      if (typeof error === "object" && error !== null) {
+        type ErrorWithMessage = {
+          data?: { message?: string };
+          message?: string;
+        };
+        const err = error as ErrorWithMessage;
+        if ("data" in err && typeof err.data?.message === "string") {
+          msg = err.data.message;
+        } else if ("message" in err && typeof err.message === "string") {
+          msg = err.message;
+        }
+      }
+      Swal.fire("Gagal", msg, "error");
     }
   };
 
   const handleEdit = (item: Product) => {
-    setForm({ ...item, status: item.status === true || item.status === 1 });
+    // Pastikan status dinormalisasi menjadi boolean agar Switch/Select di form terbaca benar
+    const normalizedStatus = item.status === true || item.status === 1;
+    
+    setForm({ 
+      ...item, 
+      status: normalizedStatus,
+      // Jika backend mengirim 'price' sebagai string "100.000", pastikan di-parse
+      // Tapi biasanya FormProduct menghandle raw value
+    });
+    
     setEditingSlug(item.slug);
     setReadonly(false);
     openModal();
@@ -150,6 +164,7 @@ export default function ProductPage() {
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Hapus",
+      confirmButtonColor: "#d33",
     });
 
     if (confirm.isConfirmed) {
@@ -168,7 +183,12 @@ export default function ProductPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Data Produk</h1>
-        <Button onClick={() => openModal()}>Tambah Produk</Button>
+        <Button onClick={() => {
+          setForm({ status: true }); // Reset form clean saat tambah baru
+          setEditingSlug(null);
+          setReadonly(false);
+          openModal();
+        }}>Tambah Produk</Button>
       </div>
 
       <Card>
@@ -178,11 +198,10 @@ export default function ProductPage() {
               <tr>
                 <th className="px-4 py-2">Aksi</th>
                 <th className="px-4 py-2">Kategori</th>
-                <th className="px-4 py-2">Merk</th>
                 <th className="px-4 py-2">Produk</th>
                 <th className="px-4 py-2">Harga</th>
                 <th className="px-4 py-2">Stok</th>
-                <th className="px-4 py-2">Ratting</th>
+                <th className="px-4 py-2">Rating</th>
                 <th className="px-4 py-2 whitespace-nowrap">T. Views</th>
                 <th className="px-4 py-2">Status</th>
               </tr>
@@ -190,22 +209,22 @@ export default function ProductPage() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={9} className="text-center p-4">
+                  <td colSpan={8} className="text-center p-4">
                     Memuat data...
                   </td>
                 </tr>
               ) : categoryList.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center p-4">
+                  <td colSpan={8} className="text-center p-4">
                     Tidak ada data
                   </td>
                 </tr>
               ) : (
                 categoryList.map((item) => (
-                  <tr key={item.id} className="border-t">
+                  <tr key={item.id} className="border-t hover:bg-muted/50">
                     <td className="px-4 py-2">
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={() => handleDetail(item)}>
+                        <Button size="sm" variant="outline" onClick={() => handleDetail(item)}>
                           Detail
                         </Button>
                         <Button size="sm" onClick={() => handleEdit(item)}>
@@ -223,10 +242,7 @@ export default function ProductPage() {
                     <td className="px-4 py-2 whitespace-nowrap">
                       {item.category_name}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap">
-                      {item.merk_name}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap">{item.name}</td>
+                    <td className="px-4 py-2 whitespace-nowrap font-medium">{item.name}</td>
                     <td className="px-4 py-2 whitespace-nowrap">
                       {item.price}
                     </td>
@@ -240,7 +256,7 @@ export default function ProductPage() {
                       {item.total_reviews}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap">
-                      <Badge variant={item.status ? "success" : "destructive"}>
+                      <Badge variant={item.status ? "default" : "destructive"}>
                         {item.status ? "Aktif" : "Nonaktif"}
                       </Badge>
                     </td>
@@ -251,14 +267,16 @@ export default function ProductPage() {
           </table>
         </CardContent>
 
-        <div className="p-4 flex items-center justify-between bg-muted">
-          <div className="text-sm">
+        {/* Pagination Controls */}
+        <div className="p-4 flex items-center justify-between bg-muted border-t">
+          <div className="text-sm text-muted-foreground">
             Halaman <strong>{currentPage}</strong> dari{" "}
             <strong>{lastPage}</strong>
           </div>
           <div className="flex gap-2">
             <Button
               variant="outline"
+              size="sm"
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage((p) => p - 1)}
             >
@@ -266,6 +284,7 @@ export default function ProductPage() {
             </Button>
             <Button
               variant="outline"
+              size="sm"
               disabled={currentPage >= lastPage}
               onClick={() => setCurrentPage((p) => p + 1)}
             >
@@ -276,20 +295,23 @@ export default function ProductPage() {
       </Card>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <FormProduct
-            form={form}
-            setForm={setForm}
-            onCancel={() => {
-              setForm({ status: true });
-              setEditingSlug(null);
-              setReadonly(false);
-              closeModal();
-            }}
-            onSubmit={handleSubmit}
-            readonly={readonly}
-            isLoading={isCreating || isUpdating}
-          />
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+           {/* Wrapper div untuk handling scroll jika modal terlalu tinggi */}
+          <div className="w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <FormProduct
+                form={form}
+                setForm={setForm}
+                onCancel={() => {
+                setForm({ status: true });
+                setEditingSlug(null);
+                setReadonly(false);
+                closeModal();
+                }}
+                onSubmit={handleSubmit}
+                readonly={readonly}
+                isLoading={isCreating || isUpdating}
+            />
+          </div>
         </div>
       )}
     </div>
