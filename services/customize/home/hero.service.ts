@@ -1,13 +1,12 @@
 import { apiSecondSlice } from "@/services/base-query";
-import { ContentSection } from "@/types/customization/home/hero"; // Pastikan path ini benar
+import { ContentSection } from "@/types/customization/home/hero";
 
-// Parameter untuk GET
+// Tambahkan param bahasa
 export interface HeroListParams {
   client_code: string;
+  bahasa?: string; // Optional string ('id' | 'en')
 }
 
-// --- PERBAIKAN INTERFACE RESPONSE ---
-// Sesuai contoh JSON: data dibungkus dalam object yang memiliki properti 'items'
 export interface HeroListResponse {
   success: boolean;
   message: string;
@@ -27,14 +26,13 @@ export interface HeroDetailResponse {
 
 export const heroApi = apiSecondSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // 📋 Get Hero List
+    // 📋 Get Hero List (Updated params)
     getHeroList: builder.query<HeroListResponse, HeroListParams>({
       query: (params) => ({
         url: "/website/home/hero",
         method: "GET",
-        params: params,
+        params: params, // Params akan otomatis menyertakan bahasa jika ada
       }),
-      // Fix: Akses result.data.items karena strukturnya bersarang
       providesTags: (result) =>
         result?.data?.items
           ? [
@@ -47,7 +45,6 @@ export const heroApi = apiSecondSlice.injectEndpoints({
           : [{ type: "Hero", id: "LIST" }],
     }),
 
-    // ➕ Create Hero
     createHero: builder.mutation<HeroDetailResponse, FormData>({
       query: (body) => ({
         url: "/website/home/hero",
@@ -57,7 +54,6 @@ export const heroApi = apiSecondSlice.injectEndpoints({
       invalidatesTags: [{ type: "Hero", id: "LIST" }],
     }),
 
-    // ✏️ Update Hero
     updateHero: builder.mutation<
       HeroDetailResponse,
       { id: number | string; data: FormData }

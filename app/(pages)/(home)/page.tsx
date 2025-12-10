@@ -9,9 +9,13 @@ import {
   ArrowRight,
   CheckCircle,
 } from "lucide-react";
+// Import Hooks
 import { useTranslation } from "@/hooks/use-translation";
+import { useLanguage } from "@/contexts/LanguageContext"; // Pastikan path sesuai struktur folder Anda
+// Import Translations
 import en from "@/translations/home/en";
 import id from "@/translations/home/id";
+
 import { useCallback, useMemo, useState, useEffect, Suspense } from "react";
 import {
   Dialog,
@@ -22,6 +26,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+
+// Services
 import {
   useGetProductMerkListQuery,
   useGetProductMerkBySlugQuery,
@@ -32,15 +38,14 @@ import {
   useCreateHeroMutation,
   useUpdateHeroMutation,
 } from "@/services/customize/home/hero.service";
-
 import { useGetProductListQuery } from "@/services/product.service";
 import type { Product } from "@/types/admin/product";
+
+// Components & Utils
 import DotdLoader from "@/components/loader/3dot";
 import { fredoka, sniglet } from "@/lib/fonts";
 import ImageCarousel from "@/components/main/home-page/caraousel-hero";
 import Swal from "sweetalert2";
-
-// --- IMPORTS MODE EDIT ---
 import { useEditMode } from "@/hooks/use-edit-mode";
 import {
   EditableText,
@@ -55,36 +60,31 @@ import {
 function HomeContent() {
   const router = useRouter();
 
-  // Hook translation
-  const t = useTranslation({ en, id });
+  // 1. Ambil Language Context & Translation
+  const { lang } = useLanguage();
+  const t = useTranslation({ en, id }); // Static translation
 
-  // 1. Hook Edit Mode
   const isEditMode = useEditMode();
 
   // ========== STATES CONFIG BACKGROUND ==========
-
   const [heroBg, setHeroBg] = useState<BackgroundConfig>({
     type: "gradient",
     color1: "#d1fae5",
     color2: "#e0f2fe",
     direction: "to bottom right",
   });
-
   const [categoriesBg, setCategoriesBg] = useState<BackgroundConfig>({
     type: "solid",
     color1: "#ffffff",
   });
-
   const [featuresBg, setFeaturesBg] = useState<BackgroundConfig>({
     type: "solid",
     color1: "#DFF19D",
   });
-
   const [productsBg, setProductsBg] = useState<BackgroundConfig>({
     type: "solid",
     color1: "#ffffff",
   });
-
   const [ctaBg, setCtaBg] = useState<BackgroundConfig>({
     type: "gradient",
     color1: "#ecfdf5",
@@ -98,26 +98,26 @@ function HomeContent() {
   const [openDetail, setOpenDetail] = useState<boolean>(false);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
-  // 1. Ambil Client Code dari LocalStorage
+  // Client Code State
   const [clientCode, setClientCode] = useState<string>("");
 
   useEffect(() => {
     const code = localStorage.getItem("code_client");
-    if (code) {
-      setClientCode(code);
-    }
+    if (code) setClientCode(code);
   }, []);
 
-  // 2. Fetch API Hero
+  // ========== API HERO SECTION ==========
+
+  // 2. Fetch API Hero dengan Parameter Bahasa Dinamis
   const { data: heroApiResult, refetch: refetchHero } = useGetHeroListQuery(
-    { client_code: clientCode },
+    { client_code: clientCode, bahasa: lang }, // Kirim lang ('id' atau 'en')
     { skip: !clientCode }
   );
 
-  // 3. Mutations
   const [createHero, { isLoading: isCreating }] = useCreateHeroMutation();
   const [updateHero, { isLoading: isUpdating }] = useUpdateHeroMutation();
 
+  // Helper: Ambil data item pertama dari response API
   const currentHeroData = useMemo(() => {
     if (heroApiResult?.data?.items && heroApiResult.data.items.length > 0) {
       return heroApiResult.data.items[0];
@@ -125,7 +125,7 @@ function HomeContent() {
     return null;
   }, [heroApiResult]);
 
-  // ========== Editable Content States (Inisialisasi Awal) ==========
+  // ========== Editable Content States ==========
   const [editableData, setEditableData] = useState({
     heroTitle1: t["hero-title-1"],
     heroTitle2: t["hero-title-2"],
@@ -156,70 +156,103 @@ function HomeContent() {
     sec5Btn2Url: "/about",
   });
 
-  // 4. Sinkronisasi Data API ke State Local
-  // Effect ini memastikan jika ada data dari API, state UI akan diupdate
+  // 3. Sinkronisasi Data (API vs Translation)
+  // Logic: Jika ada data di API untuk bahasa ini, pakai itu.
+  // Jika tidak (null), fallback ke static translation file.
   useEffect(() => {
-    if (currentHeroData) {
-      setEditableData((prev) => ({
-        ...prev,
-        // Gunakan data dari API, jika kosong/null gunakan value sebelumnya (default)
-        heroTitle1: currentHeroData.judul || prev.heroTitle1,
-        heroTitle2: currentHeroData.sub_judul || prev.heroTitle2,
-        heroTitle3: currentHeroData.tagline || prev.heroTitle3,
-        heroSubtitle: currentHeroData.deskripsi || prev.heroSubtitle,
-        heroCtaText: currentHeroData.button_text_1 || prev.heroCtaText,
-        heroCtaUrl: currentHeroData.button_text_2 || prev.heroCtaUrl,
-        heroStat1: currentHeroData.info_1 || prev.heroStat1,
-        heroStat2: currentHeroData.info_nilai_1 || prev.heroStat2,
-      }));
-    }
-  }, [currentHeroData]);
+    // Siapkan default values dari translation file (sesuai bahasa aktif)
+    const defaults = {
+      heroTitle1: t["hero-title-1"],
+      heroTitle2: t["hero-title-2"],
+      heroTitle3: t["hero-title-3"],
+      heroSubtitle: t["hero-subtitle"],
+      heroCtaText: t["hero-cta"],
+      heroCtaUrl: "/product",
+      heroStat1: `1000+ ${t["hero-other-1"]}`,
+      heroStat2: `50+ ${t["hero-other-2"]}`,
+    };
+
+    setEditableData((prev) => ({
+      ...prev,
+      // Hero Section: Prioritaskan API, fallback ke Translation
+      heroTitle1: currentHeroData?.judul || defaults.heroTitle1,
+      heroTitle2: currentHeroData?.sub_judul || defaults.heroTitle2,
+      heroTitle3: currentHeroData?.tagline || defaults.heroTitle3,
+      heroSubtitle: currentHeroData?.deskripsi || defaults.heroSubtitle,
+      heroCtaText: currentHeroData?.button_text_1 || defaults.heroCtaText,
+      heroCtaUrl: currentHeroData?.button_text_2 || defaults.heroCtaUrl,
+      heroStat1: currentHeroData?.info_1 || defaults.heroStat1,
+      heroStat2: currentHeroData?.info_nilai_1 || defaults.heroStat2,
+
+      // Section Lain (Masih Translation murni)
+      sec2Title1: t["sec-2-title-1"],
+      sec2Title2: t["sec-2-title-2"],
+      sec2Subtitle: t["sec-2-subtitle"],
+      sec3Title1: t["sec-3-title-1"],
+      sec3Title2: t["sec-3-title-2"],
+      sec4Title1: t["sec-4-title-1"],
+      sec4Title2: t["sec-4-title-2"],
+      sec4Subtitle: t["sec-4-subtitle"],
+      sec4CtaMain: t["sec-4-cta"],
+      sec5Title1: t["sec-5-title-1"],
+      sec5Title2: t["sec-5-title-2"],
+      sec5Title3: t["sec-5-title-3"],
+      sec5Title4: t["sec-5-title-4"],
+      sec5Title5: t["sec-5-title-5"],
+      sec5Subtitle: t["sec-5-subtitle"],
+      sec5Btn1Text: t["sec-5-cta-1"],
+      sec5Btn2Text: t["sec-5-cta-2"],
+    }));
+  }, [currentHeroData, t, lang]); // Re-run saat data API berubah atau bahasa berubah
 
   // ========== ACTION SAVE ==========
   const handleSaveHero = async () => {
     if (!clientCode) {
-      Swal.fire(
-        "Error",
-        "Client Code tidak ditemukan di Local Storage",
-        "error"
-      );
+      Swal.fire("Error", "Client Code not found.", "error");
       return;
     }
 
     try {
       const formData = new FormData();
 
-      // FIX: Hardcode Client ID ke 5
-      formData.append("client_id", "5");
-      formData.append("bahasa", "id");
+      // Field Wajib
+      formData.append("client_id", "5"); // Hardcode ID 5
+      formData.append("bahasa", lang); // Dinamis: 'id' atau 'en'
       formData.append("status", "1");
 
-      // Append data dari Editable State
+      // Field Content
       formData.append("judul", editableData.heroTitle1);
       formData.append("sub_judul", editableData.heroTitle2 || "");
       formData.append("tagline", editableData.heroTitle3 || "");
       formData.append("deskripsi", editableData.heroSubtitle);
       formData.append("button_text_1", editableData.heroCtaText || "");
-      formData.append("button_text_2", editableData.heroCtaUrl || ""); // Menyimpan URL CTA
+      formData.append("button_text_2", editableData.heroCtaUrl || "");
       formData.append("info_1", editableData.heroStat1 || "");
       formData.append("info_nilai_1", editableData.heroStat2 || "");
 
-      // FIX: Logic Create vs Update
+      // Logic Update vs Create
       if (currentHeroData?.id) {
-        // Jika ID ada, berarti data sudah pernah dibuat -> Lakukan Update (PUT)
+        // Jika data untuk bahasa ini sudah ada -> Update
         await updateHero({ id: currentHeroData.id, data: formData }).unwrap();
-        Swal.fire("Berhasil", "Hero section berhasil diperbarui!", "success");
+        Swal.fire(
+          "Success",
+          `Hero section (${lang.toUpperCase()}) updated!`,
+          "success"
+        );
       } else {
-        // Jika ID null/undefined, berarti data belum ada -> Lakukan Create (POST)
+        // Jika data untuk bahasa ini belum ada -> Create
         await createHero(formData).unwrap();
-        Swal.fire("Berhasil", "Hero section berhasil dibuat!", "success");
+        Swal.fire(
+          "Success",
+          `Hero section (${lang.toUpperCase()}) created!`,
+          "success"
+        );
       }
 
-      // Refresh query agar ID terbaru masuk ke cache
       refetchHero();
     } catch (error) {
       console.error("Failed to save hero:", error);
-      Swal.fire("Gagal", "Terjadi kesalahan saat menyimpan.", "error");
+      Swal.fire("Failed", "An error occurred while saving.", "error");
     }
   };
 
@@ -250,31 +283,8 @@ function HomeContent() {
     },
   ]);
 
-  // Update logic text translation biasa (non-hero)
+  // Update feature items saat bahasa berubah
   useEffect(() => {
-    // Kita update hanya bagian non-hero dari Translation hook
-    // Bagian Hero di-handle oleh useEffect(currentHeroData) di atas
-    setEditableData((prev) => ({
-      ...prev,
-      sec2Title1: t["sec-2-title-1"],
-      sec2Title2: t["sec-2-title-2"],
-      sec2Subtitle: t["sec-2-subtitle"],
-      sec3Title1: t["sec-3-title-1"],
-      sec3Title2: t["sec-3-title-2"],
-      sec4Title1: t["sec-4-title-1"],
-      sec4Title2: t["sec-4-title-2"],
-      sec4Subtitle: t["sec-4-subtitle"],
-      sec4CtaMain: t["sec-4-cta"],
-      sec5Title1: t["sec-5-title-1"],
-      sec5Title2: t["sec-5-title-2"],
-      sec5Title3: t["sec-5-title-3"],
-      sec5Title4: t["sec-5-title-4"],
-      sec5Title5: t["sec-5-title-5"],
-      sec5Subtitle: t["sec-5-subtitle"],
-      sec5Btn1Text: t["sec-5-cta-1"],
-      sec5Btn2Text: t["sec-5-cta-2"],
-    }));
-
     setFeatureItems((prevItems) => [
       {
         ...prevItems[0],
@@ -313,16 +323,40 @@ function HomeContent() {
     setEditableData((prev) => ({ ...prev, [key]: val }));
   };
 
-  // ========== Data Fetching & Helpers ==========
+  const safeCategoryImg = (img: ProductMerk["image"]) =>
+    typeof img === "string" && img.length > 0 ? img : "/kategori.webp";
+  const formatIDR = (value: number | string) => {
+    const num = typeof value === "string" ? Number(value) : value ?? 0;
+    if (!Number.isFinite(num)) return "Rp 0";
+    return `Rp ${num.toLocaleString("id-ID")}`;
+  };
+  const safeProductImg = (img: Product["image"]) =>
+    typeof img === "string" && img.length > 0 ? img : "/produk-1.webp";
+  const toInt = (v: unknown) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+  const gradientByIndex = (i: number) => {
+    const list = [
+      "from-emerald-500 to-teal-500",
+      "from-lime-500 to-green-500",
+      "from-pink-500 to-rose-500",
+      "from-cyan-500 to-blue-500",
+      "from-violet-500 to-purple-500",
+      "from-amber-500 to-orange-500",
+      "from-sky-500 to-indigo-500",
+      "from-fuchsia-500 to-pink-500",
+    ];
+    return list[i % list.length];
+  };
+
+  // Data Fetching
   const {
     data: listData,
     isLoading: isListLoading,
     isError: isListError,
   } = useGetProductMerkListQuery({ page, paginate });
-  const categories: ProductMerk[] = useMemo(
-    () => listData?.data ?? [],
-    [listData]
-  );
+  const categories = useMemo(() => listData?.data ?? [], [listData]);
   const lastPage = listData?.last_page ?? 1;
   const currentPage = listData?.current_page ?? 1;
   const total = listData?.total ?? 0;
@@ -338,71 +372,36 @@ function HomeContent() {
     setTimeout(() => setSelectedSlug(null), 150);
   }, []);
 
-  const gradientByIndex = (i: number) => {
-    const list = [
-      "from-emerald-500 to-teal-500",
-      "from-lime-500 to-green-500",
-      "from-pink-500 to-rose-500",
-      "from-cyan-500 to-blue-500",
-      "from-violet-500 to-purple-500",
-      "from-amber-500 to-orange-500",
-      "from-sky-500 to-indigo-500",
-      "from-fuchsia-500 to-pink-500",
-    ];
-    return list[i % list.length];
-  };
-  const safeCategoryImg = (img: ProductMerk["image"]) =>
-    typeof img === "string" && img.length > 0 ? img : "/kategori.webp";
-  const formatIDR = (value: number | string) => {
-    const num = typeof value === "string" ? Number(value) : value ?? 0;
-    if (!Number.isFinite(num)) return "Rp 0";
-    return `Rp ${num.toLocaleString("id-ID")}`;
-  };
-  const safeProductImg = (img: Product["image"]) =>
-    typeof img === "string" && img.length > 0 ? img : "/produk-1.webp";
-  const makeBadge = (p: Product) =>
-    p.terlaris ? "Best Seller" : p.terbaru ? "New" : "Produk";
-  const toInt = (v: unknown) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
-  };
-
   const {
     data: productList,
     isLoading: isProductsLoading,
     isError: isProductsError,
   } = useGetProductListQuery({ page: 1, paginate: 3 });
-  const topProducts: Product[] = useMemo(
-    () => productList?.data ?? [],
-    [productList]
-  );
+  const topProducts = useMemo(() => productList?.data ?? [], [productList]);
 
+  // Cart
   const CART_KEY = "cart-storage";
-  type CartStorage = {
-    state: {
-      isOpen: boolean;
-      cartItems: Array<Product & { quantity: number }>;
-    };
-    version: number;
-  };
-
   const addToCart = (product: Product, qty: number = 1) => {
     if (typeof window === "undefined") return;
-    let cartData: CartStorage = {
+    let cartData: {
+      state: {
+        isOpen: boolean;
+        cartItems: Array<Product & { quantity: number }>;
+      };
+      version: number;
+    } = {
       state: { isOpen: false, cartItems: [] },
       version: 0,
     };
     try {
       const raw = localStorage.getItem(CART_KEY);
       if (raw) {
-        cartData = JSON.parse(raw) as CartStorage;
-        if (!cartData?.state || !Array.isArray(cartData.state.cartItems)) {
-          cartData = { state: { isOpen: false, cartItems: [] }, version: 0 };
+        const parsed = JSON.parse(raw);
+        if (parsed?.state && Array.isArray(parsed.state.cartItems)) {
+          cartData = parsed;
         }
       }
-    } catch {
-      cartData = { state: { isOpen: false, cartItems: [] }, version: 0 };
-    }
+    } catch {}
     const idx = cartData.state.cartItems.findIndex((i) => i.id === product.id);
     if (idx >= 0) {
       cartData.state.cartItems[idx].quantity += qty;
@@ -413,23 +412,20 @@ function HomeContent() {
     window.dispatchEvent(new CustomEvent("cartUpdated"));
     Swal.fire({
       icon: "success",
-      title: "Berhasil!",
-      text: "Produk berhasil ditambahkan ke keranjang",
+      title: "Success!",
+      text: "Product added to cart",
       position: "top-end",
       toast: true,
       showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
+      timer: 1500,
       background: "white",
       color: "#333",
       iconColor: "#ff5722",
-      customClass: { popup: "toast-popup" },
-      willOpen: (toast) => {
-        toast.style.background =
-          "linear-gradient(45deg, #ff6ec7, #f7bb97, #f7b7d7, #ff9a8b, #ff8cdd)";
-      },
     });
   };
+
+  const makeBadge = (p: Product) =>
+    p.terlaris ? "Best Seller" : p.terbaru ? "New" : "Product";
 
   return (
     <div className="min-h-screen bg-white">
@@ -450,10 +446,10 @@ function HomeContent() {
             >
               {isCreating || isUpdating ? (
                 <div className="flex items-center gap-2">
-                  <DotdLoader /> Menyimpan...
+                  <DotdLoader /> Saving...
                 </div>
               ) : (
-                "💾 Simpan Perubahan Hero"
+                `💾 Save Hero (${lang.toUpperCase()})`
               )}
             </Button>
           </div>
