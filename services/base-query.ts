@@ -19,8 +19,6 @@ const baseQuery = fetchBaseQuery({
 const baseSecondQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_SECOND_URL,
   prepareHeaders: (headers) => {
-    // ✅ Ambil token dari LocalStorage
-    // Harus cek typeof window karena RTK Query mungkin jalan di server saat build
     let token = null;
     if (typeof window !== "undefined") {
       token = localStorage.getItem("token");
@@ -44,6 +42,6 @@ export const apiSlice = createApi({
 export const apiSecondSlice = createApi({
   reducerPath: "apiSecond",
   baseQuery: baseSecondQuery,
-  tagTypes: ["Client"],
+  tagTypes: ["Client", "Hero"],
   endpoints: () => ({}),
 });

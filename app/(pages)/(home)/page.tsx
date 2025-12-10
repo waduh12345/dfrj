@@ -27,6 +27,11 @@ import {
   useGetProductMerkBySlugQuery,
 } from "@/services/products-merk.service";
 import type { ProductMerk } from "@/types/master/product-merk";
+import {
+  useGetHeroListQuery,
+  useCreateHeroMutation,
+  useUpdateHeroMutation,
+} from "@/services/customize/home/hero.service";
 
 import { useGetProductListQuery } from "@/services/product.service";
 import type { Product } from "@/types/admin/product";
@@ -50,13 +55,13 @@ import {
 function HomeContent() {
   const router = useRouter();
 
-  // Hook translation akan mentrigger re-render jika bahasa berubah
+  // Hook translation
   const t = useTranslation({ en, id });
 
   // 1. Hook Edit Mode
   const isEditMode = useEditMode();
 
-  // ========== STATES CONFIG BACKGROUND (Default Values) ==========
+  // ========== STATES CONFIG BACKGROUND ==========
 
   const [heroBg, setHeroBg] = useState<BackgroundConfig>({
     type: "gradient",
@@ -93,6 +98,33 @@ function HomeContent() {
   const [openDetail, setOpenDetail] = useState<boolean>(false);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
+  // 1. Ambil Client Code dari LocalStorage
+  const [clientCode, setClientCode] = useState<string>("");
+
+  useEffect(() => {
+    const code = localStorage.getItem("code_client");
+    if (code) {
+      setClientCode(code);
+    }
+  }, []);
+
+  // 2. Fetch API Hero
+  const { data: heroApiResult, refetch: refetchHero } = useGetHeroListQuery(
+    { client_code: clientCode },
+    { skip: !clientCode }
+  );
+
+  // 3. Mutations
+  const [createHero, { isLoading: isCreating }] = useCreateHeroMutation();
+  const [updateHero, { isLoading: isUpdating }] = useUpdateHeroMutation();
+
+  const currentHeroData = useMemo(() => {
+    if (heroApiResult?.data?.items && heroApiResult.data.items.length > 0) {
+      return heroApiResult.data.items[0];
+    }
+    return null;
+  }, [heroApiResult]);
+
   // ========== Editable Content States (Inisialisasi Awal) ==========
   const [editableData, setEditableData] = useState({
     heroTitle1: t["hero-title-1"],
@@ -124,6 +156,73 @@ function HomeContent() {
     sec5Btn2Url: "/about",
   });
 
+  // 4. Sinkronisasi Data API ke State Local
+  // Effect ini memastikan jika ada data dari API, state UI akan diupdate
+  useEffect(() => {
+    if (currentHeroData) {
+      setEditableData((prev) => ({
+        ...prev,
+        // Gunakan data dari API, jika kosong/null gunakan value sebelumnya (default)
+        heroTitle1: currentHeroData.judul || prev.heroTitle1,
+        heroTitle2: currentHeroData.sub_judul || prev.heroTitle2,
+        heroTitle3: currentHeroData.tagline || prev.heroTitle3,
+        heroSubtitle: currentHeroData.deskripsi || prev.heroSubtitle,
+        heroCtaText: currentHeroData.button_text_1 || prev.heroCtaText,
+        heroCtaUrl: currentHeroData.button_text_2 || prev.heroCtaUrl,
+        heroStat1: currentHeroData.info_1 || prev.heroStat1,
+        heroStat2: currentHeroData.info_nilai_1 || prev.heroStat2,
+      }));
+    }
+  }, [currentHeroData]);
+
+  // ========== ACTION SAVE ==========
+  const handleSaveHero = async () => {
+    if (!clientCode) {
+      Swal.fire(
+        "Error",
+        "Client Code tidak ditemukan di Local Storage",
+        "error"
+      );
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+
+      // FIX: Hardcode Client ID ke 5
+      formData.append("client_id", "5");
+      formData.append("bahasa", "id");
+      formData.append("status", "1");
+
+      // Append data dari Editable State
+      formData.append("judul", editableData.heroTitle1);
+      formData.append("sub_judul", editableData.heroTitle2 || "");
+      formData.append("tagline", editableData.heroTitle3 || "");
+      formData.append("deskripsi", editableData.heroSubtitle);
+      formData.append("button_text_1", editableData.heroCtaText || "");
+      formData.append("button_text_2", editableData.heroCtaUrl || ""); // Menyimpan URL CTA
+      formData.append("info_1", editableData.heroStat1 || "");
+      formData.append("info_nilai_1", editableData.heroStat2 || "");
+
+      // FIX: Logic Create vs Update
+      if (currentHeroData?.id) {
+        // Jika ID ada, berarti data sudah pernah dibuat -> Lakukan Update (PUT)
+        await updateHero({ id: currentHeroData.id, data: formData }).unwrap();
+        Swal.fire("Berhasil", "Hero section berhasil diperbarui!", "success");
+      } else {
+        // Jika ID null/undefined, berarti data belum ada -> Lakukan Create (POST)
+        await createHero(formData).unwrap();
+        Swal.fire("Berhasil", "Hero section berhasil dibuat!", "success");
+      }
+
+      // Refresh query agar ID terbaru masuk ke cache
+      refetchHero();
+    } catch (error) {
+      console.error("Failed to save hero:", error);
+      Swal.fire("Gagal", "Terjadi kesalahan saat menyimpan.", "error");
+    }
+  };
+
   const [featureItems, setFeatureItems] = useState([
     {
       id: 1,
@@ -151,19 +250,12 @@ function HomeContent() {
     },
   ]);
 
-  // ========== LOGIC SINKRONISASI BAHASA ==========
-  // useEffect ini akan jalan setiap kali objek `t` berubah (bahasa ganti)
+  // Update logic text translation biasa (non-hero)
   useEffect(() => {
-    // 1. Update Teks Umum
+    // Kita update hanya bagian non-hero dari Translation hook
+    // Bagian Hero di-handle oleh useEffect(currentHeroData) di atas
     setEditableData((prev) => ({
       ...prev,
-      heroTitle1: t["hero-title-1"],
-      heroTitle2: t["hero-title-2"],
-      heroTitle3: t["hero-title-3"],
-      heroSubtitle: t["hero-subtitle"],
-      heroCtaText: t["hero-cta"],
-      heroStat1: `1000+ ${t["hero-other-1"]}`,
-      heroStat2: `50+ ${t["hero-other-2"]}`,
       sec2Title1: t["sec-2-title-1"],
       sec2Title2: t["sec-2-title-2"],
       sec2Subtitle: t["sec-2-subtitle"],
@@ -183,7 +275,6 @@ function HomeContent() {
       sec5Btn2Text: t["sec-5-cta-2"],
     }));
 
-    // 2. Update Feature Items (Array)
     setFeatureItems((prevItems) => [
       {
         ...prevItems[0],
@@ -206,7 +297,7 @@ function HomeContent() {
         description: t["sec-3-item-4-content"],
       },
     ]);
-  }, [t]); // Dependency [t] penting agar update saat bahasa berubah
+  }, [t]);
 
   const updateFeature = (
     index: number,
@@ -349,6 +440,24 @@ function HomeContent() {
         onSave={setHeroBg}
         className="relative min-h-screen flex items-center justify-center overflow-hidden"
       >
+        {isEditMode && (
+          <div className="absolute top-24 left-6 z-50 animate-in fade-in zoom-in duration-300">
+            <Button
+              onClick={handleSaveHero}
+              disabled={isCreating || isUpdating}
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg border-2 border-white/20"
+              size="sm"
+            >
+              {isCreating || isUpdating ? (
+                <div className="flex items-center gap-2">
+                  <DotdLoader /> Menyimpan...
+                </div>
+              ) : (
+                "💾 Simpan Perubahan Hero"
+              )}
+            </Button>
+          </div>
+        )}
         <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full opacity-80 animate-pulse shadow-lg pointer-events-none"></div>
         <div className="absolute bottom-32 right-16 w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full opacity-80 animate-pulse delay-1000 shadow-lg pointer-events-none"></div>
         <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-gradient-to-br from-lime-500 to-green-500 rounded-full opacity-70 animate-pulse delay-500 shadow-lg pointer-events-none"></div>
