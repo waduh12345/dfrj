@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 // Import Hooks
 import { useTranslation } from "@/hooks/use-translation";
-import { useLanguage } from "@/contexts/LanguageContext"; // Pastikan path sesuai struktur folder Anda
+import { useLanguage } from "@/contexts/LanguageContext";
 // Import Translations
 import en from "@/translations/home/en";
 import id from "@/translations/home/id";
@@ -27,17 +27,34 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-// Services
+// --- SERVICES ---
 import {
   useGetProductMerkListQuery,
   useGetProductMerkBySlugQuery,
 } from "@/services/products-merk.service";
 import type { ProductMerk } from "@/types/master/product-merk";
+
+// Service Hero
 import {
   useGetHeroListQuery,
   useCreateHeroMutation,
   useUpdateHeroMutation,
 } from "@/services/customize/home/hero.service";
+
+// Service Kategori Produk
+import {
+  useGetKategoriProdukListQuery,
+  useCreateKategoriProdukMutation,
+  useUpdateKategoriProdukMutation,
+} from "@/services/customize/home/kategori-produk.service";
+
+// Service Mengapa (Features)
+import {
+  useGetMengapaListQuery,
+  useCreateMengapaMutation,
+  useUpdateMengapaMutation,
+} from "@/services/customize/home/why.service"; // Pastikan path ini benar (why.service / mengapa.service)
+
 import { useGetProductListQuery } from "@/services/product.service";
 import type { Product } from "@/types/admin/product";
 
@@ -106,18 +123,17 @@ function HomeContent() {
     if (code) setClientCode(code);
   }, []);
 
-  // ========== API HERO SECTION ==========
-
-  // 2. Fetch API Hero dengan Parameter Bahasa Dinamis
+  // ==========================================
+  // 1. API: HERO SECTION
+  // ==========================================
   const { data: heroApiResult, refetch: refetchHero } = useGetHeroListQuery(
-    { client_code: clientCode, bahasa: lang }, // Kirim lang ('id' atau 'en')
+    { client_code: clientCode, bahasa: lang },
     { skip: !clientCode }
   );
 
-  const [createHero, { isLoading: isCreating }] = useCreateHeroMutation();
-  const [updateHero, { isLoading: isUpdating }] = useUpdateHeroMutation();
+  const [createHero, { isLoading: isCreatingHero }] = useCreateHeroMutation();
+  const [updateHero, { isLoading: isUpdatingHero }] = useUpdateHeroMutation();
 
-  // Helper: Ambil data item pertama dari response API
   const currentHeroData = useMemo(() => {
     if (heroApiResult?.data?.items && heroApiResult.data.items.length > 0) {
       return heroApiResult.data.items[0];
@@ -125,8 +141,54 @@ function HomeContent() {
     return null;
   }, [heroApiResult]);
 
-  // ========== Editable Content States ==========
+  // ==========================================
+  // 2. API: KATEGORI PRODUK SECTION
+  // ==========================================
+  const { data: catApiResult, refetch: refetchCategory } =
+    useGetKategoriProdukListQuery(
+      { client_code: clientCode, bahasa: lang },
+      { skip: !clientCode }
+    );
+
+  const [createCategory, { isLoading: isCreatingCategory }] =
+    useCreateKategoriProdukMutation();
+  const [updateCategory, { isLoading: isUpdatingCategory }] =
+    useUpdateKategoriProdukMutation();
+
+  const currentCategoryData = useMemo(() => {
+    if (catApiResult?.data?.items && catApiResult.data.items.length > 0) {
+      return catApiResult.data.items[0];
+    }
+    return null;
+  }, [catApiResult]);
+
+  // ==========================================
+  // 3. API: FEATURES / MENGAPA SECTION
+  // ==========================================
+  const { data: mengapaApiResult, refetch: refetchMengapa } =
+    useGetMengapaListQuery(
+      { client_code: clientCode, bahasa: lang },
+      { skip: !clientCode }
+    );
+
+  const [createMengapa, { isLoading: isCreatingMengapa }] =
+    useCreateMengapaMutation();
+  const [updateMengapa, { isLoading: isUpdatingMengapa }] =
+    useUpdateMengapaMutation();
+
+  const currentMengapaData = useMemo(() => {
+    if (
+      mengapaApiResult?.data?.items &&
+      mengapaApiResult.data.items.length > 0
+    ) {
+      return mengapaApiResult.data.items[0];
+    }
+    return null;
+  }, [mengapaApiResult]);
+
+  // ========== Editable Content States (Inisialisasi Awal) ==========
   const [editableData, setEditableData] = useState({
+    // Hero Data
     heroTitle1: t["hero-title-1"],
     heroTitle2: t["hero-title-2"],
     heroTitle3: t["hero-title-3"],
@@ -135,15 +197,23 @@ function HomeContent() {
     heroCtaUrl: "/product",
     heroStat1: `1000+ ${t["hero-other-1"]}`,
     heroStat2: `50+ ${t["hero-other-2"]}`,
+
+    // Categories Data
     sec2Title1: t["sec-2-title-1"],
     sec2Title2: t["sec-2-title-2"],
     sec2Subtitle: t["sec-2-subtitle"],
+
+    // Features Data (Header)
     sec3Title1: t["sec-3-title-1"],
     sec3Title2: t["sec-3-title-2"],
+
+    // Products Data
     sec4Title1: t["sec-4-title-1"],
     sec4Title2: t["sec-4-title-2"],
     sec4Subtitle: t["sec-4-subtitle"],
     sec4CtaMain: t["sec-4-cta"],
+
+    // CTA Data
     sec5Title1: t["sec-5-title-1"],
     sec5Title2: t["sec-5-title-2"],
     sec5Title3: t["sec-5-title-3"],
@@ -155,106 +225,6 @@ function HomeContent() {
     sec5Btn2Text: t["sec-5-cta-2"],
     sec5Btn2Url: "/about",
   });
-
-  // 3. Sinkronisasi Data (API vs Translation)
-  // Logic: Jika ada data di API untuk bahasa ini, pakai itu.
-  // Jika tidak (null), fallback ke static translation file.
-  useEffect(() => {
-    // Siapkan default values dari translation file (sesuai bahasa aktif)
-    const defaults = {
-      heroTitle1: t["hero-title-1"],
-      heroTitle2: t["hero-title-2"],
-      heroTitle3: t["hero-title-3"],
-      heroSubtitle: t["hero-subtitle"],
-      heroCtaText: t["hero-cta"],
-      heroCtaUrl: "/product",
-      heroStat1: `1000+ ${t["hero-other-1"]}`,
-      heroStat2: `50+ ${t["hero-other-2"]}`,
-    };
-
-    setEditableData((prev) => ({
-      ...prev,
-      // Hero Section: Prioritaskan API, fallback ke Translation
-      heroTitle1: currentHeroData?.judul || defaults.heroTitle1,
-      heroTitle2: currentHeroData?.sub_judul || defaults.heroTitle2,
-      heroTitle3: currentHeroData?.tagline || defaults.heroTitle3,
-      heroSubtitle: currentHeroData?.deskripsi || defaults.heroSubtitle,
-      heroCtaText: currentHeroData?.button_text_1 || defaults.heroCtaText,
-      heroCtaUrl: currentHeroData?.button_text_2 || defaults.heroCtaUrl,
-      heroStat1: currentHeroData?.info_1 || defaults.heroStat1,
-      heroStat2: currentHeroData?.info_nilai_1 || defaults.heroStat2,
-
-      // Section Lain (Masih Translation murni)
-      sec2Title1: t["sec-2-title-1"],
-      sec2Title2: t["sec-2-title-2"],
-      sec2Subtitle: t["sec-2-subtitle"],
-      sec3Title1: t["sec-3-title-1"],
-      sec3Title2: t["sec-3-title-2"],
-      sec4Title1: t["sec-4-title-1"],
-      sec4Title2: t["sec-4-title-2"],
-      sec4Subtitle: t["sec-4-subtitle"],
-      sec4CtaMain: t["sec-4-cta"],
-      sec5Title1: t["sec-5-title-1"],
-      sec5Title2: t["sec-5-title-2"],
-      sec5Title3: t["sec-5-title-3"],
-      sec5Title4: t["sec-5-title-4"],
-      sec5Title5: t["sec-5-title-5"],
-      sec5Subtitle: t["sec-5-subtitle"],
-      sec5Btn1Text: t["sec-5-cta-1"],
-      sec5Btn2Text: t["sec-5-cta-2"],
-    }));
-  }, [currentHeroData, t, lang]); // Re-run saat data API berubah atau bahasa berubah
-
-  // ========== ACTION SAVE ==========
-  const handleSaveHero = async () => {
-    if (!clientCode) {
-      Swal.fire("Error", "Client Code not found.", "error");
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-
-      // Field Wajib
-      formData.append("client_id", "5"); // Hardcode ID 5
-      formData.append("bahasa", lang); // Dinamis: 'id' atau 'en'
-      formData.append("status", "1");
-
-      // Field Content
-      formData.append("judul", editableData.heroTitle1);
-      formData.append("sub_judul", editableData.heroTitle2 || "");
-      formData.append("tagline", editableData.heroTitle3 || "");
-      formData.append("deskripsi", editableData.heroSubtitle);
-      formData.append("button_text_1", editableData.heroCtaText || "");
-      formData.append("button_text_2", editableData.heroCtaUrl || "");
-      formData.append("info_1", editableData.heroStat1 || "");
-      formData.append("info_nilai_1", editableData.heroStat2 || "");
-
-      // Logic Update vs Create
-      if (currentHeroData?.id) {
-        // Jika data untuk bahasa ini sudah ada -> Update
-        await updateHero({ id: currentHeroData.id, data: formData }).unwrap();
-        Swal.fire(
-          "Success",
-          `Hero section (${lang.toUpperCase()}) updated!`,
-          "success"
-        );
-      } else {
-        // Jika data untuk bahasa ini belum ada -> Create
-        await createHero(formData).unwrap();
-        Swal.fire(
-          "Success",
-          `Hero section (${lang.toUpperCase()}) created!`,
-          "success"
-        );
-      }
-
-      refetchHero();
-    } catch (error) {
-      console.error("Failed to save hero:", error);
-      Swal.fire("Failed", "An error occurred while saving.", "error");
-    }
-  };
 
   const [featureItems, setFeatureItems] = useState([
     {
@@ -283,32 +253,236 @@ function HomeContent() {
     },
   ]);
 
-  // Update feature items saat bahasa berubah
+  // ========== MAIN SYNCHRONIZATION EFFECT ==========
+  // Effect tunggal untuk menyinkronkan data API atau Translation ke State UI
   useEffect(() => {
-    setFeatureItems((prevItems) => [
+    // Default values (Translation)
+    const defaults = {
+      heroTitle1: t["hero-title-1"],
+      heroTitle2: t["hero-title-2"],
+      heroTitle3: t["hero-title-3"],
+      heroSubtitle: t["hero-subtitle"],
+      heroCtaText: t["hero-cta"],
+      heroCtaUrl: "/product",
+      heroStat1: `1000+ ${t["hero-other-1"]}`,
+      heroStat2: `50+ ${t["hero-other-2"]}`,
+      sec2Title1: t["sec-2-title-1"],
+      sec2Title2: t["sec-2-title-2"],
+      sec2Subtitle: t["sec-2-subtitle"],
+      sec3Title1: t["sec-3-title-1"],
+      sec3Title2: t["sec-3-title-2"],
+    };
+
+    setEditableData((prev) => ({
+      ...prev,
+      // --- MAPPING HERO ---
+      heroTitle1: currentHeroData?.judul || defaults.heroTitle1,
+      heroTitle2: currentHeroData?.sub_judul || defaults.heroTitle2,
+      heroTitle3: currentHeroData?.tagline || defaults.heroTitle3,
+      heroSubtitle: currentHeroData?.deskripsi || defaults.heroSubtitle,
+      heroCtaText: currentHeroData?.button_text_1 || defaults.heroCtaText,
+      heroCtaUrl: currentHeroData?.button_text_2 || defaults.heroCtaUrl,
+      heroStat1: currentHeroData?.info_1 || defaults.heroStat1,
+      heroStat2: currentHeroData?.info_nilai_1 || defaults.heroStat2,
+
+      // --- MAPPING CATEGORIES ---
+      sec2Title1: currentCategoryData?.judul || defaults.sec2Title1,
+      sec2Title2: currentCategoryData?.sub_judul || defaults.sec2Title2,
+      sec2Subtitle: currentCategoryData?.deskripsi || defaults.sec2Subtitle,
+
+      // --- MAPPING FEATURES (HEADER) ---
+      sec3Title1: currentMengapaData?.judul || defaults.sec3Title1,
+      sec3Title2: currentMengapaData?.sub_judul || defaults.sec3Title2,
+
+      // --- MAPPING LAINNYA (STATIC FOR NOW) ---
+      sec4Title1: t["sec-4-title-1"],
+      sec4Title2: t["sec-4-title-2"],
+      sec4Subtitle: t["sec-4-subtitle"],
+      sec4CtaMain: t["sec-4-cta"],
+      sec5Title1: t["sec-5-title-1"],
+      sec5Title2: t["sec-5-title-2"],
+      sec5Title3: t["sec-5-title-3"],
+      sec5Title4: t["sec-5-title-4"],
+      sec5Title5: t["sec-5-title-5"],
+      sec5Subtitle: t["sec-5-subtitle"],
+      sec5Btn1Text: t["sec-5-cta-1"],
+      sec5Btn2Text: t["sec-5-cta-2"],
+    }));
+
+    // --- MAPPING FEATURE ITEMS (ARRAY) ---
+    // Logika: Jika data API ada, pakai API. Jika tidak, pakai Translation.
+    setFeatureItems([
       {
-        ...prevItems[0],
-        title: t["sec-3-item-1-title"],
-        description: t["sec-3-item-1-content"],
+        id: 1,
+        icon:
+          currentMengapaData?.info_icon_1 ||
+          "/images/advantage/advantage-1.png",
+        title: currentMengapaData?.info_judul_1 || t["sec-3-item-1-title"],
+        description:
+          currentMengapaData?.info_deskripsi_1 || t["sec-3-item-1-content"],
       },
       {
-        ...prevItems[1],
-        title: t["sec-3-item-2-title"],
-        description: t["sec-3-item-2-content"],
+        id: 2,
+        icon:
+          currentMengapaData?.info_icon_2 ||
+          "/images/advantage/advantage-2.png",
+        title: currentMengapaData?.info_judul_2 || t["sec-3-item-2-title"],
+        description:
+          currentMengapaData?.info_deskripsi_2 || t["sec-3-item-2-content"],
       },
       {
-        ...prevItems[2],
-        title: t["sec-3-item-3-title"],
-        description: t["sec-3-item-3-content"],
+        id: 3,
+        icon:
+          currentMengapaData?.info_icon_3 ||
+          "/images/advantage/advantage-3.png",
+        title: currentMengapaData?.info_judul_3 || t["sec-3-item-3-title"],
+        description:
+          currentMengapaData?.info_deskripsi_3 || t["sec-3-item-3-content"],
       },
       {
-        ...prevItems[3],
-        title: t["sec-3-item-4-title"],
-        description: t["sec-3-item-4-content"],
+        id: 4,
+        icon:
+          currentMengapaData?.info_icon_4 ||
+          "/images/advantage/advantage-4.png",
+        title: currentMengapaData?.info_judul_4 || t["sec-3-item-4-title"],
+        description:
+          currentMengapaData?.info_deskripsi_4 || t["sec-3-item-4-content"],
       },
     ]);
-  }, [t]);
+  }, [currentHeroData, currentCategoryData, currentMengapaData, t, lang]); // Dependency Array
 
+  // ========== HANDLER: SAVE HERO ==========
+  const handleSaveHero = async () => {
+    if (!clientCode) return Swal.fire("Error", "Client Code missing", "error");
+    try {
+      const formData = new FormData();
+      formData.append("client_id", "5");
+      formData.append("bahasa", lang);
+      formData.append("status", "1");
+
+      formData.append("judul", editableData.heroTitle1);
+      formData.append("sub_judul", editableData.heroTitle2 || "");
+      formData.append("tagline", editableData.heroTitle3 || "");
+      formData.append("deskripsi", editableData.heroSubtitle);
+      formData.append("button_text_1", editableData.heroCtaText || "");
+      formData.append("button_text_2", editableData.heroCtaUrl || "");
+      formData.append("info_1", editableData.heroStat1 || "");
+      formData.append("info_nilai_1", editableData.heroStat2 || "");
+
+      if (currentHeroData?.id) {
+        await updateHero({ id: currentHeroData.id, data: formData }).unwrap();
+        Swal.fire(
+          "Success",
+          `Hero (${lang.toUpperCase()}) updated!`,
+          "success"
+        );
+      } else {
+        await createHero(formData).unwrap();
+        Swal.fire(
+          "Success",
+          `Hero (${lang.toUpperCase()}) created!`,
+          "success"
+        );
+      }
+      refetchHero();
+    } catch (error) {
+      console.error("Save Hero Error:", error);
+      Swal.fire("Error", "Failed to save Hero", "error");
+    }
+  };
+
+  // ========== HANDLER: SAVE CATEGORIES ==========
+  const handleSaveCategories = async () => {
+    if (!clientCode) return Swal.fire("Error", "Client Code missing", "error");
+    try {
+      const formData = new FormData();
+      formData.append("client_id", "5");
+      formData.append("bahasa", lang);
+      formData.append("status", "1");
+
+      formData.append("judul", editableData.sec2Title1);
+      formData.append("sub_judul", editableData.sec2Title2 || "");
+      formData.append("deskripsi", editableData.sec2Subtitle);
+
+      if (currentCategoryData?.id) {
+        await updateCategory({
+          id: currentCategoryData.id,
+          data: formData,
+        }).unwrap();
+        Swal.fire(
+          "Success",
+          `Categories (${lang.toUpperCase()}) updated!`,
+          "success"
+        );
+      } else {
+        await createCategory(formData).unwrap();
+        Swal.fire(
+          "Success",
+          `Categories (${lang.toUpperCase()}) created!`,
+          "success"
+        );
+      }
+      refetchCategory();
+    } catch (error) {
+      console.error("Save Category Error:", error);
+      Swal.fire("Error", "Failed to save Categories", "error");
+    }
+  };
+
+  // ========== HANDLER: SAVE FEATURES / MENGAPA ==========
+  const handleSaveFeatures = async () => {
+    if (!clientCode) return Swal.fire("Error", "Client Code missing", "error");
+    try {
+      const formData = new FormData();
+      formData.append("client_id", "5");
+      formData.append("bahasa", lang);
+      formData.append("status", "1");
+
+      // Headers
+      formData.append("judul", editableData.sec3Title1);
+      formData.append("sub_judul", editableData.sec3Title2 || "");
+      formData.append("tagline", "Features");
+
+      // Features Items (1-4)
+      formData.append("info_judul_1", featureItems[0].title);
+      formData.append("info_deskripsi_1", featureItems[0].description);
+      // formData.append("info_icon_1", featureItems[0].icon);
+
+      formData.append("info_judul_2", featureItems[1].title);
+      formData.append("info_deskripsi_2", featureItems[1].description);
+
+      formData.append("info_judul_3", featureItems[2].title);
+      formData.append("info_deskripsi_3", featureItems[2].description);
+
+      formData.append("info_judul_4", featureItems[3].title);
+      formData.append("info_deskripsi_4", featureItems[3].description);
+
+      if (currentMengapaData?.id) {
+        await updateMengapa({
+          id: currentMengapaData.id,
+          data: formData,
+        }).unwrap();
+        Swal.fire(
+          "Success",
+          `Features (${lang.toUpperCase()}) updated!`,
+          "success"
+        );
+      } else {
+        await createMengapa(formData).unwrap();
+        Swal.fire(
+          "Success",
+          `Features (${lang.toUpperCase()}) created!`,
+          "success"
+        );
+      }
+      refetchMengapa();
+    } catch (error) {
+      console.error("Save Features Error:", error);
+      Swal.fire("Error", "Failed to save Features", "error");
+    }
+  };
+
+  // Helper Functions
   const updateFeature = (
     index: number,
     field: Exclude<keyof (typeof featureItems)[0], "id">,
@@ -350,7 +524,7 @@ function HomeContent() {
     return list[i % list.length];
   };
 
-  // Data Fetching
+  // Data Fetching List Products
   const {
     data: listData,
     isLoading: isListLoading,
@@ -379,7 +553,6 @@ function HomeContent() {
   } = useGetProductListQuery({ page: 1, paginate: 3 });
   const topProducts = useMemo(() => productList?.data ?? [], [productList]);
 
-  // Cart
   const CART_KEY = "cart-storage";
   const addToCart = (product: Product, qty: number = 1) => {
     if (typeof window === "undefined") return;
@@ -440,11 +613,11 @@ function HomeContent() {
           <div className="absolute top-24 left-6 z-50 animate-in fade-in zoom-in duration-300">
             <Button
               onClick={handleSaveHero}
-              disabled={isCreating || isUpdating}
+              disabled={isCreatingHero || isUpdatingHero}
               className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg border-2 border-white/20"
               size="sm"
             >
-              {isCreating || isUpdating ? (
+              {isCreatingHero || isUpdatingHero ? (
                 <div className="flex items-center gap-2">
                   <DotdLoader /> Saving...
                 </div>
@@ -594,8 +767,28 @@ function HomeContent() {
         isEditMode={isEditMode}
         config={categoriesBg}
         onSave={setCategoriesBg}
-        className="py-20"
+        className="py-20 relative"
       >
+        {/* BUTTON SAVE CATEGORY */}
+        {isEditMode && (
+          <div className="absolute top-4 left-6 z-50">
+            <Button
+              onClick={handleSaveCategories}
+              disabled={isCreatingCategory || isUpdatingCategory}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg border-2 border-white/20"
+              size="sm"
+            >
+              {isCreatingCategory || isUpdatingCategory ? (
+                <div className="flex items-center gap-2">
+                  <DotdLoader /> Saving...
+                </div>
+              ) : (
+                `💾 Save Category (${lang.toUpperCase()})`
+              )}
+            </Button>
+          </div>
+        )}
+
         <div className="container mx-auto px-6 lg:px-12">
           <div className={`text-center mb-10 ${fredoka.className}`}>
             <h2 className="text-4xl lg:text-5xl font-semibold text-[#5C4A3B] mb-6 flex flex-col items-center justify-center">
@@ -725,8 +918,28 @@ function HomeContent() {
         isEditMode={isEditMode}
         config={featuresBg}
         onSave={setFeaturesBg}
-        className="py-20"
+        className="py-20 relative"
       >
+        {/* BUTTON SAVE FEATURES */}
+        {isEditMode && (
+          <div className="absolute top-4 left-6 z-50">
+            <Button
+              onClick={handleSaveFeatures}
+              disabled={isCreatingMengapa || isUpdatingMengapa}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg border-2 border-white/20"
+              size="sm"
+            >
+              {isCreatingMengapa || isUpdatingMengapa ? (
+                <div className="flex items-center gap-2">
+                  <DotdLoader /> Saving...
+                </div>
+              ) : (
+                `💾 Save Features (${lang.toUpperCase()})`
+              )}
+            </Button>
+          </div>
+        )}
+
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mx-auto">
             <h2
@@ -790,80 +1003,6 @@ function HomeContent() {
           </div>
         </div>
       </EditableSection>
-
-      {/* ===================== Modal (SAMA) ===================== */}
-      <Dialog open={openDetail} onOpenChange={setOpenDetail}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {isDetailLoading ? "Memuat..." : detailData?.name ?? "Detail"}
-            </DialogTitle>
-            <DialogDescription>
-              Informasi kategori yang dipilih.
-            </DialogDescription>
-          </DialogHeader>
-          {isDetailLoading ? (
-            <div className="w-full flex justify-center py-8">
-              <DotdLoader />
-            </div>
-          ) : detailData ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="relative w-full h-48 rounded-xl overflow-hidden bg-gray-50">
-                <Image
-                  src={safeCategoryImg(detailData.image)}
-                  alt={detailData.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  {Boolean(detailData.status) ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full text-xs font-semibold">
-                      <CheckCircle className="w-4 h-4" />
-                      Aktif
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-gray-700 bg-gray-100 px-2 py-1 rounded-full text-xs font-semibold">
-                      Nonaktif
-                    </span>
-                  )}
-                  <span className="text-xs text-gray-500">
-                    Slug: <b>{detailData.slug}</b>
-                  </span>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700">
-                    Deskripsi
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    {detailData.description || "—"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="py-8 text-center text-gray-600">
-              Data tidak ditemukan.
-            </div>
-          )}
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={handleCloseDetail}>
-              Tutup
-            </Button>
-            {detailData?.slug && (
-              <Button
-                className="bg-emerald-700 hover:bg-emerald-800"
-                onClick={() =>
-                  router.push(`/product?category=${detailData.slug}`)
-                }
-              >
-                Lihat Produk
-              </Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* ===================== Products Section ===================== */}
       <EditableSection
