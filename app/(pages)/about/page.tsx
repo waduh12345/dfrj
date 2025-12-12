@@ -35,18 +35,306 @@ import {
   BackgroundConfig,
 } from "@/components/ui/editable-section";
 import DotdLoader from "@/components/loader/3dot";
+import Swal from "sweetalert2";
+import {
+  useCreateAboutUsMutation,
+  useGetAboutUsListQuery,
+  useUpdateAboutUsMutation,
+} from "@/services/customize/about/about-us.service";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { AboutTextState } from "@/types/customization/about/tentang";
+import { useCreateValueMutation, useGetValueListQuery, useUpdateValueMutation } from "@/services/customize/about/value.service";
 
 // =========================================
 // KOMPONEN KONTEN (LOGIC UTAMA)
 // =========================================
 function AboutContent() {
   const t = useTranslation({ id, en });
-  const router = useRouter();
   const isEditMode = useEditMode();
 
   const phone = "628176942128";
   const waText = encodeURIComponent("Halo saya ingin bertanya");
   const waUrlWithPhone = `https://wa.me/${phone}?text=${waText}`;
+
+  // 1. Setup Context & Client Code
+  const { lang } = useLanguage();
+  const [clientCode, setClientCode] = useState<string>("");
+
+  useEffect(() => {
+    const code = localStorage.getItem("code_client");
+    if (code) setClientCode(code);
+  }, []);
+
+  // 2. API Hooks
+  const { data: aboutApiResult, refetch: refetchAbout } =
+    useGetAboutUsListQuery(
+      { client_code: clientCode, bahasa: lang },
+      { skip: !clientCode }
+    );
+
+  const [createAbout, { isLoading: isCreating }] = useCreateAboutUsMutation();
+  const [updateAbout, { isLoading: isUpdating }] = useUpdateAboutUsMutation();
+
+  // Helper: Ambil data item pertama (karena response berupa list)
+  const currentAboutData = useMemo(() => {
+    if (aboutApiResult?.data?.items && aboutApiResult.data.items.length > 0) {
+      return aboutApiResult.data.items[0];
+    }
+    return null;
+  }, [aboutApiResult]);
+
+  // 3. Sync Data API ke State Local (Effect)
+  useEffect(() => {
+    // Default values dari Translation
+    const defaults = {
+      heroTitle1: t["hero-title-1"],
+      heroSubtitle: t["hero-subtitle"],
+
+      heroItem1Title: t["hero-item-1-title"],
+      heroItem1Content: t["hero-item-1-content"],
+
+      heroItem2Title: t["hero-item-2-title"],
+      heroItem2Content: t["hero-item-2-content"],
+
+      heroItem3Content: t["hero-item-3-content"], // Badge Floating
+
+      heroImage: "3.webp", // Default image
+
+      misiTitle: t["misi-title"],
+      misiSubtitle: t["misi-subtitle"],
+
+      visiTitle: t["visi-title"],
+      visiSubtitle: t["visi-subtitle"],
+    };
+
+    if (currentAboutData) {
+      setTexts((prev) => ({
+        ...prev,
+        // Mapping Hero
+        heroTitle1: currentAboutData.judul || defaults.heroTitle1,
+        heroSubtitle: currentAboutData.deskripsi || defaults.heroSubtitle,
+
+        // Mapping Info Items (Hero Items)
+        heroItem1Title:
+          currentAboutData.info_judul_1 || defaults.heroItem1Title,
+        heroItem1Content:
+          currentAboutData.info_deskripsi_1 || defaults.heroItem1Content,
+
+        heroItem2Title:
+          currentAboutData.info_judul_2 || defaults.heroItem2Title,
+        heroItem2Content:
+          currentAboutData.info_deskripsi_2 || defaults.heroItem2Content,
+
+        // Info Judul 3 dipakai untuk konten Badge (misal: "Successful Projects")
+        heroItem3Content:
+          currentAboutData.info_judul_3 || defaults.heroItem3Content,
+
+        // Mapping Image (Jika string URL ada)
+        heroImage: (currentAboutData.image as string) || defaults.heroImage,
+
+        // Mapping Misi & Visi
+        misiTitle: currentAboutData.misi_judul || defaults.misiTitle,
+        misiSubtitle: currentAboutData.misi_deskripsi || defaults.misiSubtitle,
+
+        visiTitle: currentAboutData.visi_judul || defaults.visiTitle,
+        visiSubtitle: currentAboutData.visi_deskripsi || defaults.visiSubtitle,
+      }));
+    }
+  }, [currentAboutData, t]);
+
+  // ========== HANDLER: SAVE ABOUT SECTION ==========
+  const handleSaveAbout = async () => {
+    if (!clientCode) return Swal.fire("Error", "Client Code missing", "error");
+
+    try {
+      const formData = new FormData();
+      formData.append("client_id", "5");
+      formData.append("bahasa", lang);
+      formData.append("status", "1");
+
+      // --- Hero Section ---
+      formData.append("judul", texts.heroTitle1);
+      formData.append("deskripsi", texts.heroSubtitle);
+
+      if (texts.heroImage instanceof File) {
+        formData.append("image", texts.heroImage);
+      }
+
+      // --- Info Items (Hero Cards) ---
+      formData.append("info_judul_1", texts.heroItem1Title);
+      formData.append("info_deskripsi_1", texts.heroItem1Content);
+
+      formData.append("info_judul_2", texts.heroItem2Title);
+      formData.append("info_deskripsi_2", texts.heroItem2Content);
+
+      // Badge Floating (Info 3)
+      formData.append("info_judul_3", texts.heroItem3Content);
+      formData.append("info_deskripsi_3", "-");
+
+      // --- Misi & Visi ---
+      formData.append("misi_judul", texts.misiTitle);
+      formData.append("misi_deskripsi", texts.misiSubtitle);
+      formData.append("misi_icon", "target");
+
+      // Jika Anda punya state untuk image misi, lakukan hal yang sama:
+      // if (misiImage instanceof File) formData.append("misi_image", misiImage);
+
+      formData.append("visi_judul", texts.visiTitle);
+      formData.append("visi_deskripsi", texts.visiSubtitle);
+      formData.append("visi_icon", "eye");
+
+      // --- Execute ---
+      if (currentAboutData?.id) {
+        await updateAbout({ id: currentAboutData.id, data: formData }).unwrap();
+        Swal.fire(
+          "Success",
+          `About Us (${lang.toUpperCase()}) updated!`,
+          "success"
+        );
+      } else {
+        await createAbout(formData).unwrap();
+        Swal.fire(
+          "Success",
+          `About Us (${lang.toUpperCase()}) created!`,
+          "success"
+        );
+      }
+      refetchAbout();
+    } catch (error) {
+      console.error("Save About Error:", error);
+      Swal.fire("Error", "Failed to save data", "error");
+    }
+  };
+
+  // ==========================================
+  // API: VALUES SECTION
+  // ==========================================
+  const { data: valueApiResult, refetch: refetchValues } = useGetValueListQuery(
+    { client_code: clientCode, bahasa: lang },
+    { skip: !clientCode }
+  );
+
+  const [createValue, { isLoading: isCreatingValue }] =
+    useCreateValueMutation();
+  const [updateValue, { isLoading: isUpdatingValue }] =
+    useUpdateValueMutation();
+
+  const currentValueData = useMemo(() => {
+    if (valueApiResult?.data?.items && valueApiResult.data.items.length > 0) {
+      return valueApiResult.data.items[0];
+    }
+    return null;
+  }, [valueApiResult]);
+
+  // Sync Data API Values ke State UI
+  useEffect(() => {
+    const defaults = {
+      valueTitle1: t["value-title-1"],
+      valueSubtitle: t["value-subtitle"],
+      items: [
+        { title: t["value-item-1-title"], desc: t["value-item-1-content"] },
+        { title: t["value-item-2-title"], desc: t["value-item-2-content"] },
+        { title: t["value-item-3-title"], desc: t["value-item-3-content"] },
+        { title: t["value-item-4-title"], desc: t["value-item-4-content"] },
+      ],
+    };
+
+    if (currentValueData) {
+      // 1. Update Header Text
+      setTexts((prev) => ({
+        ...prev,
+        valueTitle1: currentValueData.judul || defaults.valueTitle1,
+        valueSubtitle: currentValueData.deskripsi || defaults.valueSubtitle,
+      }));
+
+      // 2. Update Values List (Array)
+      setValuesList([
+        {
+          id: 1,
+          title: currentValueData.info_judul_1 || defaults.items[0].title,
+          description:
+            currentValueData.info_deskripsi_1 || defaults.items[0].desc,
+        },
+        {
+          id: 2,
+          title: currentValueData.info_judul_2 || defaults.items[1].title,
+          description:
+            currentValueData.info_deskripsi_2 || defaults.items[1].desc,
+        },
+        {
+          id: 3,
+          title: currentValueData.info_judul_3 || defaults.items[2].title,
+          description:
+            currentValueData.info_deskripsi_3 || defaults.items[2].desc,
+        },
+        {
+          id: 4,
+          title: currentValueData.info_judul_4 || defaults.items[3].title,
+          description:
+            currentValueData.info_deskripsi_4 || defaults.items[3].desc,
+        },
+      ]);
+    }
+  }, [currentValueData, t]);
+
+  // Handler Save Values
+  const handleSaveValues = async () => {
+    if (!clientCode) return Swal.fire("Error", "Client Code missing", "error");
+    try {
+      const formData = new FormData();
+      formData.append("client_id", "5");
+      formData.append("bahasa", lang);
+      formData.append("status", "1");
+
+      // Header
+      formData.append("judul", texts.valueTitle1);
+      formData.append("deskripsi", texts.valueSubtitle);
+
+      // Items (Mapping array state ke field flat API)
+      // Item 1
+      formData.append("info_judul_1", valuesList[0].title);
+      formData.append("info_deskripsi_1", valuesList[0].description);
+      formData.append("info_icon_1", "leaf"); // Default string untuk icon
+
+      // Item 2
+      formData.append("info_judul_2", valuesList[1].title);
+      formData.append("info_deskripsi_2", valuesList[1].description);
+      formData.append("info_icon_2", "shield");
+
+      // Item 3
+      formData.append("info_judul_3", valuesList[2].title);
+      formData.append("info_deskripsi_3", valuesList[2].description);
+      formData.append("info_icon_3", "palette");
+
+      // Item 4
+      formData.append("info_judul_4", valuesList[3].title);
+      formData.append("info_deskripsi_4", valuesList[3].description);
+      formData.append("info_icon_4", "heart");
+
+      // Note: Jika nanti ingin support upload image per item, append 'image_1' dst disini.
+
+      if (currentValueData?.id) {
+        await updateValue({ id: currentValueData.id, data: formData }).unwrap();
+        Swal.fire(
+          "Success",
+          `Values Section (${lang.toUpperCase()}) updated!`,
+          "success"
+        );
+      } else {
+        await createValue(formData).unwrap();
+        Swal.fire(
+          "Success",
+          `Values Section (${lang.toUpperCase()}) created!`,
+          "success"
+        );
+      }
+      refetchValues();
+    } catch (error) {
+      console.error("Save Values Error:", error);
+      Swal.fire("Error", "Failed to save Values", "error");
+    }
+  };
 
   // ========== 1. BACKGROUND STATES ==========
   const [heroBg, setHeroBg] = useState<BackgroundConfig>({
@@ -84,7 +372,7 @@ function AboutContent() {
 
   // ========== 2. TEXT & CONTENT STATES ==========
   // State untuk teks tunggal
-  const [texts, setTexts] = useState({
+  const [texts, setTexts] = useState<AboutTextState>({
     heroBadge: t["hero-badge"],
     heroTitle1: t["hero-title-1"],
     heroTitle2: t["hero-title-2"],
@@ -95,8 +383,7 @@ function AboutContent() {
     heroItem2Title: t["hero-item-2-title"],
     heroItem2Content: t["hero-item-2-content"],
     heroItem3Content: t["hero-item-3-content"],
-    heroImage:
-      "3.webp",
+    heroImage: "3.webp",
 
     misiTitle: t["misi-title"],
     misiSubtitle: t["misi-subtitle"],
@@ -278,6 +565,14 @@ function AboutContent() {
     ],
   };
 
+  const getPreviewSrc = (source: string | File | null) => {
+    if (!source) return "/placeholder.webp";
+    if (source instanceof File) {
+      return URL.createObjectURL(source);
+    }
+    return source;
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* ================= HERO SECTION ================= */}
@@ -287,8 +582,27 @@ function AboutContent() {
         onSave={setHeroBg}
         className="relative min-h-screen flex items-center justify-center overflow-hidden"
       >
-        {/* Decorative Elements (Static) */}
+        {/* BUTTON SAVE (Global untuk About Us karena satu API endpoint) */}
+        {isEditMode && (
+          <div className="absolute top-24 left-6 z-50">
+            <Button
+              onClick={handleSaveAbout}
+              disabled={isCreating || isUpdating}
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg border-2 border-white/20"
+              size="sm"
+            >
+              {isCreating || isUpdating ? (
+                <div className="flex items-center gap-2">
+                  <DotdLoader /> Saving...
+                </div>
+              ) : (
+                `💾 Save About Us (${lang.toUpperCase()})`
+              )}
+            </Button>
+          </div>
+        )}
 
+        {/* Decorative Elements (Static) */}
         <div className="absolute bottom-32 right-16 w-20 h-20 bg-[#BFF0F5] rounded-full opacity-60 animate-pulse delay-1000 pointer-events-none"></div>
         <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-[#DFF19D] rounded-full opacity-40 animate-pulse delay-500 pointer-events-none"></div>
 
@@ -296,16 +610,6 @@ function AboutContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Text Content */}
             <div className="text-center lg:text-left space-y-8">
-              {/* <div className="inline-flex items-center gap-2 bg-[#35966d]/10 px-4 py-2 rounded-full">
-                <Sparkles className="w-4 h-4 text-[#35966d]" />
-                <EditableText
-                  isEditMode={isEditMode}
-                  text={texts.heroBadge}
-                  onSave={(v) => updateText("heroBadge", v)}
-                  as="span"
-                  className={`text-sm font-medium text-[#35966d] ${sniglet.className}`}
-                />
-              </div> */}
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-full shadow-lg">
                 <Image
                   src="https://8nc5ppykod.ufs.sh/f/H265ZJJzf6brl2xfj3HmgY8fkG9iJeAzFQyqLh5pudMZH7l2"
@@ -354,7 +658,7 @@ function AboutContent() {
               <div
                 className={`flex flex-col sm:flex-row gap-4 ${sniglet.className}`}
               >
-                {/* Hero Item 1 */}
+                {/* Hero Item 1 (Mapped to info_judul_1) */}
                 <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-lg">
                   <div className="w-12 h-12 bg-[#35966d] rounded-xl flex items-center justify-center">
                     <TreePine className="w-6 h-6 text-white" />
@@ -374,7 +678,7 @@ function AboutContent() {
                     />
                   </div>
                 </div>
-                {/* Hero Item 2 */}
+                {/* Hero Item 2 (Mapped to info_judul_2) */}
                 <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-lg">
                   <div className="w-12 h-12 bg-[#d43893ff] rounded-xl flex items-center justify-center">
                     <Baby className="w-6 h-6 text-white" />
@@ -402,7 +706,7 @@ function AboutContent() {
               <div className="relative w-full h-[600px] rounded-3xl overflow-hidden shadow-2xl">
                 <EditableImage
                   isEditMode={isEditMode}
-                  src={texts.heroImage}
+                  src={getPreviewSrc(texts.heroImage)}
                   onSave={(url) => updateText("heroImage", url)}
                   alt="COLORE Story"
                   fill
@@ -410,7 +714,7 @@ function AboutContent() {
                   containerClassName="w-full h-full"
                   className="object-cover"
                 />
-                {/* Floating Badge */}
+                {/* Floating Badge (Mapped to info_judul_3) */}
                 <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
                   <div className="flex items-center gap-3">
                     <div className="flex -space-x-2">
@@ -539,8 +843,28 @@ function AboutContent() {
         isEditMode={isEditMode}
         config={valuesBg}
         onSave={setValuesBg}
-        className={`py-20 ${sniglet.className}`}
+        className={`py-20 ${sniglet.className} relative`}
       >
+        {/* BUTTON SAVE VALUES */}
+        {isEditMode && (
+          <div className="absolute top-4 left-6 z-50">
+            <Button
+              onClick={handleSaveValues}
+              disabled={isCreatingValue || isUpdatingValue}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg border-2 border-white/20"
+              size="sm"
+            >
+              {isCreatingValue || isUpdatingValue ? (
+                <div className="flex items-center gap-2">
+                  <DotdLoader /> Saving...
+                </div>
+              ) : (
+                `💾 Save Values (${lang.toUpperCase()})`
+              )}
+            </Button>
+          </div>
+        )}
+
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mb-16">
             <h2
