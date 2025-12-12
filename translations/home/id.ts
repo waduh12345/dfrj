@@ -36,6 +36,7 @@ const translations = {
   "sec-4-cta": "Lihat Semua Produk",
   "sec-4-card-reviews": "Ulasan",
   "sec-4-card-cta": "Tambah ke Keranjang",
+  "sec-4-cta-url": "https://www.colore.co.id/products",
   "sec-5-title-1": "Yuk Mulai Perjalanan",
   "sec-5-title-2": "Kreatif",
   "sec-5-title-3": "Si",

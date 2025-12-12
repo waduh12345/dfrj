@@ -17,14 +17,6 @@ import en from "@/translations/home/en";
 import id from "@/translations/home/id";
 
 import { useCallback, useMemo, useState, useEffect, Suspense } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 // --- SERVICES ---
@@ -73,6 +65,8 @@ import {
   EditableSection,
   BackgroundConfig,
 } from "@/components/ui/editable-section";
+import { useCreateProdukMutation, useGetProdukListQuery, useUpdateProdukMutation } from "@/services/customize/home/product.service";
+import { useCreateCTAMutation, useGetCTAListQuery, useUpdateCTAMutation } from "@/services/customize/home/cta.service";
 
 function HomeContent() {
   const router = useRouter();
@@ -186,6 +180,39 @@ function HomeContent() {
     return null;
   }, [mengapaApiResult]);
 
+  const { data: produkApiResult, refetch: refetchProduk } =
+    useGetProdukListQuery(
+      { client_code: clientCode, bahasa: lang },
+      { skip: !clientCode }
+    );
+
+  const [createProduk, { isLoading: isCreatingProduk }] =
+    useCreateProdukMutation();
+  const [updateProduk, { isLoading: isUpdatingProduk }] =
+    useUpdateProdukMutation();
+
+  const currentProdukData = useMemo(() => {
+    if (produkApiResult?.data?.items && produkApiResult.data.items.length > 0) {
+      return produkApiResult.data.items[0];
+    }
+    return null;
+  }, [produkApiResult]);
+
+  const { data: ctaApiResult, refetch: refetchCTA } = useGetCTAListQuery(
+    { client_code: clientCode, bahasa: lang },
+    { skip: !clientCode }
+  );
+
+  const [createCTA, { isLoading: isCreatingCTA }] = useCreateCTAMutation();
+  const [updateCTA, { isLoading: isUpdatingCTA }] = useUpdateCTAMutation();
+
+  const currentCTAData = useMemo(() => {
+    if (ctaApiResult?.data?.items && ctaApiResult.data.items.length > 0) {
+      return ctaApiResult.data.items[0];
+    }
+    return null;
+  }, [ctaApiResult]);
+
   // ========== Editable Content States (Inisialisasi Awal) ==========
   const [editableData, setEditableData] = useState({
     // Hero Data
@@ -212,6 +239,7 @@ function HomeContent() {
     sec4Title2: t["sec-4-title-2"],
     sec4Subtitle: t["sec-4-subtitle"],
     sec4CtaMain: t["sec-4-cta"],
+    sec4CtaUrl: t["sec-4-cta-url"],
 
     // CTA Data
     sec5Title1: t["sec-5-title-1"],
@@ -271,6 +299,22 @@ function HomeContent() {
       sec2Subtitle: t["sec-2-subtitle"],
       sec3Title1: t["sec-3-title-1"],
       sec3Title2: t["sec-3-title-2"],
+      sec4Title1: t["sec-4-title-1"],
+      sec4Title2: t["sec-4-title-2"],
+      sec4Subtitle: t["sec-4-subtitle"],
+      sec4CtaMain: t["sec-4-cta"],
+      sec4CtaUrl: "/product",
+
+      sec5Title1: t["sec-5-title-1"],
+      sec5Title2: t["sec-5-title-2"],
+      sec5Title3: t["sec-5-title-3"],
+      sec5Title4: t["sec-5-title-4"],
+      sec5Title5: t["sec-5-title-5"],
+      sec5Subtitle: t["sec-5-subtitle"],
+      sec5Btn1Text: t["sec-5-cta-1"],
+      sec5Btn2Text: t["sec-5-cta-2"],
+      sec5Btn1Url: "/product",
+      sec5Btn2Url: "/about",
     };
 
     setEditableData((prev) => ({
@@ -294,23 +338,33 @@ function HomeContent() {
       sec3Title1: currentMengapaData?.judul || defaults.sec3Title1,
       sec3Title2: currentMengapaData?.sub_judul || defaults.sec3Title2,
 
-      // --- MAPPING LAINNYA (STATIC FOR NOW) ---
-      sec4Title1: t["sec-4-title-1"],
-      sec4Title2: t["sec-4-title-2"],
-      sec4Subtitle: t["sec-4-subtitle"],
-      sec4CtaMain: t["sec-4-cta"],
-      sec5Title1: t["sec-5-title-1"],
-      sec5Title2: t["sec-5-title-2"],
-      sec5Title3: t["sec-5-title-3"],
-      sec5Title4: t["sec-5-title-4"],
-      sec5Title5: t["sec-5-title-5"],
-      sec5Subtitle: t["sec-5-subtitle"],
-      sec5Btn1Text: t["sec-5-cta-1"],
-      sec5Btn2Text: t["sec-5-cta-2"],
+      // --- MAPPING PRODUCTS SECTION ---
+      sec4Title1: currentProdukData?.judul || defaults.sec4Title1,
+      sec4Title2: currentProdukData?.sub_judul || defaults.sec4Title2,
+      sec4Subtitle: currentProdukData?.deskripsi || defaults.sec4Subtitle,
+      sec4CtaMain: currentProdukData?.button_text || defaults.sec4CtaMain,
+      sec4CtaUrl: currentProdukData?.link || "/product",
+
+      // --- MAPPING CTA SECTION ---
+      // Judul utama & highlight
+      sec5Title1: currentCTAData?.judul || defaults.sec5Title1,
+      sec5Title2: currentCTAData?.sub_judul || defaults.sec5Title2,
+
+      // Memanfaatkan field info_judul untuk menyimpan pecahan judul lainnya
+      sec5Title3: currentCTAData?.info_judul_1 || defaults.sec5Title3,
+      sec5Title4: currentCTAData?.info_judul_2 || defaults.sec5Title4,
+      sec5Title5: currentCTAData?.info_judul_3 || defaults.sec5Title5,
+
+      sec5Subtitle: currentCTAData?.deskripsi || defaults.sec5Subtitle,
+
+      // Buttons
+      sec5Btn1Text: currentCTAData?.button_1 || defaults.sec5Btn1Text,
+      sec5Btn1Url: currentCTAData?.button_link_1 || defaults.sec5Btn1Url,
+      sec5Btn2Text: currentCTAData?.button_2 || defaults.sec5Btn2Text,
+      sec5Btn2Url: currentCTAData?.button_link_2 || defaults.sec5Btn2Url,
     }));
 
     // --- MAPPING FEATURE ITEMS (ARRAY) ---
-    // Logika: Jika data API ada, pakai API. Jika tidak, pakai Translation.
     setFeatureItems([
       {
         id: 1,
@@ -479,6 +533,102 @@ function HomeContent() {
     } catch (error) {
       console.error("Save Features Error:", error);
       Swal.fire("Error", "Failed to save Features", "error");
+    }
+  };
+
+  // ========== HANDLER: SAVE PRODUCTS SECTION ==========
+  const handleSaveProducts = async () => {
+    if (!clientCode) return Swal.fire("Error", "Client Code missing", "error");
+    try {
+      const formData = new FormData();
+      formData.append("client_id", "5");
+      formData.append("bahasa", lang);
+      formData.append("status", "1");
+
+      formData.append("judul", editableData.sec4Title1);
+      formData.append("sub_judul", editableData.sec4Title2 || "");
+      formData.append("deskripsi", editableData.sec4Subtitle);
+      formData.append("button_text", editableData.sec4CtaMain);
+      formData.append("link", editableData.sec4CtaUrl);
+
+      if (currentProdukData?.id) {
+        await updateProduk({
+          id: currentProdukData.id,
+          data: formData,
+        }).unwrap();
+        Swal.fire(
+          "Success",
+          `Products Section (${lang.toUpperCase()}) updated!`,
+          "success"
+        );
+      } else {
+        await createProduk(formData).unwrap();
+        Swal.fire(
+          "Success",
+          `Products Section (${lang.toUpperCase()}) created!`,
+          "success"
+        );
+      }
+      refetchProduk();
+    } catch (error) {
+      console.error("Save Products Error:", error);
+      Swal.fire("Error", "Failed to save Products Section", "error");
+    }
+  };
+
+  // ========== HANDLER: SAVE CTA SECTION ==========
+  const handleSaveCTA = async () => {
+    if (!clientCode) return Swal.fire("Error", "Client Code missing", "error");
+    try {
+      const formData = new FormData();
+      formData.append("client_id", "5");
+      formData.append("bahasa", lang);
+      formData.append("status", "1");
+
+      // Mapping UI Title parts to API fields
+      formData.append("judul", editableData.sec5Title1);
+      formData.append("sub_judul", editableData.sec5Title2 || "");
+      formData.append("info_judul_1", editableData.sec5Title3 || "");
+      formData.append("info_judul_2", editableData.sec5Title4 || "");
+      formData.append("info_judul_3", editableData.sec5Title5 || "");
+
+      formData.append("deskripsi", editableData.sec5Subtitle);
+
+      // Buttons
+      formData.append("button_1", editableData.sec5Btn1Text);
+      formData.append("button_link_1", editableData.sec5Btn1Url);
+      formData.append("button_2", editableData.sec5Btn2Text);
+      formData.append("button_link_2", editableData.sec5Btn2Url);
+
+      // Field wajib lain yang mungkin tidak dipakai di UI tapi wajib di API (isi default)
+      formData.append("info_deskripsi_1", "-");
+      formData.append("info_deskripsi_2", "-");
+      formData.append("info_deskripsi_3", "-");
+      formData.append("info_judul_4", "-");
+      formData.append("info_deskripsi_4", "-");
+
+      if (currentCTAData?.id) {
+        await updateCTA({
+          id: currentCTAData.id,
+          data: formData,
+        }).unwrap();
+        Swal.fire(
+          "Success",
+          `CTA Section (${lang.toUpperCase()}) updated!`,
+          "success"
+        );
+      } else {
+        await createCTA(formData).unwrap();
+        Swal.fire(
+          "Success",
+          `CTA Section (${lang.toUpperCase()}) created!`,
+          "success"
+        );
+      }
+      refetchCTA();
+    } catch (error) {
+      console.error("Save CTA Error:", error);
+      Swal.fire("Error", "Failed to save CTA Section", "error");
     }
   };
 
@@ -1009,11 +1159,31 @@ function HomeContent() {
         isEditMode={isEditMode}
         config={productsBg}
         onSave={setProductsBg}
-        className="py-20"
+        className="py-20 relative"
       >
+        {/* BUTTON SAVE PRODUCTS */}
+        {isEditMode && (
+          <div className="absolute top-4 left-6 z-50">
+            <Button
+              onClick={handleSaveProducts}
+              disabled={isCreatingProduk || isUpdatingProduk}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg border-2 border-white/20"
+              size="sm"
+            >
+              {isCreatingProduk || isUpdatingProduk ? (
+                <div className="flex items-center gap-2">
+                  <DotdLoader /> Saving...
+                </div>
+              ) : (
+                `💾 Save Products (${lang.toUpperCase()})`
+              )}
+            </Button>
+          </div>
+        )}
+
         <div className="container mx-auto px-6 lg:px-12">
           <div className={`text-center mb-16 ${fredoka.className}`}>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[#5C4A3B] mb-6 flex justify-center gap-2 items-center">
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#5C4A3B] mb-6 flex justify-center gap-2 items-center flex-wrap">
               <EditableText
                 isEditMode={isEditMode}
                 text={editableData.sec4Title1}
@@ -1087,7 +1257,7 @@ function HomeContent() {
                           </div>
                         </div>
                         <div className="p-4 md:p-6">
-                          <h3 className="text-lg md:text-xl font-bold text-[#5C4A3B] mb-2">
+                          <h3 className="text-lg md:text-xl font-bold text-[#5C4A3B] mb-2 line-clamp-1">
                             {product.name}
                           </h3>
                           <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -1148,6 +1318,26 @@ function HomeContent() {
         onSave={setCtaBg}
         className="py-20 relative overflow-hidden"
       >
+        {/* BUTTON SAVE CTA */}
+        {isEditMode && (
+          <div className="absolute top-4 left-6 z-50">
+            <Button
+              onClick={handleSaveCTA}
+              disabled={isCreatingCTA || isUpdatingCTA}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg border-2 border-white/20"
+              size="sm"
+            >
+              {isCreatingCTA || isUpdatingCTA ? (
+                <div className="flex items-center gap-2">
+                  <DotdLoader /> Saving...
+                </div>
+              ) : (
+                `💾 Save CTA (${lang.toUpperCase()})`
+              )}
+            </Button>
+          </div>
+        )}
+
         <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full opacity-80 animate-pulse shadow-lg pointer-events-none"></div>
         <div className="absolute bottom-32 right-16 w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full opacity-80 animate-pulse delay-1000 shadow-lg pointer-events-none"></div>
         <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-gradient-to-br from-lime-500 to-green-500 rounded-full opacity-70 animate-pulse delay-500 shadow-lg pointer-events-none"></div>

@@ -42,6 +42,6 @@ export const apiSlice = createApi({
 export const apiSecondSlice = createApi({
   reducerPath: "apiSecond",
   baseQuery: baseSecondQuery,
-  tagTypes: ["Client", "Hero", "KategoriProduk", "Mengapa"],
+  tagTypes: ["Client", "Hero", "KategoriProduk", "Mengapa", "Produk", "CTA"],
   endpoints: () => ({}),
 });

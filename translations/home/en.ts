@@ -33,6 +33,7 @@ const translations = {
   "sec-4-cta": "View All Products",
   "sec-4-card-reviews": "Reviews",
   "sec-4-card-cta": "Add to Cart",
+  "sec-4-cta-url": "https://www.colore.co.id/products",
   "sec-5-title-1": "Let's Start a",
   "sec-5-title-2": "Creative",
   "sec-5-title-3": "Little",
