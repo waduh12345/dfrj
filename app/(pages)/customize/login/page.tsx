@@ -52,7 +52,7 @@ function LoginContent() {
         await Swal.fire({
           icon: "success",
           title: "Berhasil Masuk!",
-          text: "Selamat datang kembali di COLORE.",
+          text: "Selamat datang kembali di DIFARAJA.",
           confirmButtonColor: "#E84A8A",
           timer: 1500,
           showConfirmButton: false,

@@ -370,7 +370,7 @@ function HomeContent() {
         id: 1,
         icon:
           currentMengapaData?.info_icon_1 ||
-          "/images/advantage/advantage-1.png",
+          "/mengapa-1.webp",
         title: currentMengapaData?.info_judul_1 || t["sec-3-item-1-title"],
         description:
           currentMengapaData?.info_deskripsi_1 || t["sec-3-item-1-content"],
@@ -379,7 +379,7 @@ function HomeContent() {
         id: 2,
         icon:
           currentMengapaData?.info_icon_2 ||
-          "/images/advantage/advantage-2.png",
+          "/mengapa-2.webp",
         title: currentMengapaData?.info_judul_2 || t["sec-3-item-2-title"],
         description:
           currentMengapaData?.info_deskripsi_2 || t["sec-3-item-2-content"],
@@ -388,7 +388,7 @@ function HomeContent() {
         id: 3,
         icon:
           currentMengapaData?.info_icon_3 ||
-          "/images/advantage/advantage-3.png",
+          "/mengapa-3.webp",
         title: currentMengapaData?.info_judul_3 || t["sec-3-item-3-title"],
         description:
           currentMengapaData?.info_deskripsi_3 || t["sec-3-item-3-content"],
@@ -397,7 +397,7 @@ function HomeContent() {
         id: 4,
         icon:
           currentMengapaData?.info_icon_4 ||
-          "/images/advantage/advantage-4.png",
+          "/mengapa-4.webp",
         title: currentMengapaData?.info_judul_4 || t["sec-3-item-4-title"],
         description:
           currentMengapaData?.info_deskripsi_4 || t["sec-3-item-4-content"],
@@ -675,15 +675,56 @@ function HomeContent() {
   };
 
   // Data Fetching List Products
-  const {
-    data: listData,
-    isLoading: isListLoading,
-    isError: isListError,
-  } = useGetProductMerkListQuery({ page, paginate });
-  const categories = useMemo(() => listData?.data ?? [], [listData]);
-  const lastPage = listData?.last_page ?? 1;
-  const currentPage = listData?.current_page ?? 1;
-  const total = listData?.total ?? 0;
+  // Hardcoded categories data
+  const categories = [
+    {
+      id: 1,
+      name: "Kuliner",
+      slug: "kuliner",
+      image: "/kategori-kuliner.webp",
+      description: "Aneka makanan lezat dan khas.",
+      status: 1,
+    },
+    {
+      id: 2,
+      name: "Minuman",
+      slug: "minuman",
+      image: "/kategori-minuman.webp",
+      description: "Minuman segar dan sehat.",
+      status: 1,
+    },
+    {
+      id: 3,
+      name: "Kerajinan",
+      slug: "kerajinan",
+      image: "/kategori-kerajinan.webp",
+      description: "Kerajinan tangan kreatif.",
+      status: 1,
+    },
+    {
+      id: 4,
+      name: "Fashion",
+      slug: "fashion",
+      image: "/kategori-fashion.webp",
+      description: "Busana dan aksesoris trendi.",
+      status: 1,
+    },
+  ];
+  const isListLoading = false;
+  const isListError = false;
+  const total = categories.length;
+  const lastPage = 1;
+  const currentPage = 1;
+
+  // const {
+  //   data: listData,
+  //   isLoading: isListLoading,
+  //   isError: isListError,
+  // } = useGetProductMerkListQuery({ page, paginate });
+  // const categories = useMemo(() => listData?.data ?? [], [listData]);
+  // const lastPage = listData?.last_page ?? 1;
+  // const currentPage = listData?.current_page ?? 1;
+  // const total = listData?.total ?? 0;
 
   const { data: detailData, isLoading: isDetailLoading } =
     useGetProductMerkBySlugQuery(selectedSlug ?? "", { skip: !selectedSlug });
@@ -793,33 +834,35 @@ function HomeContent() {
                   height={15}
                 />
                 <span className={`text-sm font-medium ${sniglet.className}`}>
-                  Eco Friendly & Enriching
+                  Estetika, Rasa, dan Jiwa
                 </span>
               </div>
 
-              <h1
+                <h1
                 className={`${fredoka.className} text-5xl lg:text-6xl font-semibold text-[#5C4A3B] leading-tight`}
-              >
+                >
                 <EditableText
                   isEditMode={isEditMode}
                   text={editableData.heroTitle1}
                   onSave={(val) => updateContent("heroTitle1", val)}
                 />
-                <EditableText
+                <span>
+                  <EditableText
                   isEditMode={isEditMode}
                   text={editableData.heroTitle2}
                   onSave={(val) => updateContent("heroTitle2", val)}
                   as="span"
-                  className="block bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent"
-                />
-                <EditableText
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent"
+                  />
+                  <EditableText
                   isEditMode={isEditMode}
                   text={editableData.heroTitle3}
                   onSave={(val) => updateContent("heroTitle3", val)}
                   as="span"
-                  className="block bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent"
-                />
-              </h1>
+                  className="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent ml-2"
+                  />
+                </span>
+                </h1>
 
               <EditableText
                 isEditMode={isEditMode}
@@ -891,7 +934,7 @@ function HomeContent() {
                     <span
                       className={`font-semibold text-sm ${sniglet.className}`}
                     >
-                      Plant Based Colorant
+                      Gaya Hidup & Kualitas
                     </span>
                   </div>
                 </div>
@@ -941,7 +984,7 @@ function HomeContent() {
 
         <div className="container mx-auto px-6 lg:px-12">
           <div className={`text-center mb-10 ${fredoka.className}`}>
-            <h2 className="text-4xl lg:text-5xl font-semibold text-[#5C4A3B] mb-6 flex flex-col items-center justify-center">
+            <h2 className="text-4xl lg:text-5xl font-semibold text-[#5C4A3B] mb-6 flex flex-wrap items-center justify-center gap-2">
               <EditableText
                 isEditMode={isEditMode}
                 text={editableData.sec2Title1}
@@ -989,7 +1032,7 @@ function HomeContent() {
                     <div key={category.id} className="group h-96">
                       <div className="relative h-full flex flex-col overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 transform">
                         <div
-                          className={`bg-gradient-to-br ${gradientByIndex(
+                          className={`${gradientByIndex(
                             index
                           )} h-48 flex items-center justify-center overflow-hidden`}
                         >
@@ -1093,7 +1136,7 @@ function HomeContent() {
         <div className="container mx-auto px-6 lg:px-12">
           <div className="text-center mx-auto">
             <h2
-              className={`text-4xl lg:text-5xl font-extrabold text-[#5C4A3B] ${fredoka.className} flex flex-col items-center`}
+              className={`text-4xl lg:text-5xl font-extrabold text-[#5C4A3B] ${fredoka.className} flex flex-wrap items-center justify-center gap-2`}
             >
               <EditableText
                 isEditMode={isEditMode}
@@ -1118,7 +1161,7 @@ function HomeContent() {
                 key={f.id}
                 className="group bg-white/70 backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-md transition-all"
               >
-                <div className="w-32 h-32 rounded-2xl bg-emerald-50 flex items-center justify-center shadow-sm mx-auto p-1 overflow-hidden relative">
+                <div className="w-32 h-32 rounded-2xlflex items-center justify-center mx-auto p-1 overflow-hidden relative">
                   <div className="scale-130 relative w-full h-full flex items-center justify-center">
                     <EditableImage
                       isEditMode={isEditMode}

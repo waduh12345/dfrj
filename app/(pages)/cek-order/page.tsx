@@ -19,6 +19,7 @@ import {
   FileQuestion,
   SearchX,
   Info,
+  Heart, // Added for brand emotion
 } from "lucide-react";
 
 import { fredoka, sniglet } from "@/lib/fonts";
@@ -88,7 +89,9 @@ export default function TrackOrderPage() {
         <div className="min-h-screen pt-24 pb-12 flex items-center justify-center bg-gradient-to-br from-white to-[#DFF19D]/10">
           <div className="flex flex-col items-center">
             <DotdLoader />
-            <p className="mt-4 text-gray-500 font-medium">Memuat halaman...</p>
+            <p className="mt-4 text-gray-500 font-medium">
+              Memuat data Difaraja...
+            </p>
           </div>
         </div>
       }
@@ -104,11 +107,10 @@ function TrackOrderContent() {
   const searchParams = useSearchParams();
 
   // --- STATE ---
-  // 1. Pisahkan searchTerm (Input User) dan searchCode (Trigger API)
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCode, setSearchCode] = useState("");
 
-  const [isLoading, setIsLoading] = useState(false); // Hanya untuk initial load URL
+  const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [result, setResult] = useState<TrackResult | null>(null);
   const [encryptedPaymentId, setEncryptedPaymentId] = useState<string | null>(
@@ -116,7 +118,6 @@ function TrackOrderContent() {
   );
 
   // Service hook
-  // Gunakan 'refetch' untuk memaksa update saat tombol diklik
   const {
     data: transactionData,
     isLoading: isFetching,
@@ -130,10 +131,10 @@ function TrackOrderContent() {
   useEffect(() => {
     const codeFromUrl = searchParams.get("code");
     if (codeFromUrl) {
-      setSearchTerm(codeFromUrl); // Isi input field
-      setSearchCode(codeFromUrl); // Trigger API
+      setSearchTerm(codeFromUrl);
+      setSearchCode(codeFromUrl);
       setHasSearched(true);
-      setIsLoading(true); // Loading visual untuk URL flow
+      setIsLoading(true);
     }
   }, [searchParams]);
 
@@ -173,7 +174,7 @@ function TrackOrderContent() {
         ],
       };
       setResult(mockData);
-      setIsLoading(false); // Stop loading manual (jika dari URL)
+      setIsLoading(false);
     } else if (isError) {
       setIsLoading(false);
     }
@@ -206,25 +207,13 @@ function TrackOrderContent() {
     }
 
     setHasSearched(true);
-
-    // Logic Perbaikan:
-    // 1. Set searchCode agar API terpanggil (jika berbeda)
     setSearchCode(searchTerm);
 
-    // 2. Jika user menekan tombol lagi dengan kode yang sama,
-    //    transactionData tidak berubah, jadi useEffect tidak jalan.
-    //    Kita panggil refetch() untuk memastikan status terbaru dan mengaktifkan isFetching.
     if (searchCode === searchTerm) {
       refetch();
     }
-
-    // Note: Jangan set setIsLoading(true) di sini agar tidak stuck.
-    // Gunakan 'isFetching' dari hook untuk indikator loading.
   };
 
-  // Gabungkan loading state:
-  // - isLoading: Loading manual saat pertama kali buka link URL
-  // - isFetching: Loading otomatis dari RTK Query saat fetch data
   const showLoading = isLoading || isFetching;
 
   // --- HELPER UTILS ---
@@ -268,17 +257,16 @@ function TrackOrderContent() {
           <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-4">
             <Truck className="w-4 h-4 text-[#A3B18A]" />
             <span className="text-sm font-medium text-[#A3B18A]">
-              Lacak Kiriman
+              Lacak Karya
             </span>
           </div>
           <h1
             className={`text-4xl font-bold text-[#5C4A3B] mb-4 ${fredoka.className}`}
           >
-            Lacak Status <span className="text-[#A3B18A]">Pesanan Anda</span>
+            Pantau Perjalanan <span className="text-[#A3B18A]">Karya Istimewa</span>
           </h1>
           <p className="text-gray-600">
-            Masukkan Kode Transaksi (contoh: TRX-2025...) yang dikirimkan ke
-            email Anda untuk mengetahui posisi paket terkini.
+            Masukkan Kode Transaksi (TRX-...) yang Anda terima di Email/WhatsApp untuk memantau perjalanan produk Kuliner & Kriya pilihan Anda.
           </p>
         </div>
 
@@ -314,7 +302,7 @@ function TrackOrderContent() {
             <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
               <DotdLoader />
               <p className="mt-4 text-gray-500 font-medium">
-                Sedang mencari data transaksi...
+                Sedang mencari data karya...
               </p>
             </div>
           )}
@@ -328,11 +316,11 @@ function TrackOrderContent() {
               <h3
                 className={`text-2xl font-bold text-[#5C4A3B] mb-3 ${fredoka.className}`}
               >
-                Belum Melacak Pesanan?
+                Menanti Paket Difaraja?
               </h3>
               <p className="text-gray-500 mb-8 max-w-md mx-auto">
                 Silakan masukkan <strong>Kode Referensi (TRX-...)</strong>{" "}
-                {`yang Anda dapatkan pada halaman "Terima Kasih" atau yang kami kirimkan melalui Email/WhatsApp.`}
+                yang Anda dapatkan saat checkout untuk mengetahui status terkini dukungan Anda.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
@@ -341,10 +329,10 @@ function TrackOrderContent() {
                     <Search className="w-4 h-4 text-blue-600" />
                   </div>
                   <h4 className="font-bold text-gray-800 text-sm mb-1">
-                    1. Masukkan Kode
+                    1. Input Kode
                   </h4>
                   <p className="text-xs text-gray-500">
-                    Input kode transaksi dengan benar.
+                    Gunakan kode dari invoice/email.
                   </p>
                 </div>
                 <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
@@ -352,10 +340,10 @@ function TrackOrderContent() {
                     <Truck className="w-4 h-4 text-purple-600" />
                   </div>
                   <h4 className="font-bold text-gray-800 text-sm mb-1">
-                    2. Cek Status
+                    2. Pantau Kurir
                   </h4>
                   <p className="text-xs text-gray-500">
-                    Lihat posisi terkini paket Anda.
+                    Cek posisi Kuliner/Kriya Anda.
                   </p>
                 </div>
                 <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
@@ -363,10 +351,10 @@ function TrackOrderContent() {
                     <CheckCircle className="w-4 h-4 text-green-600" />
                   </div>
                   <h4 className="font-bold text-gray-800 text-sm mb-1">
-                    3. Selesai
+                    3. Karya Tiba
                   </h4>
                   <p className="text-xs text-gray-500">
-                    Paket diterima dengan aman.
+                    Nikmati produk dengan senyuman.
                   </p>
                 </div>
               </div>
@@ -382,7 +370,7 @@ function TrackOrderContent() {
               <h3
                 className={`text-xl font-bold text-[#5C4A3B] mb-2 ${fredoka.className}`}
               >
-                Data Tidak Ditemukan
+                Karya Tidak Ditemukan
               </h3>
               <p className="text-gray-600 mb-6">
                 Maaf, kami tidak dapat menemukan data transaksi dengan kode{" "}
@@ -396,9 +384,9 @@ function TrackOrderContent() {
                   <Info className="w-4 h-4 text-gray-400" /> Tips Pencarian:
                 </h4>
                 <ul className="text-sm text-gray-500 list-disc list-inside space-y-1">
-                  <li>Pastikan kode transaksi sudah benar (Case Sensitive).</li>
-                  <li>Periksa kembali email konfirmasi pesanan Anda.</li>
-                  <li>Hubungi admin jika Anda yakin sudah membayar.</li>
+                  <li>Pastikan kode transaksi (TRX-...) sudah sesuai.</li>
+                  <li>Periksa pesan WhatsApp konfirmasi dari Difaraja.</li>
+                  <li>Jika sudah transfer, hubungi admin untuk bantuan.</li>
                 </ul>
               </div>
             </div>
@@ -427,7 +415,7 @@ function TrackOrderContent() {
                   </div>
                   <div className="text-left md:text-right">
                     <p className="text-sm text-gray-500 mb-1">
-                      Tanggal Pemesanan
+                      Waktu Pemesanan
                     </p>
                     <div className="flex items-center gap-2 text-[#5C4A3B] font-medium">
                       <Calendar className="w-4 h-4 text-[#A3B18A]" />
@@ -449,12 +437,12 @@ function TrackOrderContent() {
                       <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
                       <div>
                         <p className="font-bold text-yellow-800">
-                          Menunggu Pembayaran
+                          Menunggu Dukungan Anda
                         </p>
                         <p className="text-sm text-yellow-700">
                           {result.payment_type === "automatic"
-                            ? "Selesaikan pembayaran otomatis Anda."
-                            : "Pesanan belum dibayar. Silakan upload bukti transfer."}
+                            ? "Selesaikan pembayaran untuk memproses karya ini."
+                            : "Pesanan tercatat. Mohon segera lakukan pembayaran."}
                         </p>
                       </div>
                     </div>
@@ -462,7 +450,6 @@ function TrackOrderContent() {
                     {/* Logic Tombol Bayar */}
                     <div>
                       {result.payment_type === "automatic" ? (
-                        // CASE 1: Automatic Payment -> window.open
                         result.payment_link ? (
                           <button
                             onClick={() =>
@@ -470,20 +457,19 @@ function TrackOrderContent() {
                             }
                             className="bg-yellow-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-600 transition-colors whitespace-nowrap shadow-lg shadow-yellow-500/30"
                           >
-                            Bayar Sekarang
+                            Selesaikan Pembayaran
                           </button>
                         ) : (
                           <div className="h-10 w-32 bg-yellow-200 rounded-xl flex items-center justify-center text-yellow-600 text-xs">
                             Link Error
                           </div>
                         )
-                      ) : // CASE 2: Manual Payment -> Logic Enkripsi ID (Existing)
-                      result.encypted_id ? (
+                      ) : result.encypted_id ? (
                         <Link
                           href={`/guest/transaction/${result.encypted_id}`}
                           className="bg-yellow-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-600 transition-colors whitespace-nowrap shadow-lg shadow-yellow-500/30"
                         >
-                          Bayar Sekarang
+                          Lanjut Bayar
                         </Link>
                       ) : (
                         <div className="h-10 w-32 bg-yellow-200 rounded-xl animate-pulse flex items-center justify-center text-yellow-600 text-xs">
@@ -501,12 +487,12 @@ function TrackOrderContent() {
                     <div className="absolute top-0 left-5 h-full w-1 bg-gray-100 -z-10 rounded-full" />
                     {[
                       { key: "PENDING", label: "Dibuat", icon: Package },
-                      { key: "PAID", label: "Dibayar", icon: CreditCard },
-                      { key: "PROCESSED", label: "Diproses", icon: Clock },
+                      { key: "PAID", label: "Terbayar", icon: CreditCard },
+                      { key: "PROCESSED", label: "Disiapkan", icon: Clock },
                       { key: "SHIPPED", label: "Dikirim", icon: Truck },
                       {
                         key: "COMPLETED",
-                        label: "Selesai",
+                        label: "Diterima",
                         icon: CheckCircle,
                       },
                     ].map((step, idx) => {
@@ -558,11 +544,11 @@ function TrackOrderContent() {
                       }}
                     />
                     {[
-                      { key: "PENDING", label: "Dibuat", icon: Package },
-                      { key: "PAID", label: "Dibayar", icon: CreditCard },
-                      { key: "PROCESSED", label: "Diproses", icon: Clock },
-                      { key: "SHIPPED", label: "Dikirim", icon: Truck },
-                      { key: "COMPLETED", label: "Selesai", icon: CheckCircle },
+                      { key: "PENDING", label: "Dipesan", icon: Package },
+                      { key: "PAID", label: "Terbayar", icon: CreditCard },
+                      { key: "PROCESSED", label: "Disiapkan", icon: Clock },
+                      { key: "SHIPPED", label: "Dalam Pengiriman", icon: Truck },
+                      { key: "COMPLETED", label: "Diterima", icon: CheckCircle },
                     ].map((step, idx) => {
                       const status = getStepStatus(step.key, result.status);
                       const isActive =
@@ -600,12 +586,11 @@ function TrackOrderContent() {
                 {/* Shipping Info */}
                 <div className="bg-white rounded-3xl p-6 shadow-lg h-full">
                   <h3 className="font-bold text-[#5C4A3B] mb-4 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-[#A3B18A]" /> Informasi
-                    Pengiriman
+                    <MapPin className="w-5 h-5 text-[#A3B18A]" /> Tujuan Pengiriman Karya
                   </h3>
                   <div className="space-y-4 text-sm">
                     <div className="bg-gray-50 p-4 rounded-2xl">
-                      <p className="text-gray-500 text-xs mb-1">Penerima</p>
+                      <p className="text-gray-500 text-xs mb-1">Nama Penerima</p>
                       <p className="font-bold text-[#5C4A3B]">
                         {result.buyer_name}
                       </p>
@@ -615,7 +600,7 @@ function TrackOrderContent() {
                     </div>
                     <div className="flex items-center justify-between p-4 border border-gray-100 rounded-2xl">
                       <div>
-                        <p className="text-gray-500 text-xs">Ekspedisi</p>
+                        <p className="text-gray-500 text-xs">Jasa Ekspedisi</p>
                         <p className="font-bold text-[#5C4A3B] text-lg">
                           {result.courier.toUpperCase()}
                         </p>
@@ -625,7 +610,7 @@ function TrackOrderContent() {
                       </div>
                       {result.resi_number && (
                         <div className="text-right">
-                          <p className="text-gray-500 text-xs">No. Resi</p>
+                          <p className="text-gray-500 text-xs">Nomor Resi</p>
                           <p className="font-mono font-bold text-[#A3B18A]">
                             {result.resi_number}
                           </p>
@@ -638,8 +623,7 @@ function TrackOrderContent() {
                 {/* Items Info */}
                 <div className="bg-white rounded-3xl p-6 shadow-lg h-full">
                   <h3 className="font-bold text-[#5C4A3B] mb-4 flex items-center gap-2">
-                    <ShoppingBag className="w-5 h-5 text-[#A3B18A]" /> Detail
-                    Produk
+                    <ShoppingBag className="w-5 h-5 text-[#A3B18A]" /> Rincian Karya Pesanan
                   </h3>
                   <div className="space-y-4 max-h-[250px] overflow-y-auto custom-scrollbar pr-2">
                     {result.items.map((item) => (
@@ -667,8 +651,8 @@ function TrackOrderContent() {
                     ))}
                   </div>
                   <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <span className="text-gray-600 font-medium">
-                      Total Belanja
+                    <span className="text-gray-600 font-medium flex items-center gap-1">
+                      Total Dukungan <Heart className="w-3 h-3 text-pink-400 fill-pink-400" />
                     </span>
                     <span className="text-xl font-bold text-[#A3B18A]">
                       Rp{" "}

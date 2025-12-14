@@ -17,19 +17,19 @@ const FaqPage = () => {
       name: "Produk",
       items: [
         {
-          question: "Apakah produk COLORE aman untuk anak?",
+          question: "Apakah produk DIFARAJA aman untuk anak?",
           answer:
-            "Ya! Semua produk COLORE menggunakan bahan non-toxic dan telah tersertifikasi aman untuk anak. Kami menggunakan bahan daur ulang dan ramah lingkungan yang telah lulus uji keamanan internasional.",
+            "Ya! Semua produk DIFARAJA menggunakan bahan non-toxic dan telah tersertifikasi aman untuk anak. Kami menggunakan bahan daur ulang dan ramah lingkungan yang telah lulus uji keamanan internasional.",
         },
         {
-          question: "Berapa usia yang cocok untuk produk COLORE?",
+          question: "Berapa usia yang cocok untuk produk DIFARAJA?",
           answer:
-            "Produk COLORE dirancang untuk anak usia 1-12 tahun dengan kategori yang berbeda. Setiap produk memiliki label usia yang jelas untuk membantu Anda memilih yang tepat untuk si kecil.",
+            "Produk DIFARAJA dirancang untuk anak usia 1-12 tahun dengan kategori yang berbeda. Setiap produk memiliki label usia yang jelas untuk membantu Anda memilih yang tepat untuk si kecil.",
         },
         {
-          question: "Bagaimana cara merawat produk seni COLORE?",
+          question: "Bagaimana cara merawat produk seni DIFARAJA?",
           answer:
-            "Produk COLORE mudah dibersihkan dengan air hangat dan sabun lembut. Simpan di tempat kering dan sejuk, hindari paparan sinar matahari langsung untuk menjaga kualitas warna dan bahan.",
+            "Produk DIFARAJA mudah dibersihkan dengan air hangat dan sabun lembut. Simpan di tempat kering dan sejuk, hindari paparan sinar matahari langsung untuk menjaga kualitas warna dan bahan.",
         },
         {
           question: "Apakah ada garansi untuk produk yang rusak?",
@@ -69,7 +69,7 @@ const FaqPage = () => {
         {
           question: "Apakah ada program loyalitas?",
           answer:
-            "Ya! Setiap pembelian akan mendapat poin COLORE yang bisa ditukar dengan diskon atau produk gratis. Bergabunglah dengan COLORE Club untuk benefit eksklusif.",
+            "Ya! Setiap pembelian akan mendapat poin DIFARAJA yang bisa ditukar dengan diskon atau produk gratis. Bergabunglah dengan DIFARAJA Club untuk benefit eksklusif.",
         },
       ],
     },
@@ -87,7 +87,9 @@ const FaqPage = () => {
             <span className="text-sm font-medium text-[#A3B18A]">FAQ</span>
           </div>
 
-          <h1 className={`text-4xl lg:text-6xl font-bold text-gray-900 mb-6 ${fredoka.className}`}>
+          <h1
+            className={`text-4xl lg:text-6xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
+          >
             Ada Pertanyaan?
           </h1>
 

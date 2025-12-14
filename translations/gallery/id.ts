@@ -1,7 +1,7 @@
 const translations = {
-  "hero-badge": "Galeri COLORE",
+  "hero-badge": "Galeri DIFARAJA",
   "hero-title-1": "Momen Kreatif",
-  "hero-title-2": "Bersama COLORE",
+  "hero-title-2": "Bersama DIFARAJA",
   "hero-subtitle":
     "Dokumentasi kegiatan seru, workshop edukatif, dan produk ramah lingkungan yang mengembangkan kreativitas ribuan anak Indonesia.",
   "hero-item-1": "Workshop Kreatif",
@@ -17,7 +17,7 @@ const translations = {
   "stats-title": "Kreativitas Tanpa Batas",
   "cta-title": "Bergabung dengan Komunitas Kreatif",
   "cta-subtitle":
-    "Daftarkan anak Anda untuk workshop berikutnya dan saksikan kreativitas mereka berkembang dengan produk-produk ramah lingkungan dari COLORE.",
+    "Daftarkan anak Anda untuk workshop berikutnya dan saksikan kreativitas mereka berkembang dengan produk-produk ramah lingkungan dari DIFARAJA.",
   "cta-btn-1": "Daftar Workshop",
   "cta-btn-2": "Lihat Produk",
 };

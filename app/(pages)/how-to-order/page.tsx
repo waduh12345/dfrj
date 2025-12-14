@@ -21,6 +21,8 @@ import {
   MessageCircle,
   ChevronDown,
   ChevronUp,
+  Utensils, // Added for Culinary
+  Gift,     // Added for Crafts
 } from "lucide-react";
 
 // --- IMPORTS MODE EDIT ---
@@ -75,7 +77,7 @@ function HowToOrderContent() {
   const [heroBg, setHeroBg] = useState<BackgroundConfig>({
     type: "solid",
     color1: "transparent",
-  }); // Hero transparan agar background page terlihat
+  }); 
   const [stepsBg, setStepsBg] = useState<BackgroundConfig>({
     type: "solid",
     color1: "transparent",
@@ -84,7 +86,7 @@ function HowToOrderContent() {
     type: "gradient",
     color1: THEME.primary,
     color2: "#e05da9",
-    direction: "to bottom right", // Approx 110deg
+    direction: "to bottom right", 
   });
   const [faqBg, setFaqBg] = useState<BackgroundConfig>({
     type: "solid",
@@ -128,197 +130,196 @@ function HowToOrderContent() {
     },
   ]);
 
-  // 3. Order Steps List (Menggunakan data awal dari file translasi)
+  // 3. Order Steps List (Disesuaikan untuk Difaraja: Kuliner & Kriya)
   const initialSteps: Record<"id" | "en", Step[]> = {
     id: [
       {
         id: 1,
-        title: "Pilih Produk Favorit",
+        title: "Pilih Karya & Rasa",
         description:
-          "Jelajahi koleksi produk ramah lingkungan dan pilih yang sesuai untuk anak Anda",
+          "Jelajahi ragam produk kuliner otentik dan kerajinan tangan karya difabelpreneur.",
         details: [
-          "Browse kategori produk (Art Supplies, Craft Kits)",
-          "Gunakan filter usia untuk menemukan produk yang tepat",
-          "Baca detail produk dan review dari orang tua lain",
-          "Klik 'Tambah ke Keranjang' untuk produk pilihan",
+          "Pilih kategori: Kuliner, Fashion, atau Kriya",
+          "Baca deskripsi rasa atau spesifikasi bahan",
+          "Lihat cerita di balik pembuatan produk",
+          "Klik 'Tambah ke Keranjang' untuk memesan",
         ],
-        icon: <ShoppingCart className="w-6 h-6 lg:w-8 lg:h-8" />,
+        icon: <Utensils className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
         tips: [
-          "Gunakan filter usia untuk hasil yang lebih akurat",
-          "Baca review produk untuk insight dari orang tua lain",
-          "Cek badge 'Eco-Friendly'",
+          "Cek label 'Best Seller' untuk rekomendasi",
+          "Pastikan varian rasa sesuai selera",
+          "Perhatikan ukuran untuk produk Fashion",
         ],
       },
       {
         id: 2,
-        title: "Review Keranjang",
+        title: "Cek Keranjang",
         description:
-          "Periksa kembali produk pilihan dan jumlah pesanan sebelum checkout",
+          "Pastikan detail pesanan Anda sudah sesuai sebelum melanjutkan pembayaran.",
         details: [
-          "Klik icon keranjang di header",
-          "Ubah quantity atau hapus produk jika diperlukan",
-          "Cek total harga dan estimasi ongkos kirim",
-          "Klik 'Checkout' untuk melanjutkan",
+          "Periksa kembali jumlah item",
+          "Tambahkan catatan (misal: tingkat kepedasan/warna)",
+          "Gunakan kode voucher jika tersedia",
+          "Lanjut ke Checkout",
         ],
         icon: <Package className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
         tips: [
-          "Manfaatkan free shipping > Rp 250.000",
-          "Cek kode promo yang tersedia",
-          "Pastikan stok tersedia",
+          "Beli paketan (hampers) lebih hemat",
+          "Cek promo gratis ongkir",
+          "Pastikan item tidak tertukar",
         ],
       },
       {
         id: 3,
-        title: "Data Pengiriman",
+        title: "Info Pengiriman",
         description:
-          "Lengkapi informasi pengiriman dan kontak untuk proses delivery",
+          "Lengkapi alamat untuk memastikan paket kuliner atau kerajinan sampai dengan aman.",
         details: [
-          "Isi nama lengkap dan nomor telepon aktif",
-          "Masukkan alamat lengkap dengan detail patokan",
-          "Pilih metode pengiriman yang diinginkan",
-          "Tambahkan catatan khusus jika diperlukan",
+          "Isi alamat lengkap & titik lokasi",
+          "Pilih kurir (Instant/Sameday disarankan untuk Makanan)",
+          "Tambahkan asuransi untuk Kriya pecah belah",
+          "Tulis instruksi khusus untuk kurir",
         ],
         icon: <User className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
         tips: [
-          "Pastikan nomor telepon aktif",
-          "Tulis alamat selengkap mungkin",
-          "Simpan alamat untuk order berikutnya",
+          "Pilih 'Instant' untuk makanan basah",
+          "Pastikan nomor HP penerima aktif",
+          "Simpan alamat 'Rumah' atau 'Kantor'",
         ],
       },
       {
         id: 4,
-        title: "Pembayaran",
+        title: "Pembayaran Aman",
         description:
-          "Proses pembayaran aman menggunakan gateway Midtrans yang terpercaya",
+          "Transaksi mudah dan terverifikasi otomatis melalui gateway Midtrans.",
         details: [
-          "Pilih metode: Transfer, E-Wallet, atau VA",
-          "Sistem redirect ke halaman Midtrans",
-          "Ikuti instruksi pembayaran",
-          "Konfirmasi otomatis",
+          "Pilih metode: QRIS, E-Wallet, atau Transfer",
+          "Sistem redirect ke halaman aman Midtrans",
+          "Selesaikan pembayaran sesuai nominal",
+          "Verifikasi otomatis dalam hitungan detik",
         ],
         icon: <CreditCard className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
         tips: [
-          "Metode pembayaran terenkripsi",
-          "Simpan bukti pembayaran",
-          "Konfirmasi instan 1-5 menit",
+          "Simpan bukti transfer/screenshot",
+          "QRIS adalah metode tercepat",
+          "Tidak perlu konfirmasi manual",
         ],
       },
       {
         id: 5,
-        title: "Pesanan Berhasil",
-        description: "Pesanan dikonfirmasi dan akan diproses untuk pengiriman",
+        title: "Diproses Sepenuh Hati",
+        description: "Pesanan Anda dikonfirmasi dan sedang disiapkan oleh tim Difaraja.",
         details: [
-          "Terima email konfirmasi pesanan",
-          "Proses packing 1-2 hari kerja",
-          "Update resi via WhatsApp/Email",
-          "Estimasi sampai 3-7 hari kerja",
+          "Notifikasi pesanan masuk via Email/WA",
+          "Produk dikemas dengan standar higienis & aman",
+          "Quality Control sebelum pengiriman",
+          "Resi pengiriman diterbitkan",
         ],
-        icon: <CheckCircle className="w-6 h-6 lg:w-8 lg:h-8" />,
+        icon: <Gift className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
         tips: [
-          "Simpan nomor pesanan",
-          "Cek email berkala",
-          "Hubungi CS jika ada kendala",
+          "Cek status di menu 'Pesanan Saya'",
+          "Makanan dikirim fresh daily",
+          "Packing kayu tersedia untuk kriya besar",
         ],
       },
       {
         id: 6,
-        title: "Lacak Pesanan",
-        description: "Monitor progress pesanan melalui halaman profile Anda",
+        title: "Lacak & Apresiasi",
+        description: "Pantau perjalanan paket dan berikan ulasan untuk mendukung difabelpreneur.",
         details: [
-          "Login ke akun COLORE Anda",
-          "Menu 'Profile' → 'Pesanan Saya'",
-          "Lihat status real-time",
-          "Download invoice / review produk",
+          "Lacak posisi kurir secara real-time",
+          "Konfirmasi saat pesanan diterima",
+          "Berikan rating & ulasan foto/video",
+          "Bagikan ke media sosial Anda",
         ],
         icon: <Truck className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
         tips: [
-          "Status update otomatis",
-          "Gunakan resi untuk tracking ekspedisi",
-          "Berikan review positif",
+          "Ulasan Anda sangat berarti bagi kami",
+          "Tag @difaraja di social media",
+          "Dapatkan poin reward (jika ada)",
         ],
       },
     ],
     en: [
-      // (Data Bahasa Inggris disingkat agar muat, pastikan Anda pakai data lengkap Anda)
       {
         id: 1,
-        title: "Choose Product",
-        description: "Explore eco-friendly products fit for your child",
+        title: "Choose Culinary & Craft",
+        description: "Explore authentic snacks and handmade crafts by difabelpreneurs.",
         details: [
-          "Browse categories",
-          "Use age filter",
-          "Read details & reviews",
-          "Add to Cart",
+          "Select category: Food, Fashion, or Craft",
+          "Read taste notes or material specs",
+          "See the story behind the product",
+          "Click 'Add to Cart'",
         ],
-        icon: <ShoppingCart className="w-6 h-6 lg:w-8 lg:h-8" />,
+        icon: <Utensils className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Use filters", "Read reviews", "Check Eco-Badge"],
+        tips: ["Check 'Best Seller' labels", "Confirm flavor variants", "Check size charts for Fashion"],
       },
       {
         id: 2,
         title: "Review Cart",
-        description: "Check items before checkout",
-        details: ["Check cart icon", "Adjust qty", "Check total", "Checkout"],
+        description: "Ensure your order details are correct before payment.",
+        details: ["Check item quantity", "Add notes (e.g., spicy level)", "Use voucher codes", "Proceed to Checkout"],
         icon: <Package className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Free shipping check", "Promo codes", "Stock check"],
+        tips: ["Buy bundles (hampers) to save", "Check free shipping", "Verify items"],
       },
       {
         id: 3,
         title: "Shipping Info",
-        description: "Complete delivery details",
+        description: "Complete address for safe delivery of food or crafts.",
         details: [
-          "Full name & phone",
-          "Complete address",
-          "Shipping method",
-          "Notes",
+          "Fill full address & pin location",
+          "Select courier (Instant/Sameday for Food)",
+          "Add insurance for fragile crafts",
+          "Add specific instructions",
         ],
         icon: <User className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Active phone number", "Landmarks", "Save address"],
+        tips: ["Choose 'Instant' for wet food", "Active phone number", "Save address labels"],
       },
       {
         id: 4,
-        title: "Payment",
-        description: "Secure payment via Midtrans",
+        title: "Secure Payment",
+        description: "Easy and automatically verified transaction via Midtrans.",
         details: [
-          "Select method",
-          "Redirect to Midtrans",
-          "Follow instruction",
-          "Auto confirm",
+          "Select: QRIS, E-Wallet, or Transfer",
+          "Redirect to secure Midtrans page",
+          "Complete payment",
+          "Instant verification",
         ],
         icon: <CreditCard className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Encrypted", "Keep receipt", "Instant confirm"],
+        tips: ["Save proof of payment", "QRIS is fastest", "No manual confirm needed"],
       },
       {
         id: 5,
-        title: "Success",
-        description: "Order confirmed & processed",
+        title: "Crafted with Heart",
+        description: "Your order is confirmed and being prepared by the Difaraja team.",
         details: [
-          "Email confirmation",
-          "Processing 1-2 days",
-          "Resi update",
-          "Delivery 3-7 days",
+          "Order notification via Email/WA",
+          "Hygienic & safe packaging",
+          "Quality Control check",
+          "Tracking number issued",
         ],
-        icon: <CheckCircle className="w-6 h-6 lg:w-8 lg:h-8" />,
+        icon: <Gift className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Save Order ID", "Check email", "Contact CS"],
+        tips: ["Check status in 'My Orders'", "Food shipped fresh", "Wood packing for large crafts"],
       },
       {
         id: 6,
-        title: "Track Order",
-        description: "Monitor progress via profile",
-        details: ["Login", "My Orders", "Real-time status", "Review"],
+        title: "Track & Support",
+        description: "Monitor delivery and leave a review to empower difabelpreneurs.",
+        details: ["Real-time tracking", "Confirm receipt", "Rate & Review", "Share on social media"],
         icon: <Truck className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Auto update", "Expedition tracking", "Leave review"],
+        tips: ["Your review matters", "Tag @difaraja", "Earn reward points"],
       },
     ],
   };
@@ -326,28 +327,34 @@ function HowToOrderContent() {
     initialSteps[lang]
   );
 
-  // 4. FAQs List (Menggunakan data awal dari file translasi)
+  // 4. FAQs List (Disesuaikan untuk pertanyaan umum Difaraja)
   const initialFaqs: Record<"en" | "id", FAQ[]> = {
     id: [
       {
-        question: "Berapa lama proses pengiriman?",
-        answer: "Estimasi pengiriman 3-7 hari kerja...",
+        question: "Apakah makanan aman dikirim ke luar kota?",
+        answer: "Untuk produk kering (keripik, cookies), aman dikirim ke seluruh Indonesia dengan packing standar bubble wrap & kardus. Untuk makanan basah, kami sarankan menggunakan pengiriman Instant/Sameday atau Paxel (Frozen).",
       },
       {
-        question: "Apakah ada minimum pembelian?",
-        answer: "Tidak ada minimum pembelian...",
+        question: "Apakah bisa request custom hampers?",
+        answer: "Tentu! Difaraja melayani pemesanan hampers custom untuk acara kantor, pernikahan, atau ulang tahun. Silakan hubungi admin WhatsApp kami untuk katalog dan penawaran khusus.",
       },
       {
-        question: "Metode pembayaran apa saja?",
-        answer: "Transfer bank, E-Wallet, dan VA...",
+        question: "Berapa lama proses pembuatan produk kriya?",
+        answer: "Sebagian besar produk kriya kami Ready Stock. Namun untuk pemesanan dalam jumlah banyak (bulk order), estimasi pengerjaan adalah 3-7 hari kerja tergantung tingkat kerumitan dan jumlah pesanan.",
       },
     ],
     en: [
-      { question: "Shipping duration?", answer: "3-7 business days..." },
-      { question: "Minimum purchase?", answer: "No minimum purchase..." },
-      {
-        question: "Payment methods?",
-        answer: "Bank transfer, E-Wallet, VA...",
+      { 
+        question: "Is the food safe for inter-city shipping?", 
+        answer: "Dry products (chips, cookies) are safe for nationwide shipping with standard bubble wrap & box packing. For wet food, we recommend Instant/Sameday delivery or Frozen courier services." 
+      },
+      { 
+        question: "Can I request custom hampers?", 
+        answer: "Absolutely! Difaraja offers custom hampers for corporate events, weddings, or birthdays. Please contact our WhatsApp admin for catalogs and special offers." 
+      },
+      { 
+        question: "How long is the craft production process?", 
+        answer: "Most of our craft items are Ready Stock. However, for bulk orders, the estimated production time is 3-7 business days depending on complexity and quantity." 
       },
     ],
   };
@@ -396,7 +403,6 @@ function HowToOrderContent() {
   // === HELPER FUNCTIONS UNTUK UPDATE STATE ===
   const updateHeroText = (key: keyof typeof heroText, val: string) =>
     setHeroText((prev) => ({ ...prev, [key]: val }));
-
 
   const updateOrderStep = (
     stepId: number,
@@ -456,7 +462,8 @@ function HowToOrderContent() {
       className="min-h-screen"
     >
       {/* ============== HERO SECTION ============== */}
-      
+      {/* (Catatan: Konten Hero biasanya dihandle oleh komponen parent atau file terpisah, 
+          di sini kita fokus pada Steps & FAQ sesuai struktur code awal) */}
 
       {/* ============== STEPS SECTION ============== */}
       <EditableSection
@@ -713,14 +720,14 @@ function HowToOrderContent() {
                               updateOrderStep(step.id, "image", url)
                             }
                             alt={step.title}
-                            fill // Menggunakan fill agar responsif di dalam containernya
-                            containerClassName="w-full h-full" // Container wrapper harus punya tinggi/lebar
+                            fill
+                            containerClassName="w-full h-full"
                             className="rounded-2xl shadow-2xl object-cover ring-8 ring-white/50"
                           />
                           <div className="absolute -bottom-4 -right-4 bg-white px-4 py-2 rounded-xl shadow-lg border border-gray-100 flex items-center gap-2 animate-bounce-slow">
                             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                             <span className="text-xs font-bold text-gray-600">
-                              Easy Step
+                              Mudah & Cepat
                             </span>
                           </div>
                         </div>
@@ -788,7 +795,6 @@ function HowToOrderContent() {
                 />
               </div>
               <div className="flex flex-wrap justify-center gap-4">
-                {/* Tombol Help Center (Bisa dibuat editable link juga jika perlu, di sini saya biarkan statis dulu) */}
                 <a
                   href="#"
                   className="bg-white/20 backdrop-blur-md border border-white/30 p-4 rounded-2xl flex flex-col items-center w-32 hover:bg-white/30 transition-all"

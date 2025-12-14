@@ -1,7 +1,7 @@
 const translations = {
   "back-button": "Kembali",
   "left-login-title": "Selamat Datang Kembali!",
-  "left-register-title": "Bergabung dengan COLORE",
+  "left-register-title": "Bergabung dengan DIFARAJA",
   "left-login-subtitle":
     "Masuk untuk melanjutkan perjalanan kreatif anak Anda dengan produk ramah lingkungan terbaik.",
   "left-register-subtitle":

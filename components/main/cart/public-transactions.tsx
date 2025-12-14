@@ -14,6 +14,8 @@ import {
   Sparkles,
   Truck,
   Star,
+  ShoppingBag,
+  Utensils,
 } from "lucide-react";
 
 import {
@@ -49,7 +51,6 @@ import useCart from "@/hooks/use-cart";
 import { useRouter } from "next/navigation";
 
 /** ====== Helpers & Types ====== */
-// Kita tidak perlu lagi parseStorage/writeStorage manual karena sudah dihandle useCart
 
 interface CartItemView {
   id: number;
@@ -59,7 +60,7 @@ interface CartItemView {
   image: string;
   quantity: number;
   category: string;
-  ageGroup: string;
+  // ageGroup removed/ignored for Difaraja branding
   isEcoFriendly: boolean;
   inStock: boolean;
 }
@@ -86,6 +87,13 @@ interface ShippingCostOption {
 
 type PaymentType = "automatic" | "manual" | "cod";
 
+// Theme Colors for Difaraja
+const THEME = {
+  primary: "#d43893ff", // Magenta/Pink
+  primaryLight: "#FFF0F5", // Soft Pink
+  textMain: "#5B4A3B", // Cocoa Brown
+};
+
 function getImageUrlFromProduct(p: Product): string {
   if (typeof p.image === "string" && p.image) return p.image;
   const media = (p as unknown as { media?: Array<{ original_url: string }> })
@@ -110,11 +118,11 @@ export default function PublicTransaction() {
     removeItem,
     increaseItemQuantity,
     decreaseItemQuantity,
-    addItem, // Digunakan untuk related product
+    addItem, 
     clearCart,
   } = useCart();
 
-  // Handle Hydration Mismatch (Agar server & client sync)
+  // Handle Hydration Mismatch
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
     setIsMounted(true);
@@ -122,7 +130,7 @@ export default function PublicTransaction() {
 
   // Map data dari Zustand ke format View
   const cartItems: CartItemView[] = useMemo(() => {
-    if (!isMounted) return []; // Render kosong saat server-side/initial untuk hindari mismatch
+    if (!isMounted) return []; 
     return rawCartItems.map((it) => ({
       id: it.id,
       name: it.name,
@@ -131,8 +139,7 @@ export default function PublicTransaction() {
       image: getImageUrlFromProduct(it),
       quantity: it.quantity ?? 1,
       category: it.category_name,
-      ageGroup: "Semua usia",
-      isEcoFriendly: false,
+      isEcoFriendly: false, // Bisa disesuaikan logicnya jika ada field eco
       inStock: (it.stock ?? 0) > 0,
     }));
   }, [rawCartItems, isMounted]);
@@ -164,26 +171,29 @@ export default function PublicTransaction() {
   }, [relatedResp]);
 
   const addRelatedToCart = (p: Product) => {
-    addItem({ ...p, quantity: 1 }); // Pakai fungsi dari useCart
+    addItem({ ...p, quantity: 1 });
     Swal.fire({
       icon: "success",
       title: "Berhasil!",
-      text: "Produk ditambahkan ke keranjang",
+      text: "Karya ditambahkan ke keranjang",
       toast: true,
       position: "top-end",
       showConfirmButton: false,
       timer: 2000,
+      background: "#fff",
+      color: THEME.textMain,
+      iconColor: THEME.primary
     });
   };
 
   /** ——— Guest Form State ——— */
   const [guest, setGuest] = useState({
-    address_line_1: "Jl Kebon Kopi",
+    address_line_1: "",
     address_line_2: "",
-    postal_code: "40535",
-    guest_name: "Test Guest",
-    guest_email: "test-guest@gmail.com",
-    guest_phone: "08954058734653",
+    postal_code: "",
+    guest_name: "",
+    guest_email: "",
+    guest_phone: "",
     rajaongkir_province_id: 0,
     rajaongkir_city_id: 0,
     rajaongkir_district_id: 0,
@@ -305,7 +315,8 @@ export default function PublicTransaction() {
       await Swal.fire({
         icon: "warning",
         title: "Lengkapi Data",
-        text: "Mohon isi semua field yang wajib.",
+        text: "Mohon isi semua data pengiriman yang wajib.",
+        confirmButtonColor: THEME.primary,
       });
       return;
     }
@@ -314,12 +325,12 @@ export default function PublicTransaction() {
       await Swal.fire({
         icon: "info",
         title: "Keranjang Kosong",
-        text: "Tambahkan produk terlebih dahulu.",
+        text: "Tambahkan karya ke keranjang terlebih dahulu.",
+        confirmButtonColor: THEME.primary,
       });
       return;
     }
 
-    // Ambil data langsung dari rawCartItems (Zustand)
     const details = rawCartItems.map((item) => ({
       product_id: item.id,
       quantity: item.quantity ?? 1,
@@ -368,41 +379,38 @@ export default function PublicTransaction() {
         if (paymentMethod === "manual") {
           await Swal.fire({
             icon: "success",
-            title: "Pesanan Berhasil Dibuat",
-            text: "Silakan lakukan pembayaran dan upload bukti transfer.",
-            confirmButtonText: "Lanjut",
+            title: "Pesanan Berhasil",
+            text: "Karya difabelpreneur siap diproses! Silakan lakukan pembayaran.",
+            confirmButtonText: "Lanjut Bayar",
+            confirmButtonColor: THEME.primary,
           });
 
           clearCart();
-
-          // Redirect ke halaman guest transaction (upload bukti) menggunakan encrypted_id
           router.push(`/guest/transaction/${responseData.id}`);
         }
 
-        // 2. JIKA PEMBAYARAN OTOMATIS (Ada payment_link)
+        // 2. JIKA PEMBAYARAN OTOMATIS
         else if ("payment_link" in responseData) {
           await Swal.fire({
             icon: "success",
-            title: "Pesanan Berhasil Dibuat",
-            text: "Kami arahkan ke halaman pembayaran dan pelacakan.",
+            title: "Pesanan Berhasil",
+            text: "Mengalihkan ke halaman pembayaran aman.",
             confirmButtonText: "Lanjut",
+            confirmButtonColor: THEME.primary,
           });
 
-          // Buka Link Pembayaran di Tab Baru
           window.open(responseData.payment_link, "_blank");
-
           clearCart();
-
-          // Redirect ke halaman Cek Order menggunakan reference code
           router.push(`/cek-order?code=${responseData.reference}`);
         }
 
-        // 3. FALLBACK (COD atau lainnya)
+        // 3. FALLBACK
         else {
           await Swal.fire({
             icon: "success",
-            title: "Pesanan Berhasil Dibuat",
-            text: "Untuk informasi lebih lanjut cek menu track order.",
+            title: "Pesanan Berhasil",
+            text: "Terima kasih telah mendukung difabelpreneur.",
+            confirmButtonColor: THEME.primary,
           });
           clearCart();
         }
@@ -411,47 +419,46 @@ export default function PublicTransaction() {
       console.error(e);
       await Swal.fire({
         icon: "error",
-        title: "Gagal Membuat Transaksi",
-        text: "Silakan coba lagi.",
+        title: "Gagal Membuat Pesanan",
+        text: "Terjadi kesalahan sistem, silakan coba lagi.",
+        confirmButtonColor: THEME.primary,
       });
     }
   };
 
   /** ——— Render Empty State ——— */
-  // Gunakan isMounted agar tidak flickr saat loading hydration
   if (isMounted && cartItems.length === 0) {
     return (
       <div
-        className={`min-h-screen w-full bg-gradient-to-br from-white to-[#A3B18A]/10 pt-24 ${sniglet.className}`}
+        className={`min-h-screen w-full bg-gradient-to-br from-white to-[#FFF0F5] pt-24 ${sniglet.className}`}
       >
         <div className="container mx-auto px-6">
           <div className="mx-auto text-center py-20">
-            <div className="w-32 h-32 bg-[#A3B18A]/10 rounded-full flex items-center justify-center mx-auto mb-8">
-              <ShoppingCart className="w-16 h-16 text-[#A3B18A]" />
+            <div className="w-32 h-32 bg-[#d43893ff]/10 rounded-full flex items-center justify-center mx-auto mb-8">
+              <ShoppingBag className="w-16 h-16 text-[#d43893ff]" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Keranjang Kosong
+            <h1 className={`text-4xl font-bold text-[#5B4A3B] mb-4 ${fredoka.className}`}>
+              Keranjang Belum Terisi
             </h1>
-            <p className="text-xl text-gray-600 mb-8">
-              Belum ada produk kreatif di keranjang Anda. Yuk, jelajahi koleksi
-              produk ramah lingkungan kami!
+            <p className="text-xl text-gray-600 mb-8 max-w-lg mx-auto">
+              Mari dukung karya difabelpreneur! Jelajahi ragam kuliner otentik, kriya, dan fashion kami.
             </p>
             <a
               href="/product"
-              className="inline-flex bg-[#A3B18A] text-white px-8 py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors items-center gap-2"
+              className="inline-flex bg-[#d43893ff] text-white px-8 py-4 rounded-full font-bold hover:bg-[#b02e7a] transition-all transform hover:scale-105 items-center gap-2 shadow-lg shadow-pink-200"
             >
               <ArrowLeft className="w-5 h-5" />
-              Mulai Berbelanja
+              Jelajahi Karya
             </a>
 
-            <div className="mt-16">
+            <div className="mt-20">
               <h2
-                className={`text-2xl font-bold text-gray-900 mb-6 ${fredoka.className}`}
+                className={`text-2xl font-bold text-[#5B4A3B] mb-8 ${fredoka.className}`}
               >
-                Produk Rekomendasi
+                Karya Rekomendasi
               </h2>
               {isRelLoading && (
-                <div className="text-gray-600 w-full flex items-center justify-center min-h-96">
+                <div className="text-gray-600 w-full flex items-center justify-center min-h-64">
                   <DotdLoader />
                 </div>
               )}
@@ -459,13 +466,13 @@ export default function PublicTransaction() {
                 <div className="text-red-600">Gagal memuat rekomendasi.</div>
               )}
               {!isRelLoading && !isRelError && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {relatedProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                      className="bg-white rounded-[2rem] overflow-hidden shadow-lg shadow-pink-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group border border-gray-50"
                     >
-                      <div className="relative h-48">
+                      <div className="relative h-52">
                         <Image
                           src={product.image}
                           alt={product.name}
@@ -474,26 +481,24 @@ export default function PublicTransaction() {
                         />
                       </div>
                       <div className="p-6">
-                        <span className="text-sm text-[#A3B18A] font-medium">
+                        <span className="text-sm text-[#d43893ff] font-bold uppercase tracking-wide">
                           {product.category}
                         </span>
-                        <h3 className="text-lg font-bold text-gray-900 mt-1 mb-3">
+                        <h3 className="text-lg font-bold text-[#5B4A3B] mt-1 mb-3 line-clamp-2">
                           {product.name}
                         </h3>
                         <div className="flex items-center gap-3 mb-4">
-                          <span className="text-xl font-bold text-[#A3B18A]">
+                          <span className="text-xl font-bold text-[#d43893ff]">
                             Rp {product.price.toLocaleString("id-ID")}
                           </span>
                         </div>
-                        <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
-                          <button
-                            onClick={() => addRelatedToCart(product.__raw)}
-                            className="w-full bg-[#A3B18A] text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Tambah ke Keranjang
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => addRelatedToCart(product.__raw)}
+                          className="w-full bg-white border-2 border-[#d43893ff] text-[#d43893ff] py-3 rounded-xl font-bold hover:bg-[#d43893ff] hover:text-white transition-all flex items-center justify-center gap-2"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Tambah
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -508,7 +513,7 @@ export default function PublicTransaction() {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br from-white to-[#DFF19D]/10 pt-24 ${sniglet.className}`}
+      className={`min-h-screen bg-gradient-to-br from-white to-[#FFF0F5] pt-24 ${sniglet.className}`}
     >
       <div className="container mx-auto px-6 lg:px-12 pb-12">
         {/* Header */}
@@ -516,26 +521,26 @@ export default function PublicTransaction() {
           <div className="flex items-center gap-3 mb-6">
             <a
               href="/product"
-              className="flex items-center gap-2 text-gray-600 hover:text-[#A3B18A] transition-colors"
+              className="flex items-center gap-2 text-gray-500 hover:text-[#d43893ff] transition-colors font-medium"
             >
               <ArrowLeft className="w-5 h-5" />
-              Lanjut Belanja
+              Kembali ke Galeri Karya
             </a>
           </div>
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-4">
-              <Sparkles className="w-4 h-4 text-[#A3B18A]" />
-              <span className="text-sm font-medium text-[#A3B18A]">
-                Checkout Publik
+            <div className="inline-flex items-center gap-2 bg-[#d43893ff]/10 px-4 py-2 rounded-full mb-4">
+              <Sparkles className="w-4 h-4 text-[#d43893ff]" />
+              <span className="text-sm font-bold text-[#d43893ff] tracking-wide">
+                Checkout Tamu
               </span>
             </div>
             <h1
-              className={`text-4xl lg:text-5xl font-bold text-gray-900 mb-4 ${fredoka.className}`}
+              className={`text-4xl lg:text-5xl font-bold text-[#5B4A3B] mb-4 ${fredoka.className}`}
             >
-              Produk <span className="text-[#A3B18A]">Pilihan Anda</span>
+              Karya <span className="text-[#d43893ff]">Pilihan Anda</span>
             </h1>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Selesaikan pesanan tanpa perlu login
+              Selesaikan pesanan untuk mendukung difabelpreneur Indonesia
             </p>
           </div>
         </div>
@@ -548,7 +553,7 @@ export default function PublicTransaction() {
             {cartItems.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow"
+                className="bg-white rounded-[2rem] p-6 shadow-lg shadow-gray-100 hover:shadow-xl transition-shadow border border-gray-50"
               >
                 <div className="flex flex-col sm:flex-row gap-6">
                   <div className="relative w-full sm:w-32 h-48 sm:h-32 flex-shrink-0">
@@ -560,13 +565,13 @@ export default function PublicTransaction() {
                     />
                     {!item.inStock && (
                       <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center">
-                        <span className="text-white text-sm font-semibold">
-                          Stok Habis
+                        <span className="text-white text-sm font-bold">
+                          Habis
                         </span>
                       </div>
                     )}
                     {item.isEcoFriendly && (
-                      <div className="absolute top-2 left-2 bg-[#DFF19D] text-gray-800 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                      <div className="absolute top-2 left-2 bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm">
                         <Sparkles className="w-3 h-3" />
                         Eco
                       </div>
@@ -576,28 +581,20 @@ export default function PublicTransaction() {
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4">
                       <div>
-                        <span className="text-sm text-[#A3B18A] font-medium">
+                        <span className="text-xs font-bold text-[#d43893ff] uppercase tracking-wider bg-pink-50 px-2 py-1 rounded-md">
                           {item.category}
                         </span>
-                        <h3 className="text-lg font-bold text-gray-900 mt-1">
+                        <h3 className="text-lg font-bold text-[#5B4A3B] mt-2 leading-tight">
                           {item.name}
                         </h3>
-                        <p className="text-sm text-gray-600">
-                          Untuk anak {item.ageGroup}
-                        </p>
+                        {/* Removed generic ageGroup text */}
                       </div>
 
                       <div className="flex items-center gap-2 mt-2 sm:mt-0">
                         <button
-                          className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                          title="Wishlist"
-                        >
-                          <Heart className="w-5 h-5" />
-                        </button>
-                        <button
                           onClick={() => removeItem(item.id)}
-                          className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                          title="Hapus"
+                          className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                          title="Hapus Karya"
                         >
                           <Trash2 className="w-5 h-5" />
                         </button>
@@ -606,49 +603,44 @@ export default function PublicTransaction() {
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl font-bold text-[#A3B18A]">
+                        <span className="text-2xl font-bold text-[#d43893ff]">
                           Rp {item.price.toLocaleString("id-ID")}
                         </span>
                         {item.originalPrice && (
-                          <span className="text-lg text-gray-400 line-through">
+                          <span className="text-lg text-gray-300 line-through">
                             Rp {item.originalPrice.toLocaleString("id-ID")}
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center bg-gray-100 rounded-2xl">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center bg-gray-50 rounded-full border border-gray-100">
                           <button
                             onClick={() => decreaseItemQuantity(item.id)}
                             disabled={!item.inStock}
-                            className="p-2 hover:bg-gray-200 rounded-l-2xl transition-colors disabled:opacity-50"
+                            className="p-3 hover:bg-gray-200 rounded-l-full transition-colors disabled:opacity-30 text-[#5B4A3B]"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
-                          <span className="px-4 py-2 font-semibold min-w-[3rem] text-center">
+                          <span className="px-2 font-bold min-w-[2rem] text-center text-[#5B4A3B]">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => increaseItemQuantity(item.id)}
                             disabled={!item.inStock}
-                            className="p-2 hover:bg-gray-200 rounded-r-2xl transition-colors disabled:opacity-50"
+                            className="p-3 hover:bg-gray-200 rounded-r-full transition-colors disabled:opacity-30 text-[#5B4A3B]"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
                         </div>
 
-                        <div className="text-right">
-                          <div className="font-bold text-gray-900">
+                        <div className="text-right min-w-[80px]">
+                          <div className="font-bold text-[#5B4A3B]">
                             Rp{" "}
                             {(item.price * item.quantity).toLocaleString(
                               "id-ID"
                             )}
                           </div>
-                          {!item.inStock && (
-                            <div className="text-xs text-red-500">
-                              Tidak tersedia
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -658,35 +650,35 @@ export default function PublicTransaction() {
             ))}
 
             {/* 2. Informasi Pengiriman (Form Guest) */}
-            <div className="bg-white rounded-3xl p-6 shadow-lg">
-              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Truck className="w-5 h-5 text-[#A3B18A]" />
-                Informasi Pengiriman
+            <div className="bg-white rounded-[2rem] p-8 shadow-lg shadow-gray-100 border border-gray-50">
+              <h3 className={`font-bold text-[#5B4A3B] text-xl mb-6 flex items-center gap-2 ${fredoka.className}`}>
+                <Truck className="w-6 h-6 text-[#d43893ff]" />
+                Tujuan Pengiriman
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Nama Lengkap *
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                    className="w-full px-5 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#d43893ff] focus:border-transparent transition-all"
                     value={guest.guest_name}
                     onChange={(e) =>
                       setGuest((s) => ({ ...s, guest_name: e.target.value }))
                     }
-                    placeholder="Masukkan nama lengkap"
+                    placeholder="Nama penerima paket"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nomor Telepon *
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Nomor WhatsApp *
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                    className="w-full px-5 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#d43893ff] focus:border-transparent transition-all"
                     value={guest.guest_phone}
                     onChange={(e) =>
                       setGuest((s) => ({ ...s, guest_phone: e.target.value }))
@@ -696,27 +688,27 @@ export default function PublicTransaction() {
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Email *
                   </label>
                   <input
                     type="email"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                    className="w-full px-5 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#d43893ff] focus:border-transparent transition-all"
                     value={guest.guest_email}
                     onChange={(e) =>
                       setGuest((s) => ({ ...s, guest_email: e.target.value }))
                     }
-                    placeholder="email@contoh.com"
+                    placeholder="Untuk pengiriman invoice"
                   />
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Alamat Lengkap *
                   </label>
                   <textarea
                     rows={3}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                    className="w-full px-5 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#d43893ff] focus:border-transparent transition-all resize-none"
                     value={guest.address_line_1}
                     onChange={(e) =>
                       setGuest((s) => ({
@@ -724,17 +716,17 @@ export default function PublicTransaction() {
                         address_line_1: e.target.value,
                       }))
                     }
-                    placeholder="Nama jalan, RT/RW"
+                    placeholder="Nama Jalan, No. Rumah, RT/RW, Kelurahan"
                   />
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Alamat Tambahan (Opsional)
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Catatan Alamat (Opsional)
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                    className="w-full px-5 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#d43893ff] focus:border-transparent transition-all"
                     value={guest.address_line_2}
                     onChange={(e) =>
                       setGuest((s) => ({
@@ -742,13 +734,13 @@ export default function PublicTransaction() {
                         address_line_2: e.target.value,
                       }))
                     }
-                    placeholder="Patokan atau detail lain"
+                    placeholder="Contoh: Pagar hitam, dekat masjid"
                   />
                 </div>
 
                 {/* Provinsi */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Provinsi
                   </label>
                   <Combobox
@@ -774,7 +766,7 @@ export default function PublicTransaction() {
 
                 {/* Kabupaten / Kota */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Kabupaten / Kota
                   </label>
                   <Combobox
@@ -800,7 +792,7 @@ export default function PublicTransaction() {
 
                 {/* Kecamatan */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Kecamatan
                   </label>
                   <Combobox
@@ -821,30 +813,30 @@ export default function PublicTransaction() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                     Kode Pos *
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#A3B18A] focus:border-transparent"
+                    className="w-full px-5 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#d43893ff] focus:border-transparent transition-all"
                     value={guest.postal_code}
                     onChange={(e) =>
                       setGuest((s) => ({ ...s, postal_code: e.target.value }))
                     }
-                    placeholder="12345"
+                    placeholder="xxxxx"
                   />
                 </div>
               </div>
             </div>
 
             {/* 3. Metode Pengiriman (Kurir) */}
-            <div className="bg-white rounded-3xl p-6 shadow-lg">
-              <h3 className="font-bold text-gray-900 mb-4">
-                Metode Pengiriman
+            <div className="bg-white rounded-[2rem] p-8 shadow-lg shadow-gray-100 border border-gray-50">
+              <h3 className={`font-bold text-[#5B4A3B] text-xl mb-4 ${fredoka.className}`}>
+                Jasa Pengiriman
               </h3>
               <div className="mb-4">
-                <label className="block w-full text-sm font-medium text-gray-700 mb-2">
-                  Pilih Kurir
+                <label className="block w-full text-sm font-bold text-gray-700 mb-2">
+                  Pilih Ekspedisi
                 </label>
                 <Select
                   value={shippingCourier ?? ""}
@@ -854,41 +846,40 @@ export default function PublicTransaction() {
                   }}
                   disabled={!canChooseCourier}
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih Kurir" />
+                  <SelectTrigger className="w-full rounded-xl py-6 border-gray-200 focus:ring-[#d43893ff]">
+                    <SelectValue placeholder="Pilih Kurir (JNE/POS/TIKI)" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="jne">JNE</SelectItem>
-                    <SelectItem value="pos">POS</SelectItem>
+                    <SelectItem value="pos">POS Indonesia</SelectItem>
                     <SelectItem value="tiki">TIKI</SelectItem>
                   </SelectContent>
                 </Select>
 
                 {!canChooseCourier && (
-                  <p className="text-sm text-red-500 mt-1">
-                    Lengkapi kecamatan atau alamat & kode pos untuk memilih
-                    kurir.
+                  <p className="text-sm text-[#d43893ff] mt-2 bg-pink-50 p-2 rounded-lg inline-block">
+                    ⓘ Lengkapi alamat tujuan untuk melihat ongkos kirim.
                   </p>
                 )}
               </div>
 
               <div className="space-y-3">
                 {isShippingLoading ? (
-                  <div className="flex justify-center items-center py-4">
+                  <div className="flex justify-center items-center py-6">
                     <DotdLoader />
                   </div>
                 ) : isShippingError ? (
-                  <p className="text-center text-red-500">
-                    Gagal memuat opsi pengiriman.
+                  <p className="text-center text-red-500 bg-red-50 p-3 rounded-xl">
+                    Gagal memuat opsi pengiriman. Coba cek koneksi internet.
                   </p>
                 ) : shippingOptions.length > 0 ? (
                   shippingOptions.map((option, index) => (
                     <label
                       key={index}
-                      className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                      className={`flex items-center gap-4 p-4 border rounded-2xl cursor-pointer transition-all ${
                         shippingMethod?.service === option.service
-                          ? "border-[#A3B18A] bg-[#DFF19D]/30"
-                          : "border-gray-200 hover:bg-neutral-50"
+                          ? "border-[#d43893ff] bg-pink-50 ring-1 ring-[#d43893ff]"
+                          : "border-gray-100 hover:bg-gray-50"
                       }`}
                     >
                       <input
@@ -896,18 +887,20 @@ export default function PublicTransaction() {
                         name="shipping-service"
                         checked={shippingMethod?.service === option.service}
                         onChange={() => setShippingMethod(option)}
-                        className="form-radio text-[#A3B18A] h-4 w-4"
+                        className="form-radio text-[#d43893ff] h-5 w-5 focus:ring-[#d43893ff]"
                       />
                       <div className="flex-1">
-                        <p className="font-medium">{option.service}</p>
-                        <p className="text-sm text-neutral-500">
+                        <div className="flex justify-between items-center mb-1">
+                          <p className="font-bold text-[#5B4A3B] uppercase">{option.service}</p>
+                          <p className="text-lg font-bold text-[#d43893ff]">
+                            Rp {option.cost.toLocaleString("id-ID")}
+                          </p>
+                        </div>
+                        <p className="text-sm text-gray-500">
                           {option.description}
                         </p>
-                        <p className="text-sm font-semibold">
-                          Rp {option.cost.toLocaleString("id-ID")}
-                        </p>
-                        <p className="text-xs text-neutral-400">
-                          Estimasi: {option.etd}
+                        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <Truck className="w-3 h-3"/> Estimasi: {option.etd} hari
                         </p>
                       </div>
                     </label>
@@ -915,8 +908,8 @@ export default function PublicTransaction() {
                 ) : (
                   canChooseCourier &&
                   shippingCourier && (
-                    <p className="text-center text-gray-500">
-                      Tidak ada opsi pengiriman tersedia.
+                    <p className="text-center text-gray-500 bg-gray-50 p-4 rounded-xl">
+                      Tidak ada layanan pengiriman tersedia untuk rute ini.
                     </p>
                   )
                 )}
@@ -939,43 +932,40 @@ export default function PublicTransaction() {
             />
 
             {/* 3. Ringkasan Pesanan */}
-            <div className="bg-white rounded-3xl p-6 shadow-lg">
-              <h3 className="font-bold text-gray-900 mb-4">
-                Ringkasan Pesanan
+            <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200 border border-gray-100">
+              <h3 className={`font-bold text-[#5B4A3B] text-xl mb-6 ${fredoka.className}`}>
+                Rincian Biaya
               </h3>
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
+              <div className="space-y-4 mb-8">
+                <div className="flex justify-between items-center">
                   <span className="text-gray-600">
-                    Subtotal ({cartItems.length} produk)
+                    Total Karya ({cartItems.length})
                   </span>
-                  <span className="font-semibold">
+                  <span className="font-semibold text-[#5B4A3B]">
                     Rp {subtotal.toLocaleString("id-ID")}
                   </span>
                 </div>
 
                 {discount > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>
-                      Diskon{" "}
-                      {selectedVoucher?.code
-                        ? `(${selectedVoucher.code})`
-                        : "Voucher"}
+                  <div className="flex justify-between text-[#d43893ff] bg-pink-50 px-3 py-1 rounded-lg">
+                    <span className="flex items-center gap-1 text-sm font-bold">
+                       <Sparkles className="w-3 h-3"/> Diskon
                     </span>
-                    <span>- Rp {discount.toLocaleString("id-ID")}</span>
+                    <span className="font-bold">- Rp {discount.toLocaleString("id-ID")}</span>
                   </div>
                 )}
 
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-gray-600">Ongkos Kirim</span>
-                  <span className="font-semibold">
-                    Rp {shippingCost.toLocaleString("id-ID")}
+                  <span className="font-semibold text-[#5B4A3B]">
+                    {shippingMethod ? `Rp ${shippingCost.toLocaleString("id-ID")}` : "-"}
                   </span>
                 </div>
 
-                <div className="border-t border-gray-200 pt-3">
-                  <div className="flex justify-between text-lg font-bold">
-                    <span>Total</span>
-                    <span className="text-[#A3B18A]">
+                <div className="border-t border-dashed border-gray-200 pt-4 mt-2">
+                  <div className="flex justify-between items-end">
+                    <span className="font-bold text-gray-600">Total Bayar</span>
+                    <span className="text-2xl font-bold text-[#d43893ff]">
                       Rp {total.toLocaleString("id-ID")}
                     </span>
                   </div>
@@ -995,7 +985,7 @@ export default function PublicTransaction() {
                   !shippingCourier ||
                   !shippingMethod
                 }
-                className="w-full bg-[#A3B18A] text-white py-4 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#d43893ff] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#b02e7a] transition-all transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-pink-200"
               >
                 {isCreating ? (
                   <>
@@ -1014,14 +1004,8 @@ export default function PublicTransaction() {
                 !shippingCourier ||
                 !guest.guest_name ||
                 !guest.address_line_1) && (
-                <p className="text-red-500 text-sm text-center mt-3">
-                  * Harap lengkapi semua informasi yang diperlukan
-                </p>
-              )}
-
-              {cartItems.some((it) => !it.inStock) && (
-                <p className="text-red-500 text-sm text-center mt-3">
-                  Beberapa produk tidak tersedia. Hapus untuk melanjutkan.
+                <p className="text-gray-400 text-xs text-center mt-4">
+                  * Tombol aktif setelah data pengiriman lengkap
                 </p>
               )}
             </div>
@@ -1029,17 +1013,17 @@ export default function PublicTransaction() {
         </div>
 
         {/* Produk Rekomendasi */}
-        <div className="mt-16">
+        <div className="mt-20 border-t border-gray-200 pt-12">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Produk <span className="text-[#A3B18A]">Rekomendasi</span>
+            <h2 className={`text-3xl font-bold text-[#5B4A3B] mb-3 ${fredoka.className}`}>
+              Lengkapi <span className="text-[#d43893ff]">Koleksi Anda</span>
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Lengkapi koleksi kreatif si kecil dengan produk pilihan lainnya
+              Karya difabelpreneur lainnya yang mungkin Anda suka
             </p>
           </div>
           {isRelLoading && (
-            <div className="text-center text-gray-600">
+            <div className="text-center text-gray-600 flex justify-center">
               <DotdLoader />
             </div>
           )}
@@ -1053,24 +1037,21 @@ export default function PublicTransaction() {
               {relatedProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                  className="bg-white rounded-[2rem] overflow-hidden shadow-lg shadow-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group border border-gray-50"
                 >
-                  <div className="relative h-48">
+                  <div className="relative h-56">
                     <Image
                       src={product.image}
                       alt={product.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <button className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors">
-                      <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
-                    </button>
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-[#d43893ff] shadow-sm uppercase">
+                         {product.category}
+                    </div>
                   </div>
                   <div className="p-6">
-                    <span className="text-sm text-[#A3B18A] font-medium">
-                      {product.category}
-                    </span>
-                    <h3 className="text-lg font-bold text-gray-900 mt-1 mb-3">
+                    <h3 className="text-lg font-bold text-[#5B4A3B] mb-2 line-clamp-1">
                       {product.name}
                     </h3>
                     <div className="flex items-center gap-2 mb-4">
@@ -1086,29 +1067,30 @@ export default function PublicTransaction() {
                           />
                         ))}
                       </div>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-400">
                         ({product.rating.toFixed(1)})
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="text-xl font-bold text-[#A3B18A]">
-                        Rp {product.price.toLocaleString("id-ID")}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-gray-400 line-through">
-                          Rp {product.originalPrice.toLocaleString("id-ID")}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex flex-col">
+                        <span className="text-xl font-bold text-[#d43893ff]">
+                            Rp {product.price.toLocaleString("id-ID")}
                         </span>
-                      )}
+                        {product.originalPrice && (
+                            <span className="text-xs text-gray-400 line-through">
+                            Rp {product.originalPrice.toLocaleString("id-ID")}
+                            </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-2 bg-[#A3B18A] rounded-2xl">
-                      <button
+                    
+                    <button
                         onClick={() => addRelatedToCart(product.__raw)}
-                        className="w-full bg-black/50 text-white py-3 rounded-2xl font-semibold hover:bg-[#A3B18A]/90 transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-gray-50 text-[#5B4A3B] py-3 rounded-xl font-bold hover:bg-[#d43893ff] hover:text-white transition-all flex items-center justify-center gap-2 group-hover:shadow-md"
                       >
                         <Plus className="w-4 h-4" />
-                        Tambah ke Keranjang
-                      </button>
-                    </div>
+                        Tambah
+                    </button>
                   </div>
                 </div>
               ))}

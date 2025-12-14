@@ -15,8 +15,10 @@ import {
   Mail,
   ArrowUpRight,
   Compass,
+  Utensils,
 } from "lucide-react";
-import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
+import { FaInstagram, FaFacebookF, FaWhatsapp, FaTiktok } from "react-icons/fa";
+import { fredoka, sniglet } from "@/lib/fonts";
 
 // Service & Types
 import { useGetProductCategoryListQuery } from "@/services/public/product-category.service";
@@ -43,30 +45,36 @@ export default function SitemapPage() {
   const mainLinks = [
     { name: "Beranda", href: "/", icon: Home },
     { name: "Tentang Kami", href: "/about", icon: Compass },
-    { name: "Produk", href: "/product", icon: Box },
-    { name: "Galeri", href: "/gallery", icon: ImageIcon },
-    { name: "Berita", href: "/news", icon: Newspaper },
+    { name: "Karya (Produk)", href: "/product", icon: Box },
+    { name: "Galeri Kegiatan", href: "/gallery", icon: ImageIcon },
+    { name: "Artikel & Berita", href: "/news", icon: Newspaper },
     { name: "Cara Pemesanan", href: "/how-to-order", icon: ShoppingCart },
   ];
 
   const legalLinks = [
-    { name: "Privacy Policy", href: "/privacy-policy", icon: Shield },
-    { name: "Terms of Service", href: "/terms-of-service", icon: FileText },
+    { name: "Kebijakan Privasi", href: "/privacy-policy", icon: Shield },
+    { name: "Syarat & Ketentuan", href: "/terms-of-service", icon: FileText },
   ];
 
-  // Updated Social Links (Removed YouTube & TikTok, Added Real URLs)
+  // Updated Social Links for Difaraja
   const socialLinks = [
     {
       icon: FaInstagram,
-      href: "https://www.instagram.com/coloreartcrafts.id/",
-      color: "hover:bg-purple-600",
+      href: "https://www.instagram.com/difaraja/", // Ganti dengan link Difaraja jika ada
+      color: "hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-500",
       text: "IG",
     },
     {
       icon: FaFacebookF,
-      href: "https://www.facebook.com/p/Colore-Art-and-Crafts-100092742074013/",
+      href: "#",
       color: "hover:bg-blue-600",
       text: "FB",
+    },
+    {
+      icon: FaTiktok,
+      href: "#",
+      color: "hover:bg-black",
+      text: "TT",
     },
     {
       icon: FaWhatsapp,
@@ -77,24 +85,24 @@ export default function SitemapPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FDFCF8] text-gray-700 font-sans selection:bg-[#A3B18A] selection:text-white relative overflow-hidden">
+    <div className={`min-h-screen bg-gradient-to-b from-white to-[#FFF0F5] text-gray-700 font-sans selection:bg-[#d43893ff] selection:text-white relative overflow-hidden ${sniglet.className}`}>
       {/* === Decorative Background Elements === */}
       <div className="absolute inset-0 pointer-events-none -z-10">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#A3B18A]/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-100/40 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#d43893ff]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-yellow-200/20 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4"></div>
       </div>
 
       {/* === Header Section === */}
       <section className="pt-28 pb-12 px-6 lg:px-12 text-center relative z-10">
-        <div className="inline-flex items-center justify-center p-4 bg-white rounded-3xl shadow-lg shadow-[#A3B18A]/10 mb-6 text-[#A3B18A] ring-1 ring-[#A3B18A]/20">
+        <div className="inline-flex items-center justify-center p-4 bg-white rounded-[2rem] shadow-lg shadow-pink-100 mb-6 text-[#d43893ff] ring-1 ring-[#d43893ff]/20">
           <Map className="w-8 h-8" />
         </div>
-        <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
-          Sitemap
+        <h1 className={`text-4xl lg:text-6xl font-bold text-[#5B4A3B] mb-6 tracking-tight ${fredoka.className}`}>
+          Peta Situs
         </h1>
         <p className="text-gray-500 text-lg max-w-xl mx-auto leading-relaxed">
-          Peta situs lengkap untuk menjelajahi dunia kreativitas{" "}
-          <span className="text-[#A3B18A] font-semibold">COLORE</span>.
+          Navigasi lengkap untuk menjelajahi ekosistem pemberdayaan{" "}
+          <span className="text-[#d43893ff] font-bold">DIFARAJA</span>.
         </p>
       </section>
 
@@ -103,31 +111,26 @@ export default function SitemapPage() {
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
             {/* 1. Brand Card (Large) */}
-            <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 lg:p-10 shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300">
+            <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 lg:p-10 shadow-xl shadow-pink-100/50 border border-pink-50 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300">
               <div>
-                <div className="flex items-center gap-5 mb-8">
-                  <div className="relative w-32 h-12">
-                    <Image
-                      src="/logo-colore.png"
-                      alt="COLORE Logo"
-                      fill
-                      className="object-contain object-left"
-                    />
+                <div className="flex items-center gap-4 mb-8">
+                  {/* Logo Placeholder */}
+                  <div className="w-12 h-12 bg-[#d43893ff] rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                    D
                   </div>
+                  <span className={`text-2xl font-bold text-[#5B4A3B] ${fredoka.className}`}>DIFARAJA</span>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  Kreativitas Tanpa Batas
+                <h2 className={`text-2xl font-bold text-[#5B4A3B] mb-4 ${fredoka.className}`}>
+                  Karya & Kemandirian
                 </h2>
                 <p className="text-gray-500 leading-relaxed mb-8 max-w-md">
-                  Menyediakan perlengkapan seni dan kerajinan berkualitas
-                  tinggi, aman, dan ramah lingkungan untuk mendukung tumbuh
-                  kembang anak.
+                  Wadah kewirausahaan sosial yang menghadirkan produk kuliner otentik, kriya handmade, dan fashion berkualitas karya difabelpreneur Indonesia.
                 </p>
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
-                  Ikuti Kami
+                <p className="text-xs font-bold text-[#d43893ff] uppercase tracking-wider mb-4">
+                  Terhubung Bersama Kami
                 </p>
                 <div className="flex gap-3 flex-wrap">
                   {socialLinks.map((Social, idx) => (
@@ -136,7 +139,7 @@ export default function SitemapPage() {
                       href={Social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`w-12 h-12 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-center text-gray-600 transition-all duration-300 text-xl ${Social.color} hover:text-white hover:shadow-lg hover:scale-110`}
+                      className={`w-12 h-12 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-center text-gray-400 transition-all duration-300 text-xl ${Social.color} hover:text-white hover:shadow-lg hover:scale-110`}
                       aria-label={Social.text}
                     >
                       <Social.icon />
@@ -147,11 +150,11 @@ export default function SitemapPage() {
             </div>
 
             {/* 2. Navigation Card (Vertical List) */}
-            <div className="bg-[#A3B18A] text-white rounded-[2rem] p-8 lg:p-10 shadow-xl shadow-[#A3B18A]/20 lg:row-span-2 flex flex-col relative overflow-hidden group">
+            <div className="bg-gradient-to-br from-[#d43893ff] to-[#b02e7a] text-white rounded-[2.5rem] p-8 lg:p-10 shadow-xl shadow-pink-200 lg:row-span-2 flex flex-col relative overflow-hidden group">
               {/* Pattern Overlay */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/20 transition-colors duration-500"></div>
 
-              <h3 className="text-2xl font-bold mb-8 flex items-center gap-3 relative z-10">
+              <h3 className={`text-2xl font-bold mb-8 flex items-center gap-3 relative z-10 ${fredoka.className}`}>
                 <Compass className="w-6 h-6" />
                 Menu Utama
               </h3>
@@ -160,11 +163,11 @@ export default function SitemapPage() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="group/item flex items-center justify-between p-4 rounded-2xl bg-white/10 hover:bg-white border border-transparent hover:border-white/20 hover:text-[#A3B18A] transition-all duration-300 backdrop-blur-sm"
+                      className="group/item flex items-center justify-between p-4 rounded-2xl bg-white/10 hover:bg-white border border-transparent hover:border-white/20 hover:text-[#d43893ff] transition-all duration-300 backdrop-blur-sm"
                     >
                       <div className="flex items-center gap-4">
                         <link.icon className="w-5 h-5 opacity-80 group-hover/item:opacity-100" />
-                        <span className="font-semibold">{link.name}</span>
+                        <span className="font-bold">{link.name}</span>
                       </div>
                       <ArrowUpRight className="w-4 h-4 opacity-50 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300" />
                     </Link>
@@ -174,10 +177,10 @@ export default function SitemapPage() {
             </div>
 
             {/* 3. Contact Info Card */}
-            <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-100 hover:-translate-y-1 transition-transform duration-300">
-              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <span className="w-2 h-8 bg-[#A3B18A] rounded-full"></span>
-                Hubungi Kami
+            <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-pink-100/50 border border-pink-50 hover:-translate-y-1 transition-transform duration-300">
+              <h3 className={`text-xl font-bold text-[#5B4A3B] mb-6 flex items-center gap-2 ${fredoka.className}`}>
+                <span className="w-2 h-8 bg-[#d43893ff] rounded-full"></span>
+                Hubungi Admin
               </h3>
               <div className="space-y-5">
                 <a
@@ -193,24 +196,24 @@ export default function SitemapPage() {
                     <p className="text-[10px] text-green-600/70 font-bold uppercase tracking-wide">
                       WhatsApp
                     </p>
-                    <p className="font-semibold text-gray-800 text-sm">
-                      +62 817-694-2128
+                    <p className="font-bold text-[#5B4A3B] text-sm">
+                      +62 817-6942-128
                     </p>
                   </div>
                 </a>
                 <a
-                  href="mailto:hello@colore.co.id"
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-colors group"
+                  href="mailto:admin@difaraja.id"
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-pink-50 hover:bg-pink-100 border border-pink-100 transition-colors group"
                 >
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-500 shadow-sm group-hover:scale-110 transition-transform">
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#d43893ff] shadow-sm group-hover:scale-110 transition-transform">
                     <Mail size={20} />
                   </div>
                   <div>
-                    <p className="text-[10px] text-blue-600/70 font-bold uppercase tracking-wide">
+                    <p className="text-[10px] text-pink-600/70 font-bold uppercase tracking-wide">
                       Email
                     </p>
-                    <p className="font-semibold text-gray-800 text-sm">
-                      hello@colore.co.id
+                    <p className="font-bold text-[#5B4A3B] text-sm">
+                      admin@difaraja.id
                     </p>
                   </div>
                 </a>
@@ -218,17 +221,17 @@ export default function SitemapPage() {
             </div>
 
             {/* 4. Products Categories (Wide Card) */}
-            <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 lg:p-10 shadow-xl shadow-gray-200/50 border border-gray-100 relative overflow-hidden hover:-translate-y-1 transition-transform duration-300 group">
+            <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 lg:p-10 shadow-xl shadow-pink-100/50 border border-pink-50 relative overflow-hidden hover:-translate-y-1 transition-transform duration-300 group">
               {/* Background Decor */}
-              <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-500 pointer-events-none">
-                <Box size={140} />
+              <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-500 pointer-events-none text-[#d43893ff]">
+                <Utensils size={140} />
               </div>
 
-              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="p-2 bg-[#A3B18A]/10 text-[#A3B18A] rounded-xl">
+              <h3 className={`text-xl font-bold text-[#5B4A3B] mb-6 flex items-center gap-3 ${fredoka.className}`}>
+                <span className="p-2 bg-[#d43893ff]/10 text-[#d43893ff] rounded-xl">
                   <Box className="w-6 h-6" />
                 </span>
-                Kategori Produk
+                Kategori Karya
               </h3>
 
               {isLoading ? (
@@ -255,9 +258,9 @@ export default function SitemapPage() {
                       <Link
                         key={idx}
                         href={cat.href}
-                        className="group/tag relative px-6 py-3 rounded-full bg-gray-50 border border-gray-200 hover:border-[#A3B18A] hover:bg-[#A3B18A] transition-all duration-300 overflow-hidden"
+                        className="group/tag relative px-6 py-3 rounded-full bg-pink-50 border border-pink-100 hover:border-[#d43893ff] hover:bg-[#d43893ff] transition-all duration-300 overflow-hidden"
                       >
-                        <span className="relative z-10 text-sm font-semibold text-gray-600 group-hover/tag:text-white transition-colors">
+                        <span className="relative z-10 text-sm font-bold text-[#5B4A3B]/80 group-hover/tag:text-white transition-colors">
                           {cat.name}
                         </span>
                       </Link>
@@ -268,10 +271,10 @@ export default function SitemapPage() {
             </div>
 
             {/* 5. Legal & Extra */}
-            <div className="bg-gray-900 text-gray-300 rounded-[2rem] p-8 shadow-xl flex flex-col justify-center relative overflow-hidden group hover:shadow-2xl transition-all duration-300">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl translate-x-1/2 -translate-y-1/2 group-hover:bg-white/10 transition-colors"></div>
+            <div className="bg-[#2a221b] text-gray-300 rounded-[2.5rem] p-8 shadow-xl flex flex-col justify-center relative overflow-hidden group hover:shadow-2xl transition-all duration-300">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#d43893ff]/10 rounded-full blur-2xl translate-x-1/2 -translate-y-1/2 group-hover:bg-[#d43893ff]/20 transition-colors"></div>
 
-              <h3 className="text-white font-bold mb-6 text-lg tracking-wide border-b border-gray-800 pb-2">
+              <h3 className={`text-white font-bold mb-6 text-lg tracking-wide border-b border-gray-700 pb-2 ${fredoka.className}`}>
                 Legalitas
               </h3>
               <ul className="space-y-2 relative z-10">
@@ -279,24 +282,24 @@ export default function SitemapPage() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-800 hover:text-white transition-all duration-200"
+                      className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/10 hover:text-white transition-all duration-200"
                     >
-                      <span className="p-1.5 bg-gray-800 rounded-lg text-gray-400">
+                      <span className="p-1.5 bg-white/5 rounded-lg text-gray-400">
                         <link.icon className="w-3.5 h-3.5" />
                       </span>
                       <span className="text-sm font-medium">{link.name}</span>
                     </Link>
                   </li>
                 ))}
-                <li className="pt-2 mt-2 border-t border-gray-800">
+                <li className="pt-2 mt-2 border-t border-gray-700">
                   <Link
                     href="/faq"
-                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-800 hover:text-white transition-all duration-200"
+                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/10 hover:text-white transition-all duration-200"
                   >
-                    <span className="w-7 h-7 flex items-center justify-center font-bold text-xs bg-gray-800 text-gray-400 rounded-lg">
+                    <span className="w-7 h-7 flex items-center justify-center font-bold text-xs bg-white/5 text-gray-400 rounded-lg">
                       ?
                     </span>
-                    <span className="text-sm font-medium">FAQ / Bantuan</span>
+                    <span className="text-sm font-medium">Bantuan & FAQ</span>
                   </Link>
                 </li>
               </ul>
@@ -307,10 +310,10 @@ export default function SitemapPage() {
           <div className="mt-16 text-center">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-gray-500 font-semibold hover:text-[#A3B18A] transition-colors group"
+              className="inline-flex items-center gap-2 text-[#5B4A3B]/60 font-bold hover:text-[#d43893ff] transition-colors group px-6 py-3 rounded-full hover:bg-white"
             >
               Kembali ke Beranda
-              <span className="bg-gray-100 p-1 rounded-full group-hover:bg-[#A3B18A] group-hover:text-white transition-colors">
+              <span className="bg-pink-100 p-1 rounded-full group-hover:bg-[#d43893ff] group-hover:text-white transition-colors">
                 <ArrowUpRight className="w-4 h-4" />
               </span>
             </Link>

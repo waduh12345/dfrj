@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Colore Art Crafts",
+  title: "Difabelpreneur Raden Wijaya",
   description: "Produk seni dan kerajinan ramah lingkungan yang mengembangkan kreativitas anak sambil menjaga kelestarian bumi untuk masa depan mereka.",
   icons: {
     icon: "/favicon.ico",

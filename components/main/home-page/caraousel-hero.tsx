@@ -7,13 +7,8 @@ import { EditableImage } from "@/components/ui/editable"; // Komponen Gambar Edi
 
 // Default data (Initial State)
 const defaultImages = [
-  { url: "/1.webp" },
-  {
-    url: "2.webp",
-  },
-  {
-    url: "4.webp",
-  },
+  { url: "/slide-1.webp" },
+  { url: "/slide-2.webp" },
 ];
 
 export default function ImageCarousel() {

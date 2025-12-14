@@ -44,7 +44,11 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { AboutTextState } from "@/types/customization/about/tentang";
-import { useCreateValueMutation, useGetValueListQuery, useUpdateValueMutation } from "@/services/customize/about/value.service";
+import {
+  useCreateValueMutation,
+  useGetValueListQuery,
+  useUpdateValueMutation,
+} from "@/services/customize/about/value.service";
 
 // =========================================
 // KOMPONEN KONTEN (LOGIC UTAMA)
@@ -618,12 +622,12 @@ function AboutContent() {
                   height={15}
                 />
                 <span className={`text-sm font-medium ${sniglet.className}`}>
-                  Tentang Colore
+                  Tentang DIFARAJA
                 </span>
               </div>
 
               <h1
-                className={`text-5xl lg:text-6xl font-semibold text-[#5B4A3B] leading-tight ${fredoka.className}`}
+                className={`text-5xl lg:text-5xl font-semibold text-[#5B4A3B] leading-tight ${fredoka.className}`}
               >
                 <EditableText
                   isEditMode={isEditMode}
@@ -708,7 +712,7 @@ function AboutContent() {
                   isEditMode={isEditMode}
                   src={getPreviewSrc(texts.heroImage)}
                   onSave={(url) => updateText("heroImage", url)}
-                  alt="COLORE Story"
+                  alt="DIFARAJA Story"
                   fill
                   priority
                   containerClassName="w-full h-full"

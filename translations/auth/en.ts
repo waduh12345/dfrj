@@ -1,7 +1,7 @@
 const translations = {
   "back-button": "Back",
   "left-login-title": "Welcome Back!",
-  "left-register-title": "Join COLORE",
+  "left-register-title": "Join DIFARAJA",
   "left-login-subtitle":
     "Log in to continue your child’s creative journey with the best eco-friendly products.",
   "left-register-subtitle":

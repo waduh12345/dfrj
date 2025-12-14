@@ -1,7 +1,7 @@
 const translations = {
-  "hero-badge": "COLORE Gallery",
+  "hero-badge": "DIFARAJA Gallery",
   "hero-title-1": "Creative Moments",
-  "hero-title-2": "with COLORE",
+  "hero-title-2": "with DIFARAJA",
   "hero-subtitle":
     "A collection of fun activities, educational workshops, and eco-friendly products that inspire creativity in thousands of Indonesian children.",
   "hero-item-1": "Creative Workshops",
@@ -17,7 +17,7 @@ const translations = {
   "stats-title": "Creativity Without Limits",
   "cta-title": "Join the Creative Community",
   "cta-subtitle":
-    "Register your child for the next workshop and watch their creativity grow with COLORE’s eco-friendly products.",
+    "Register your child for the next workshop and watch their creativity grow with DIFARAJA’s eco-friendly products.",
   "cta-btn-1": "Register for Workshop",
   "cta-btn-2": "View Products",
 };

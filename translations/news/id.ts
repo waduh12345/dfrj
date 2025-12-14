@@ -3,7 +3,7 @@ const translations = {
   "hero-title-1": "Inspirasi Kreatif",
   "hero-title-2": "untuk Keluarga",
   "hero-subtitle":
-    "Temukan tips parenting, update produk terbaru, dan cerita inspiratif tentang perkembangan kreativitas anak bersama COLORE.",
+    "Temukan tips parenting, update produk terbaru, dan cerita inspiratif tentang perkembangan kreativitas anak bersama DIFARAJA.",
   "search-placehilder": "Cari artikel, tips, atau topik...",
   "search-button": "Semua",
   "main-card-cta": "Baca Selengkapnya",
