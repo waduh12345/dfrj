@@ -8,14 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Product } from "@/types/admin/product";
 import { Combobox } from "@/components/ui/combo-box";
 import { useGetProductCategoryListQuery } from "@/services/master/product-category.service";
-import { useGetProductMerkListQuery } from "@/services/master/product-merk.service";
 import Image from "next/image";
 import { formatNumber } from "@/lib/format";
 
-// PENTING: Import CSS SunEditor
 import "suneditor/dist/css/suneditor.min.css";
 
-// Setup SunEditor dengan dynamic import (No SSR)
 const SunEditor = dynamic(() => import("suneditor-react"), { 
   ssr: false,
   loading: () => <div className="h-32 w-full bg-muted animate-pulse rounded-md" />
@@ -23,7 +20,8 @@ const SunEditor = dynamic(() => import("suneditor-react"), {
 
 interface FormProductProps {
   form: Partial<Product>;
-  setForm: (data: Partial<Product>) => void;
+  // Update tipe setForm agar mendukung functional update
+  setForm: React.Dispatch<React.SetStateAction<Partial<Product>>>;
   onCancel: () => void;
   onSubmit: () => void;
   readonly?: boolean;
@@ -40,22 +38,20 @@ export default function FormProduct({
 }: FormProductProps) {
   const [mounted, setMounted] = useState(false);
 
-  // Effect to handle client-side mounting
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Effect to initialize default form values once on the client
   useEffect(() => {
     if (mounted && !form.id && form.status === undefined) {
-      setForm({
-        ...form,
-        status: true, // Default status to active for new products
-      });
+      // Gunakan functional update di sini juga untuk konsistensi
+      setForm((prev) => ({
+        ...prev,
+        status: true,
+      }));
     }
   }, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // -- Handler Upload Gambar di dalam Editor Deskripsi --
   const handleSunUpload = useCallback(
     (
       files: File[],
@@ -65,8 +61,6 @@ export default function FormProduct({
         errorMessage?: string;
       }) => void
     ): boolean => {
-      // Jika ingin upload ke server, masukkan logika API di sini.
-      // Return true agar fallback menggunakan Base64 (default behavior)
       return true; 
     },
     []
@@ -78,16 +72,8 @@ export default function FormProduct({
       paginate: 100,
     });
 
-  // const { data: merkResponse, isLoading: merkLoading } =
-  //   useGetProductMerkListQuery({
-  //     page: 1,
-  //     paginate: 100,
-  //   });
-
   const categoryData = categoryResponse?.data ?? [];
-  // const merkData = merkResponse?.data ?? [];
 
-  // Show a loading skeleton before the component is mounted on the client
   if (!mounted) {
     return (
       <div className="bg-white dark:bg-zinc-900 rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
@@ -97,8 +83,6 @@ export default function FormProduct({
         <div className="flex-1 overflow-y-auto p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded w-1/2"></div>
-            <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded w-5/6"></div>
           </div>
         </div>
       </div>
@@ -125,7 +109,7 @@ export default function FormProduct({
       <div className="flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-y-1 col-span-2">
-            <Label>Kategori Produk</Label>
+            <Label>Kategori Produk </Label>
             {readonly ? (
               <Input
                 readOnly
@@ -138,7 +122,8 @@ export default function FormProduct({
               <Combobox
                 value={form.product_category_id ?? null}
                 onChange={(val) =>
-                  setForm({ ...form, product_category_id: val })
+                  // PENTING: Gunakan functional update
+                  setForm((prev) => ({ ...prev, product_category_id: val }))
                 }
                 data={categoryData}
                 isLoading={categoryLoading}
@@ -152,7 +137,10 @@ export default function FormProduct({
             <Label>Nama</Label>
             <Input
               value={form.name || ""}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(e) => {
+                 const val = e.target.value;
+                 setForm((prev) => ({ ...prev, name: val }));
+              }}
               readOnly={readonly}
             />
           </div>
@@ -162,13 +150,18 @@ export default function FormProduct({
             <Label>Deskripsi</Label>
             <div className="sun-editor-wrapper text-black">
               <SunEditor
-                setContents={form.description || ""}
-                onChange={(content) =>
-                  setForm({ ...form, description: content })
-                }
+                // Gunakan defaultValue agar editor tidak re-render saat state berubah
+                // setContents={form.description || ""} <--- Ganti ini jika cursor lompat
+                setContents={form.description || ""} 
+                onChange={(content) => {
+                  // PERBAIKAN UTAMA DI SINI:
+                  // Jangan gunakan setForm({ ...form, description: content })
+                  // Gunakan (prev) => ... agar mengambil state TERBARU, bukan state saat render awal
+                  setForm((prev) => ({ ...prev, description: content }));
+                }}
                 setOptions={{
                   minHeight: "200px",
-                  maxHeight: "500px", // Opsional: batas tinggi scroll
+                  maxHeight: "500px",
                   buttonList: [
                     ["undo", "redo"],
                     ["bold", "italic", "underline", "strike"],
@@ -198,10 +191,10 @@ export default function FormProduct({
                 const raw = e.target.value.replace(/\./g, "");
                 const numberValue = Number(raw);
                 if (!isNaN(numberValue)) {
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     price: raw === "" ? undefined : numberValue,
-                  });
+                  }));
                 }
               }}
               readOnly={readonly}
@@ -214,10 +207,10 @@ export default function FormProduct({
               type="number"
               value={form.stock ?? ""}
               onChange={(e) =>
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   stock: e.target.value ? Number(e.target.value) : undefined,
-                })
+                }))
               }
               readOnly={readonly}
             />
@@ -229,10 +222,10 @@ export default function FormProduct({
               type="number"
               value={form.weight ?? ""}
               onChange={(e) =>
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   weight: e.target.value ? Number(e.target.value) : undefined,
-                })
+                }))
               }
               readOnly={readonly}
             />
@@ -244,10 +237,10 @@ export default function FormProduct({
               type="number"
               value={form.length ?? ""}
               onChange={(e) =>
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   length: e.target.value ? Number(e.target.value) : undefined,
-                })
+                }))
               }
               readOnly={readonly}
             />
@@ -259,10 +252,10 @@ export default function FormProduct({
               type="number"
               value={form.width ?? ""}
               onChange={(e) =>
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   width: e.target.value ? Number(e.target.value) : undefined,
-                })
+                }))
               }
               readOnly={readonly}
             />
@@ -274,10 +267,10 @@ export default function FormProduct({
               type="number"
               value={form.height ?? ""}
               onChange={(e) =>
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   height: e.target.value ? Number(e.target.value) : undefined,
-                })
+                }))
               }
               readOnly={readonly}
             />
@@ -289,10 +282,10 @@ export default function FormProduct({
               type="number"
               value={form.diameter ?? ""}
               onChange={(e) =>
-                setForm({
-                  ...form,
+                setForm((prev) => ({
+                  ...prev,
                   diameter: e.target.value ? Number(e.target.value) : undefined,
-                })
+                }))
               }
               readOnly={readonly}
             />
@@ -304,7 +297,7 @@ export default function FormProduct({
               className="border rounded-md px-3 py-2 text-sm bg-white dark:bg-zinc-800 border-gray-300 dark:border-zinc-600 focus:ring-2 focus:ring-blue-500"
               value={form.status ? "1" : "0"}
               onChange={(e) =>
-                setForm({ ...form, status: e.target.value === "1" })
+                setForm((prev) => ({ ...prev, status: e.target.value === "1" }))
               }
               disabled={readonly}
             >
@@ -343,7 +336,7 @@ export default function FormProduct({
                     className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      setForm({ ...form, [imageKey]: file || null });
+                      setForm((prev) => ({ ...prev, [imageKey]: file || null }));
                     }}
                   />
                 )}

@@ -66,8 +66,11 @@ export default function ProductPage() {
       if (form.description) payload.append("description", form.description);
       if (form.product_category_id)
         payload.append("product_category_id", `${form.product_category_id}`);
-      if (form.product_merk_id)
-        payload.append("product_merk_id", `${form.product_merk_id}`); // Pastikan ambil dari form
+      if (form.product_merk_id){
+        payload.append("product_merk_id", `${form.product_merk_id}`);
+      }else{
+        payload.append("product_merk_id", "1");
+      }
       
       // Status handling
       // Pastikan konversi boolean ke "1" atau "0" konsisten

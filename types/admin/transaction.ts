@@ -38,6 +38,8 @@ export interface TransactionStore {
   shipment_status: number;
   created_at: string;
   updated_at: string;
+  total?: number;
+  shipment_cost?: number;
   shop: {
     id: number;
     user_id: number;

@@ -340,9 +340,11 @@ export default function TransactionPage() {
                       <td className="px-4 py-2 whitespace-nowrap">
                         {item.reference}
                       </td>
-                      <td className="px-4 py-2">{item.user_name}</td>
+                      <td className="px-4 py-2">{item.guest_name}</td>
                       <td className="px-4 py-2 font-bold text-green-700">
-                        {formatRupiah(item.total)}
+                        {formatRupiah(
+                          (item.stores?.[0]?.total ?? 0) + (item.stores?.[0]?.shipment_cost ?? 0)
+                        )}
                       </td>
                       <td className="px-4 py-2">
                         {item.payment_link ? (
