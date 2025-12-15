@@ -19,7 +19,7 @@ import {
   FileQuestion,
   SearchX,
   Info,
-  Heart, // Added for brand emotion
+  Box,
 } from "lucide-react";
 
 import { fredoka, sniglet } from "@/lib/fonts";
@@ -28,26 +28,29 @@ import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { getEncryptedTransactionId } from "@/app/actions/security";
 
-// Importing the service hook to fetch data from the API
+// Importing the service hook
 import { useGetPublicTransactionByReferenceQuery } from "@/services/public-transactions.service";
 
 // --- TIPE DATA ---
 type OrderStatus =
-  | "PENDING"
-  | "PAID"
-  | "PROCESSED"
-  | "SHIPPED"
-  | "COMPLETED"
-  | "CANCELLED";
+  | "PENDING" // Dibuat (Status 0)
+  | "PAID" // Dibayar (Status 1)
+  | "PROCESSED" // Diproses (Status 2)
+  | "SHIPPED" // Dikirim (Shipment 1)
+  | "DELIVERED" // Selesai (Shipment 2)
+  | "RETURNED" // Dikembalikan (Status 3)
+  | "CANCELLED"; // Dibatalkan (Status 4)
 
 interface TrackResult {
   id: number;
   reference: string;
   encypted_id: string;
   status: OrderStatus;
+  original_status: number;
+  shipment_status: number;
   created_at: string;
   grand_total: number;
-  resi_number?: string;
+  resi_number?: string | null;
   courier: string;
   service: string;
   buyer_name: string;
@@ -81,7 +84,15 @@ interface TransactionDetail {
   price: number;
 }
 
-// --- KOMPONEN UTAMA DENGAN SUSPENSE ---
+// --- DEFINISI STEP TRANSAKSI ---
+const TRANSACTION_STEPS = [
+  { key: "PENDING", label: "Dibuat", icon: FileQuestion },
+  { key: "PAID", label: "Dibayar", icon: CreditCard },
+  { key: "PROCESSED", label: "Diproses", icon: Box },
+  { key: "SHIPPED", label: "Dikirim", icon: Truck },
+  { key: "DELIVERED", label: "Selesai", icon: CheckCircle },
+];
+
 export default function TrackOrderPage() {
   return (
     <Suspense
@@ -89,9 +100,7 @@ export default function TrackOrderPage() {
         <div className="min-h-screen pt-24 pb-12 flex items-center justify-center bg-gradient-to-br from-white to-[#DFF19D]/10">
           <div className="flex flex-col items-center">
             <DotdLoader />
-            <p className="mt-4 text-gray-500 font-medium">
-              Memuat data Difaraja...
-            </p>
+            <p className="mt-4 text-gray-500 font-medium">Memuat halaman...</p>
           </div>
         </div>
       }
@@ -101,7 +110,6 @@ export default function TrackOrderPage() {
   );
 }
 
-// --- KONTEN HALAMAN (LOGIC UTAMA) ---
 function TrackOrderContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -117,7 +125,6 @@ function TrackOrderContent() {
     null
   );
 
-  // Service hook
   const {
     data: transactionData,
     isLoading: isFetching,
@@ -138,19 +145,69 @@ function TrackOrderContent() {
     }
   }, [searchParams]);
 
-  // 2. LOGIC PEMETAAN DATA
+  // 2. HELPER MAPPING STATUS (Logic Fixed)
+  const mapStatus = (status: number, shipmentStatus: number): OrderStatus => {
+    // Priority 1: Cek Return/Cancel dulu
+    if (status === 3) return "RETURNED";
+    if (status === 4) return "CANCELLED";
+
+    // Priority 2: Cek Shipment Status (Jika barang sudah bergerak)
+    // Berdasarkan JSON: shipment_status 1 = Dikirim, 2 = Selesai
+    if (shipmentStatus === 2) return "DELIVERED";
+    if (shipmentStatus === 1) return "SHIPPED";
+
+    // Priority 3: Cek Transaction Status (Jika barang belum dikirim/masih proses)
+    // Jika shipment_status masih 0
+    if (status === 2) return "PROCESSED"; // Diproses
+    if (status === 1) return "PAID"; // Dibayar
+
+    // Default: status 0 & shipment 0 => PENDING
+    return "PENDING";
+  };
+
+  // 3. LOGIC PEMETAAN DATA
   useEffect(() => {
     if (transactionData) {
+      // Ambil data status
+      const rawStatus = transactionData.status ?? 0;
+
+      // ✅ FIX: Ambil shipment_status dari dalam stores[0], bukan root
+      // Jika stores kosong atau shipment_status null, default ke 0
+      const rawShipmentStatus =
+        transactionData.stores?.[0]?.shipment_status ?? 0;
+
+      // Terapkan mapping logic
+      const mappedStatus = mapStatus(rawStatus, rawShipmentStatus);
+
+      // Parsing shipment_detail jika bentuknya string JSON (seperti di contoh JSON Anda)
+      let serviceName = "";
+      try {
+        const shipmentDetailStr = transactionData.stores?.[0]?.shipment_detail;
+        if (shipmentDetailStr) {
+          // Cek apakah string json atau string biasa
+          if (shipmentDetailStr.startsWith("{")) {
+            const parsed = JSON.parse(shipmentDetailStr);
+            serviceName = parsed.service || parsed.name || "";
+          } else {
+            serviceName = shipmentDetailStr;
+          }
+        }
+      } catch (e) {
+        serviceName = transactionData.stores?.[0]?.shipment_detail || "";
+      }
+
       const mockData: TrackResult = {
         id: transactionData.id,
         reference: transactionData.reference,
         encypted_id: transactionData.encypted_id || "",
-        status: transactionData.status === 0 ? "PENDING" : "SHIPPED",
+        status: mappedStatus, // Status hasil kalkulasi yang benar
+        original_status: rawStatus,
+        shipment_status: rawShipmentStatus,
         created_at: transactionData.created_at,
         grand_total: transactionData.grand_total,
-        resi_number: transactionData.resi_number,
+        resi_number: transactionData.stores?.[0]?.receipt_code,
         courier: transactionData.stores?.[0]?.courier || "",
-        service: transactionData.stores?.[0]?.shipment_detail || "",
+        service: serviceName,
         buyer_name: transactionData.guest_name,
         buyer_address: transactionData.address_line_1,
         payment_type: transactionData.payment_type,
@@ -167,9 +224,9 @@ function TrackOrderContent() {
           ) || [],
         history: [
           {
-            status: "PENDING",
-            description: "Pesanan dibuat, menunggu pembayaran",
-            date: transactionData.created_at,
+            status: mappedStatus, // Gunakan status terkini
+            description: "Status terkini pesanan Anda",
+            date: transactionData.updated_at || transactionData.created_at,
           },
         ],
       };
@@ -208,7 +265,6 @@ function TrackOrderContent() {
 
     setHasSearched(true);
     setSearchCode(searchTerm);
-
     if (searchCode === searchTerm) {
       refetch();
     }
@@ -216,7 +272,7 @@ function TrackOrderContent() {
 
   const showLoading = isLoading || isFetching;
 
-  // --- HELPER UTILS ---
+  // --- HELPER UTILS UI ---
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
       case "PENDING":
@@ -227,8 +283,10 @@ function TrackOrderContent() {
         return "bg-indigo-100 text-indigo-700 border-indigo-200";
       case "SHIPPED":
         return "bg-purple-100 text-purple-700 border-purple-200";
-      case "COMPLETED":
+      case "DELIVERED":
         return "bg-green-100 text-green-700 border-green-200";
+      case "RETURNED":
+        return "bg-orange-100 text-orange-700 border-orange-200";
       case "CANCELLED":
         return "bg-red-100 text-red-700 border-red-200";
       default:
@@ -236,15 +294,59 @@ function TrackOrderContent() {
     }
   };
 
-  const getStepStatus = (step: string, currentStatus: OrderStatus) => {
-    const order = ["PENDING", "PAID", "PROCESSED", "SHIPPED", "COMPLETED"];
-    const currentIndex = order.indexOf(currentStatus);
-    const stepIndex = order.indexOf(step);
+  const getStatusLabel = (status: OrderStatus) => {
+    switch (status) {
+      case "PENDING":
+        return "Menunggu Pembayaran";
+      case "PAID":
+        return "Sudah Dibayar";
+      case "PROCESSED":
+        return "Sedang Diproses";
+      case "SHIPPED":
+        return "Sedang Dikirim";
+      case "DELIVERED":
+        return "Selesai";
+      case "RETURNED":
+        return "Dikembalikan";
+      case "CANCELLED":
+        return "Dibatalkan";
+      default:
+        return status;
+    }
+  };
 
-    if (currentStatus === "CANCELLED") return "inactive";
+  // Logic Visual Step Timeline
+  const getStepStatus = (stepKey: string, currentStatus: OrderStatus) => {
+    const order = ["PENDING", "PAID", "PROCESSED", "SHIPPED", "DELIVERED"];
+
+    const currentIndex = order.indexOf(currentStatus);
+    const stepIndex = order.indexOf(stepKey);
+
+    if (currentStatus === "CANCELLED" || currentStatus === "RETURNED")
+      return "inactive";
+
     if (stepIndex < currentIndex) return "completed";
     if (stepIndex === currentIndex) return "current";
+
     return "inactive";
+  };
+
+  // Progress Bar Logic
+  const getProgressWidth = (status: OrderStatus) => {
+    switch (status) {
+      case "PENDING":
+        return "0%";
+      case "PAID":
+        return "25%";
+      case "PROCESSED":
+        return "50%";
+      case "SHIPPED":
+        return "75%";
+      case "DELIVERED":
+        return "100%";
+      default:
+        return "0%";
+    }
   };
 
   return (
@@ -257,16 +359,17 @@ function TrackOrderContent() {
           <div className="inline-flex items-center gap-2 bg-[#A3B18A]/10 px-4 py-2 rounded-full mb-4">
             <Truck className="w-4 h-4 text-[#A3B18A]" />
             <span className="text-sm font-medium text-[#A3B18A]">
-              Lacak Karya
+              Lacak Kiriman
             </span>
           </div>
           <h1
             className={`text-4xl font-bold text-[#5C4A3B] mb-4 ${fredoka.className}`}
           >
-            Pantau Perjalanan <span className="text-[#A3B18A]">Karya Istimewa</span>
+            Lacak Status <span className="text-[#A3B18A]">Pesanan Anda</span>
           </h1>
           <p className="text-gray-600">
-            Masukkan Kode Transaksi (TRX-...) yang Anda terima di Email/WhatsApp untuk memantau perjalanan produk Kuliner & Kriya pilihan Anda.
+            Masukkan Kode Transaksi (contoh: TRX-2025...) yang dikirimkan ke
+            email Anda untuk mengetahui posisi paket terkini.
           </p>
         </div>
 
@@ -290,7 +393,6 @@ function TrackOrderContent() {
                 {showLoading ? "Mencari..." : "Lacak"}
               </button>
             </div>
-            {/* Decorative shadow */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[#A3B18A]/20 to-blue-200/20 rounded-full blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
           </form>
         </div>
@@ -302,12 +404,12 @@ function TrackOrderContent() {
             <div className="flex flex-col items-center justify-center py-12 animate-fade-in">
               <DotdLoader />
               <p className="mt-4 text-gray-500 font-medium">
-                Sedang mencari data karya...
+                Sedang mencari data transaksi...
               </p>
             </div>
           )}
 
-          {/* 2. INITIAL STATE (Belum mencari) */}
+          {/* 2. INITIAL STATE */}
           {!showLoading && !hasSearched && (
             <div className="max-w-3xl mx-auto bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-sm text-center animate-fade-in-up">
               <div className="w-20 h-20 bg-[#A3B18A]/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -316,11 +418,11 @@ function TrackOrderContent() {
               <h3
                 className={`text-2xl font-bold text-[#5C4A3B] mb-3 ${fredoka.className}`}
               >
-                Menanti Paket Difaraja?
+                Belum Melacak Pesanan?
               </h3>
               <p className="text-gray-500 mb-8 max-w-md mx-auto">
                 Silakan masukkan <strong>Kode Referensi (TRX-...)</strong>{" "}
-                yang Anda dapatkan saat checkout untuk mengetahui status terkini dukungan Anda.
+                {`yang Anda dapatkan pada halaman "Terima Kasih" atau yang kami kirimkan melalui Email/WhatsApp.`}
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
@@ -329,10 +431,10 @@ function TrackOrderContent() {
                     <Search className="w-4 h-4 text-blue-600" />
                   </div>
                   <h4 className="font-bold text-gray-800 text-sm mb-1">
-                    1. Input Kode
+                    1. Masukkan Kode
                   </h4>
                   <p className="text-xs text-gray-500">
-                    Gunakan kode dari invoice/email.
+                    Input kode transaksi dengan benar.
                   </p>
                 </div>
                 <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
@@ -340,10 +442,10 @@ function TrackOrderContent() {
                     <Truck className="w-4 h-4 text-purple-600" />
                   </div>
                   <h4 className="font-bold text-gray-800 text-sm mb-1">
-                    2. Pantau Kurir
+                    2. Cek Status
                   </h4>
                   <p className="text-xs text-gray-500">
-                    Cek posisi Kuliner/Kriya Anda.
+                    Lihat posisi terkini paket Anda.
                   </p>
                 </div>
                 <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
@@ -351,17 +453,17 @@ function TrackOrderContent() {
                     <CheckCircle className="w-4 h-4 text-green-600" />
                   </div>
                   <h4 className="font-bold text-gray-800 text-sm mb-1">
-                    3. Karya Tiba
+                    3. Selesai
                   </h4>
                   <p className="text-xs text-gray-500">
-                    Nikmati produk dengan senyuman.
+                    Paket diterima dengan aman.
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 3. NOT FOUND STATE (Sudah mencari tapi hasil kosong) */}
+          {/* 3. NOT FOUND STATE */}
           {!showLoading && hasSearched && !result && (
             <div className="max-w-2xl mx-auto bg-red-50 rounded-3xl p-8 border border-red-100 text-center animate-shake">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -370,7 +472,7 @@ function TrackOrderContent() {
               <h3
                 className={`text-xl font-bold text-[#5C4A3B] mb-2 ${fredoka.className}`}
               >
-                Karya Tidak Ditemukan
+                Data Tidak Ditemukan
               </h3>
               <p className="text-gray-600 mb-6">
                 Maaf, kami tidak dapat menemukan data transaksi dengan kode{" "}
@@ -384,15 +486,15 @@ function TrackOrderContent() {
                   <Info className="w-4 h-4 text-gray-400" /> Tips Pencarian:
                 </h4>
                 <ul className="text-sm text-gray-500 list-disc list-inside space-y-1">
-                  <li>Pastikan kode transaksi (TRX-...) sudah sesuai.</li>
-                  <li>Periksa pesan WhatsApp konfirmasi dari Difaraja.</li>
-                  <li>Jika sudah transfer, hubungi admin untuk bantuan.</li>
+                  <li>Pastikan kode transaksi sudah benar (Case Sensitive).</li>
+                  <li>Periksa kembali email konfirmasi pesanan Anda.</li>
+                  <li>Hubungi admin jika Anda yakin sudah membayar.</li>
                 </ul>
               </div>
             </div>
           )}
 
-          {/* 4. RESULT SECTION (Data Ditemukan) */}
+          {/* 4. RESULT SECTION */}
           {!showLoading && result && (
             <div className="max-w-4xl mx-auto animate-fade-in-up">
               {/* Header Card */}
@@ -409,13 +511,13 @@ function TrackOrderContent() {
                           result.status
                         )}`}
                       >
-                        {result.status}
+                        {getStatusLabel(result.status)}
                       </span>
                     </div>
                   </div>
                   <div className="text-left md:text-right">
                     <p className="text-sm text-gray-500 mb-1">
-                      Waktu Pemesanan
+                      Tanggal Pemesanan
                     </p>
                     <div className="flex items-center gap-2 text-[#5C4A3B] font-medium">
                       <Calendar className="w-4 h-4 text-[#A3B18A]" />
@@ -437,12 +539,12 @@ function TrackOrderContent() {
                       <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
                       <div>
                         <p className="font-bold text-yellow-800">
-                          Menunggu Dukungan Anda
+                          Menunggu Pembayaran
                         </p>
                         <p className="text-sm text-yellow-700">
                           {result.payment_type === "automatic"
-                            ? "Selesaikan pembayaran untuk memproses karya ini."
-                            : "Pesanan tercatat. Mohon segera lakukan pembayaran."}
+                            ? "Selesaikan pembayaran otomatis Anda."
+                            : "Pesanan belum dibayar. Silakan upload bukti transfer."}
                         </p>
                       </div>
                     </div>
@@ -457,7 +559,7 @@ function TrackOrderContent() {
                             }
                             className="bg-yellow-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-600 transition-colors whitespace-nowrap shadow-lg shadow-yellow-500/30"
                           >
-                            Selesaikan Pembayaran
+                            Bayar Sekarang
                           </button>
                         ) : (
                           <div className="h-10 w-32 bg-yellow-200 rounded-xl flex items-center justify-center text-yellow-600 text-xs">
@@ -469,7 +571,7 @@ function TrackOrderContent() {
                           href={`/guest/transaction/${result.encypted_id}`}
                           className="bg-yellow-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-600 transition-colors whitespace-nowrap shadow-lg shadow-yellow-500/30"
                         >
-                          Lanjut Bayar
+                          Bayar Sekarang
                         </Link>
                       ) : (
                         <div className="h-10 w-32 bg-yellow-200 rounded-xl animate-pulse flex items-center justify-center text-yellow-600 text-xs">
@@ -480,29 +582,19 @@ function TrackOrderContent() {
                   </div>
                 )}
 
-                {/* Timeline Visual */}
+                {/* Timeline Visual - STEP BY STEP */}
                 <div className="relative px-4 py-4">
                   {/* Mobile Timeline (Vertical) */}
                   <div className="md:hidden space-y-6 relative">
                     <div className="absolute top-0 left-5 h-full w-1 bg-gray-100 -z-10 rounded-full" />
-                    {[
-                      { key: "PENDING", label: "Dibuat", icon: Package },
-                      { key: "PAID", label: "Terbayar", icon: CreditCard },
-                      { key: "PROCESSED", label: "Disiapkan", icon: Clock },
-                      { key: "SHIPPED", label: "Dikirim", icon: Truck },
-                      {
-                        key: "COMPLETED",
-                        label: "Diterima",
-                        icon: CheckCircle,
-                      },
-                    ].map((step, idx) => {
+                    {TRANSACTION_STEPS.map((step, idx) => {
                       const status = getStepStatus(step.key, result.status);
                       const isActive =
                         status === "current" || status === "completed";
                       return (
                         <div key={idx} className="flex items-center gap-4">
                           <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center border-4 z-10 ${
+                            className={`w-10 h-10 rounded-full flex items-center justify-center border-4 z-10 transition-colors duration-300 ${
                               isActive
                                 ? "border-[#A3B18A] bg-[#A3B18A] text-white"
                                 : "border-gray-100 bg-white text-gray-300"
@@ -528,28 +620,14 @@ function TrackOrderContent() {
                   <div className="hidden md:flex justify-between items-center relative mb-8">
                     {/* Line Background */}
                     <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -z-0 -translate-y-1/2 rounded-full" />
+                    {/* Active Line Progress */}
                     <div
                       className="absolute top-1/2 left-0 h-1 bg-[#A3B18A] -z-0 -translate-y-1/2 rounded-full transition-all duration-1000"
                       style={{
-                        width:
-                          result.status === "COMPLETED"
-                            ? "100%"
-                            : result.status === "SHIPPED"
-                            ? "75%"
-                            : result.status === "PROCESSED"
-                            ? "50%"
-                            : result.status === "PAID"
-                            ? "25%"
-                            : "0%",
+                        width: getProgressWidth(result.status),
                       }}
                     />
-                    {[
-                      { key: "PENDING", label: "Dipesan", icon: Package },
-                      { key: "PAID", label: "Terbayar", icon: CreditCard },
-                      { key: "PROCESSED", label: "Disiapkan", icon: Clock },
-                      { key: "SHIPPED", label: "Dalam Pengiriman", icon: Truck },
-                      { key: "COMPLETED", label: "Diterima", icon: CheckCircle },
-                    ].map((step, idx) => {
+                    {TRANSACTION_STEPS.map((step, idx) => {
                       const status = getStepStatus(step.key, result.status);
                       const isActive =
                         status === "current" || status === "completed";
@@ -559,7 +637,7 @@ function TrackOrderContent() {
                           className="relative z-10 flex flex-col items-center bg-white px-2"
                         >
                           <div
-                            className={`w-12 h-12 rounded-full flex items-center justify-center border-4 mb-3 transition-all duration-300 ${
+                            className={`w-12 h-12 rounded-full flex items-center justify-center border-4 mb-3 transition-all duration-500 ${
                               isActive
                                 ? "border-[#A3B18A] bg-[#A3B18A] text-white"
                                 : "border-gray-100 bg-gray-50 text-gray-400"
@@ -586,11 +664,12 @@ function TrackOrderContent() {
                 {/* Shipping Info */}
                 <div className="bg-white rounded-3xl p-6 shadow-lg h-full">
                   <h3 className="font-bold text-[#5C4A3B] mb-4 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-[#A3B18A]" /> Tujuan Pengiriman Karya
+                    <MapPin className="w-5 h-5 text-[#A3B18A]" /> Informasi
+                    Pengiriman
                   </h3>
                   <div className="space-y-4 text-sm">
                     <div className="bg-gray-50 p-4 rounded-2xl">
-                      <p className="text-gray-500 text-xs mb-1">Nama Penerima</p>
+                      <p className="text-gray-500 text-xs mb-1">Penerima</p>
                       <p className="font-bold text-[#5C4A3B]">
                         {result.buyer_name}
                       </p>
@@ -600,7 +679,7 @@ function TrackOrderContent() {
                     </div>
                     <div className="flex items-center justify-between p-4 border border-gray-100 rounded-2xl">
                       <div>
-                        <p className="text-gray-500 text-xs">Jasa Ekspedisi</p>
+                        <p className="text-gray-500 text-xs">Ekspedisi</p>
                         <p className="font-bold text-[#5C4A3B] text-lg">
                           {result.courier.toUpperCase()}
                         </p>
@@ -610,7 +689,7 @@ function TrackOrderContent() {
                       </div>
                       {result.resi_number && (
                         <div className="text-right">
-                          <p className="text-gray-500 text-xs">Nomor Resi</p>
+                          <p className="text-gray-500 text-xs">No. Resi</p>
                           <p className="font-mono font-bold text-[#A3B18A]">
                             {result.resi_number}
                           </p>
@@ -623,7 +702,8 @@ function TrackOrderContent() {
                 {/* Items Info */}
                 <div className="bg-white rounded-3xl p-6 shadow-lg h-full">
                   <h3 className="font-bold text-[#5C4A3B] mb-4 flex items-center gap-2">
-                    <ShoppingBag className="w-5 h-5 text-[#A3B18A]" /> Rincian Karya Pesanan
+                    <ShoppingBag className="w-5 h-5 text-[#A3B18A]" /> Detail
+                    Produk
                   </h3>
                   <div className="space-y-4 max-h-[250px] overflow-y-auto custom-scrollbar pr-2">
                     {result.items.map((item) => (
@@ -651,8 +731,8 @@ function TrackOrderContent() {
                     ))}
                   </div>
                   <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <span className="text-gray-600 font-medium flex items-center gap-1">
-                      Total Dukungan <Heart className="w-3 h-3 text-pink-400 fill-pink-400" />
+                    <span className="text-gray-600 font-medium">
+                      Total Belanja
                     </span>
                     <span className="text-xl font-bold text-[#A3B18A]">
                       Rp{" "}
