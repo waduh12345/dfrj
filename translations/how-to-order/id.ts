@@ -1,7 +1,7 @@
 const translations = {
   "hero-badge": "Panduan Pemesanan",
   "hero-title-1": "Cara Pesan di",
-  "hero-title-2": "DIFARAJA",
+  "hero-title-2": "Radja Mart",
   "hero-subtitle":
     "Ikuti langkah mudah untuk mendapatkan produk kuliner dan kerajinan tangan terbaik karya difabelpreneur. Proses belanja yang praktis, aman, dan penuh makna!",
   "hero-item-1-title": "Pembayaran Aman",

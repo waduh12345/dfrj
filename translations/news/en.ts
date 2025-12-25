@@ -3,7 +3,7 @@ const translations = {
   "hero-title-1": "Creative Inspiration",
   "hero-title-2": "for Families",
   "hero-subtitle":
-    "Discover parenting tips, product updates, and inspiring stories about children's creativity development with DIFARAJA.",
+    "Discover parenting tips, product updates, and inspiring stories about children's creativity development with Radja Mart.",
   "search-placehilder": "Search articles, tips, or topics...",
   "search-button": "All",
   "main-card-cta": "Read More",

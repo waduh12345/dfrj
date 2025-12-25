@@ -272,7 +272,7 @@ export default function LoginPage() {
             <div className="flex justify-center items-center w-full lg:justify-start mb-6">
               <div className="w-full backdrop-blur-md rounded-2xl flex items-center justify-center overflow-hidden">
                 <Image
-                  src="/logo-difaraja.webp"
+                  src="/new-radjamart.webp"
                   alt="Logo Difaraja"
                   width={320}
                   height={80}

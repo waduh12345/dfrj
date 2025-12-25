@@ -17,19 +17,19 @@ const FaqPage = () => {
       name: "Produk",
       items: [
         {
-          question: "Apakah produk DIFARAJA aman untuk anak?",
+          question: "Apakah produk Radja Mart aman untuk anak?",
           answer:
-            "Ya! Semua produk DIFARAJA menggunakan bahan non-toxic dan telah tersertifikasi aman untuk anak. Kami menggunakan bahan daur ulang dan ramah lingkungan yang telah lulus uji keamanan internasional.",
+            "Ya! Semua produk Radja Mart menggunakan bahan non-toxic dan telah tersertifikasi aman untuk anak. Kami menggunakan bahan daur ulang dan ramah lingkungan yang telah lulus uji keamanan internasional.",
         },
         {
-          question: "Berapa usia yang cocok untuk produk DIFARAJA?",
+          question: "Berapa usia yang cocok untuk produk Radja Mart?",
           answer:
-            "Produk DIFARAJA dirancang untuk anak usia 1-12 tahun dengan kategori yang berbeda. Setiap produk memiliki label usia yang jelas untuk membantu Anda memilih yang tepat untuk si kecil.",
+            "Produk Radja Mart dirancang untuk anak usia 1-12 tahun dengan kategori yang berbeda. Setiap produk memiliki label usia yang jelas untuk membantu Anda memilih yang tepat untuk si kecil.",
         },
         {
-          question: "Bagaimana cara merawat produk seni DIFARAJA?",
+          question: "Bagaimana cara merawat produk seni Radja Mart?",
           answer:
-            "Produk DIFARAJA mudah dibersihkan dengan air hangat dan sabun lembut. Simpan di tempat kering dan sejuk, hindari paparan sinar matahari langsung untuk menjaga kualitas warna dan bahan.",
+            "Produk Radja Mart mudah dibersihkan dengan air hangat dan sabun lembut. Simpan di tempat kering dan sejuk, hindari paparan sinar matahari langsung untuk menjaga kualitas warna dan bahan.",
         },
         {
           question: "Apakah ada garansi untuk produk yang rusak?",
@@ -69,7 +69,7 @@ const FaqPage = () => {
         {
           question: "Apakah ada program loyalitas?",
           answer:
-            "Ya! Setiap pembelian akan mendapat poin DIFARAJA yang bisa ditukar dengan diskon atau produk gratis. Bergabunglah dengan DIFARAJA Club untuk benefit eksklusif.",
+            "Ya! Setiap pembelian akan mendapat poin Radja Mart yang bisa ditukar dengan diskon atau produk gratis. Bergabunglah dengan Radja Mart Club untuk benefit eksklusif.",
         },
       ],
     },

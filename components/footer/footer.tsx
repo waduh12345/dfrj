@@ -54,9 +54,9 @@ export default function Footer() {
   // FAQ Disesuaikan dengan Difaraja (Kuliner, Kriya, Fashion)
   const faqs = [
     {
-      question: "Apa itu DIFARAJA?",
+      question: "Apa itu Radja Mart?",
       answer:
-        "DIFARAJA (Difabelpreneur Raden Wijaya) adalah wadah pemberdayaan ekonomi bagi penyandang disabilitas untuk menghasilkan karya mandiri berupa Kuliner, Kriya, dan Fashion yang berkualitas.",
+        "Radja Mart (Raden Wijaya Mart) adalah wadah pemberdayaan ekonomi bagi penyandang disabilitas untuk menghasilkan karya mandiri berupa Kuliner, Kriya, dan Fashion yang berkualitas.",
     },
     {
       question: "Apakah produk makanan aman dikirim ke luar kota?",
@@ -109,10 +109,10 @@ export default function Footer() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-white tracking-wide">
-                      DIFARAJA
+                      Radja Mart
                     </h3>
                     <p className="text-xs text-pink-100 uppercase tracking-wider font-semibold">
-                      Difabelpreneur Raden Wijaya
+                      Raden Wijaya Mart
                     </p>
                   </div>
                 </div>
@@ -331,7 +331,7 @@ export default function Footer() {
               <div className="flex items-center gap-4">
                 <p>
                   © {new Date().getFullYear()} <strong>Difaraja</strong>.
-                  Difabelpreneur Raden Wijaya. All rights reserved.
+                  Raden Wijaya Mart. All rights reserved.
                 </p>
               </div>
               <div className="flex gap-6 font-medium">

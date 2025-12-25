@@ -178,7 +178,7 @@ export default function Header() {
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative">
                 <Image
-                  src="/logo-difaraja.webp"
+                  src="/new-radjamart.webp"
                   alt="Colore Logo"
                   width={180}
                   height={180}

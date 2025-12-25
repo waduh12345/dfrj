@@ -622,7 +622,7 @@ function AboutContent() {
                   height={15}
                 />
                 <span className={`text-sm font-medium ${sniglet.className}`}>
-                  Tentang DIFARAJA
+                  Tentang Radja Mart
                 </span>
               </div>
 
@@ -712,7 +712,7 @@ function AboutContent() {
                   isEditMode={isEditMode}
                   src={getPreviewSrc(texts.heroImage)}
                   onSave={(url) => updateText("heroImage", url)}
-                  alt="DIFARAJA Story"
+                  alt="Radja Mart Story"
                   fill
                   priority
                   containerClassName="w-full h-full"

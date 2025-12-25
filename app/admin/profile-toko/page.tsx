@@ -298,7 +298,7 @@ export default function ShopProfilePage() {
 
         <div className="min-w-0">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Difabelpreneur Raden Wijaya Shop
+            Raden Wijaya Mart Shop
           </h1>
           <p className="text-sm text-gray-500">
             <span className="mr-2">Manajemen Toko</span>

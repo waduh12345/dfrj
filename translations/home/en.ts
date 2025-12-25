@@ -1,7 +1,7 @@
 const translations = {
   "hero-title-1": "Color Your Life",
   "hero-title-2": "with",
-  "hero-title-3": "DIFARAJA",
+  "hero-title-3": "Radja Mart",
   "hero-subtitle":
     "Complement your lifestyle with a variety of artistic handicrafts and authentic culinary delights.",
   "hero-cta": "Shop Now",
@@ -15,18 +15,21 @@ const translations = {
   "sec-2-card-inactive": "Inactive",
   "sec-2-card-cta": "View Product",
   "sec-3-title-1": "Why Choose",
-  "sec-3-title-2": "DIFARAJA?",
+  "sec-3-title-2": "Radja Mart?",
   "sec-3-subtitle":
     "Discover our finest curation of products, ranging from authentic culinary delights to artistic handicrafts and fashion. Each piece is crafted with precision and born from the resilient spirit of difabelpreneurs for you to appreciate.",
   "sec-3-item-1-title": "Natural & Selected Ingredients",
   "sec-3-item-2-title": "Real Social Impact",
   "sec-3-item-3-title": "Guaranteed Quality & Hygiene",
   "sec-3-item-4-title": "Inspiring Works",
-  "sec-3-item-1-content": "Using high-quality, natural ingredients without harmful preservatives for culinary products, and eco-friendly materials for handicrafts.",
+  "sec-3-item-1-content":
+    "Using high-quality, natural ingredients without harmful preservatives for culinary products, and eco-friendly materials for handicrafts.",
   "sec-3-item-2-content":
     "Every transaction is not just a purchase, but a participation in connecting and empowering the economic independence of our friends with disabilities.",
-  "sec-3-item-3-content": "Processed with high hygiene standards and strict quality control (QC) to ensure the safety and satisfaction of your family.",
-  "sec-3-item-4-content": "Each product is an exclusive handmade masterpiece, holding a story of resilience, and crafted with high attention to detail.",
+  "sec-3-item-3-content":
+    "Processed with high hygiene standards and strict quality control (QC) to ensure the safety and satisfaction of your family.",
+  "sec-3-item-4-content":
+    "Each product is an exclusive handmade masterpiece, holding a story of resilience, and crafted with high attention to detail.",
   "sec-4-title-1": "Most",
   "sec-4-title-2": "Sought After & Loved",
   "sec-4-subtitle":

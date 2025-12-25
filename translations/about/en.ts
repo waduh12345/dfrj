@@ -1,12 +1,12 @@
 const translations = {
-  "hero-badge": "About DIFARAJA",
+  "hero-badge": "About Radja Mart",
   "hero-title-1": "Building Independence",
   "hero-title-2": "Towards",
   "hero-title-3": "Glory",
   "filter-category": "All Categories",
   "filter-category-CategoryName": "Category Name",
   "hero-subtitle":
-    "Difaraja (Difabelpreneur Raden Wijaya) stands as a social entrepreneurship platform presenting quality culinary and handicraft products, created with resilience to empower the economy of our friends with disabilities.",
+    "Difaraja (Raden Wijaya Mart) stands as a social entrepreneurship platform presenting quality culinary and handicraft products, created with resilience to empower the economy of our friends with disabilities.",
   "hero-item-1-title": "100% Heart-Made",
   "hero-item-2-title": "Social Impact",
   "hero-item-1-content": "Wholehearted Works",
@@ -49,9 +49,8 @@ const translations = {
   "stats-label-3": "Difabel Partners",
   "stats-label-4": "Communities",
   "journey-title-1": "The Journey of",
-  "journey-title-2": "DIFARAJA",
-  "journet-subtitle":
-    "Our footsteps in building an empowering ecosystem.",
+  "journey-title-2": "Radja Mart",
+  "journet-subtitle": "Our footsteps in building an empowering ecosystem.",
   "2019-title": "The Spark of Spirit",
   "2019-content":
     "The beginning of the idea to unite the potential of friends with disabilities in one creative platform.",
@@ -71,7 +70,7 @@ const translations = {
   "2024-content":
     "Launched a digital platform to facilitate customer access to difabelpreneur works.",
   "team-title-1": "Team",
-  "team-title-2": "DIFARAJA",
+  "team-title-2": "Radja Mart",
   "team-subtitle":
     "The dedicated movers behind the scenes realizing the vision of shared independence.",
   "cta-title": "Support Works, Empower Lives!",

@@ -1,12 +1,12 @@
 const translations = {
-  "hero-badge": "Tentang DIFARAJA",
+  "hero-badge": "Tentang Radja Mart",
   "hero-title-1": "Mewujudkan Kemandirian",
   "hero-title-2": "Menuju Kejayaan",
   "hero-title-3": "",
   "filter-category": "Semua Kategori",
   "filter-category-CategoryName": "Nama Kategori",
   "hero-subtitle":
-    "Difaraja (Difabelpreneur Raden Wijaya) hadir sebagai wadah kewirausahaan sosial yang menghadirkan produk kuliner dan kriya berkualitas, diciptakan dengan ketangguhan hati untuk memberdayakan ekonomi teman-teman disabilitas.",
+    "Difaraja (Raden Wijaya Mart) hadir sebagai wadah kewirausahaan sosial yang menghadirkan produk kuliner dan kriya berkualitas, diciptakan dengan ketangguhan hati untuk memberdayakan ekonomi teman-teman disabilitas.",
   "hero-item-1-title": "100% Heart-Made",
   "hero-item-2-title": "Social Impact",
   "hero-item-1-content": "Karya Sepenuh Hati",
@@ -25,7 +25,7 @@ const translations = {
   "visi-item-2": "Simbol kebangkitan ekonomi inklusif",
   "visi-item-3": "Inspirasi ketangguhan tanpa batas",
   "value-title-1": "Nilai-Nilai",
-  "value-title-2": "DIFARAJA ",
+  "value-title-2": "Radja Mart ",
   "value-subtitle":
     "Prinsip 'WIJAYA' yang menjadi fondasi semangat kami dalam berkarya dan melayani.",
   "value-item-1-title": "Kemandirian (Empowerment)",
@@ -49,7 +49,7 @@ const translations = {
   "stats-label-3": "Mitra Difabel",
   "stats-label-4": "Komunitas",
   "journey-title-1": "Perjalanan",
-  "journey-title-2": "DIFARAJA",
+  "journey-title-2": "Radja Mart",
   "journet-subtitle":
     "Jejak langkah kami dalam membangun ekosistem yang memberdayakan.",
   "2019-title": "Benih Semangat",
@@ -71,7 +71,7 @@ const translations = {
   "2024-content":
     "Meluncurkan platform digital untuk memudahkan akses pelanggan terhadap karya-karya difabelpreneur.",
   "team-title-1": "Tim",
-  "team-title-2": "DIFARAJA",
+  "team-title-2": "Radja Mart",
   "team-subtitle":
     "Para penggerak di balik layar yang berdedikasi mewujudkan visi kemandirian bersama.",
   "cta-title": "Dukung Karya, Berdayakan Sesama!",

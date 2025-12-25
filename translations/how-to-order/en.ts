@@ -1,13 +1,14 @@
 const translations = {
   "hero-badge": "Order Guide",
   "hero-title-1": "How to Order at",
-  "hero-title-2": "DIFARAJA",
+  "hero-title-2": "Radja Mart",
   "hero-subtitle":
     "Follow these easy steps to get the best culinary and handicraft products made by difabelpreneurs. A practical, safe, and meaningful shopping process!",
   "hero-item-1-title": "Secure Payment",
   "hero-item-2-title": "Safe Delivery",
   "hero-item-3-title": "Customer Service",
-  "hero-item-1-content": "Transactions guaranteed with official payment gateways",
+  "hero-item-1-content":
+    "Transactions guaranteed with official payment gateways",
   "hero-item-2-content": "Safe packing for food & fragile crafts",
   "hero-item-3-content": "Our team is ready to assist with your order needs",
   "nav-step-title-1": "Ordering",

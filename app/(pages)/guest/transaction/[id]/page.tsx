@@ -32,8 +32,8 @@ import { fredoka, sniglet } from "@/lib/fonts";
 // Brand Colors
 const THEME = {
   primary: "#d43893ff", // Pink Magenta
-  textMain: "#5B4A3B",  // Cocoa Brown
-  bgLight: "#FFF0F5",   // Soft Pink
+  textMain: "#5B4A3B", // Cocoa Brown
+  bgLight: "#FFF0F5", // Soft Pink
 };
 
 export default function GuestConfirmationPage() {
@@ -151,7 +151,9 @@ export default function GuestConfirmationPage() {
 
   if (isError || !transactionData) {
     return (
-      <div className={`min-h-screen flex flex-col items-center justify-center bg-[#FFF0F5] gap-4 ${sniglet.className}`}>
+      <div
+        className={`min-h-screen flex flex-col items-center justify-center bg-[#FFF0F5] gap-4 ${sniglet.className}`}
+      >
         <p className="text-red-500 font-bold text-xl">
           Data Transaksi Tidak Ditemukan
         </p>
@@ -168,13 +170,19 @@ export default function GuestConfirmationPage() {
   // Status mapping
   const getStatusText = (status: number) => {
     switch (status) {
-      case 0: return "Menunggu Pembayaran";
-      case 1: 
-      case 2: return "Sudah Dibayar";
-      case 3: return "Diproses";
-      case 4: return "Dalam Pengiriman";
-      case 5: return "Selesai";
-      default: return "Status Tidak Diketahui";
+      case 0:
+        return "Menunggu Pembayaran";
+      case 1:
+      case 2:
+        return "Sudah Dibayar";
+      case 3:
+        return "Diproses";
+      case 4:
+        return "Dalam Pengiriman";
+      case 5:
+        return "Selesai";
+      default:
+        return "Status Tidak Diketahui";
     }
   };
 
@@ -190,11 +198,12 @@ export default function GuestConfirmationPage() {
 
   const totalProductPrice = calculateTotal();
   const totalWithShipping =
-      totalProductPrice +
-      ((transactionData.stores?.[0]?.shipment_cost ?? 0));
+    totalProductPrice + (transactionData.stores?.[0]?.shipment_cost ?? 0);
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-white to-[#FFF0F5] pt-24 pb-12 ${sniglet.className}`}>
+    <div
+      className={`min-h-screen bg-gradient-to-br from-white to-[#FFF0F5] pt-24 pb-12 ${sniglet.className}`}
+    >
       <div className="container mx-auto px-6 lg:px-12">
         {/* HEADER */}
         <div className="mb-8">
@@ -212,7 +221,9 @@ export default function GuestConfirmationPage() {
                 {getStatusText(transactionData.status)}
               </span>
             </div>
-            <h1 className={`text-3xl lg:text-4xl font-bold text-[#5B4A3B] mb-2 ${fredoka.className}`}>
+            <h1
+              className={`text-3xl lg:text-4xl font-bold text-[#5B4A3B] mb-2 ${fredoka.className}`}
+            >
               Selesaikan <span className="text-[#d43893ff]">Dukungan Anda</span>
             </h1>
             <p className="text-gray-500">
@@ -229,7 +240,9 @@ export default function GuestConfirmationPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* 1. Informasi Rekening & Nominal */}
             <div className="bg-white rounded-[2rem] p-8 shadow-lg shadow-pink-100/50 border border-gray-50">
-              <h3 className={`font-bold text-xl text-[#5B4A3B] mb-6 flex items-center gap-2 ${fredoka.className}`}>
+              <h3
+                className={`font-bold text-xl text-[#5B4A3B] mb-6 flex items-center gap-2 ${fredoka.className}`}
+              >
                 <CreditCard className="w-6 h-6 text-[#d43893ff]" />
                 Metode Pembayaran
               </h3>
@@ -270,15 +283,19 @@ export default function GuestConfirmationPage() {
                         BCA
                       </div>
                       <div>
-                        <p className="text-xs text-[#d43893ff] font-bold uppercase tracking-wide">Bank Central Asia</p>
+                        <p className="text-xs text-[#d43893ff] font-bold uppercase tracking-wide">
+                          Bank Central Asia
+                        </p>
                         <p className="font-bold text-[#5B4A3B]">
-                          DIFARAJA INDONESIA
+                          Radja Mart INDONESIA
                         </p>
                       </div>
                     </div>
 
                     <div className="mb-2">
-                      <p className="text-sm text-gray-500 mb-1">Nomor Rekening</p>
+                      <p className="text-sm text-gray-500 mb-1">
+                        Nomor Rekening
+                      </p>
                       <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-pink-200">
                         <span className="text-xl font-mono font-bold text-[#5B4A3B] tracking-wider">
                           7311087405
@@ -315,7 +332,8 @@ export default function GuestConfirmationPage() {
                     <div className="bg-yellow-50 text-yellow-800 px-4 py-3 rounded-xl text-xs flex items-start gap-2 leading-relaxed">
                       <Clock className="w-4 h-4 flex-shrink-0 mt-0.5 text-yellow-600" />
                       <p>
-                        Mohon transfer sesuai nominal hingga 3 digit terakhir agar pesanan karya Anda diproses otomatis.
+                        Mohon transfer sesuai nominal hingga 3 digit terakhir
+                        agar pesanan karya Anda diproses otomatis.
                       </p>
                     </div>
                   </div>
@@ -334,12 +352,19 @@ export default function GuestConfirmationPage() {
                       </div>
                     </div>
                     <div className="flex-1 text-center md:text-left">
-                      <p className={`font-bold text-[#5B4A3B] mb-2 text-lg ${fredoka.className}`}>Scan QRIS Difaraja</p>
+                      <p
+                        className={`font-bold text-[#5B4A3B] mb-2 text-lg ${fredoka.className}`}
+                      >
+                        Scan QRIS Difaraja
+                      </p>
                       <p className="text-gray-500 text-sm mb-4 leading-relaxed">
-                        Gunakan aplikasi E-Wallet (GoPay, OVO, ShopeePay, DANA) atau Mobile Banking Anda untuk scan kode di samping.
+                        Gunakan aplikasi E-Wallet (GoPay, OVO, ShopeePay, DANA)
+                        atau Mobile Banking Anda untuk scan kode di samping.
                       </p>
                       <div className="inline-block text-center md:text-left bg-white px-4 py-2 rounded-xl border border-pink-100">
-                        <span className="text-gray-400 text-xs uppercase font-bold block mb-1">Total Bayar</span>
+                        <span className="text-gray-400 text-xs uppercase font-bold block mb-1">
+                          Total Bayar
+                        </span>
                         <span className="text-2xl font-bold text-[#d43893ff]">
                           {formatRupiahWithRp(totalWithShipping)}
                         </span>
@@ -352,13 +377,16 @@ export default function GuestConfirmationPage() {
 
             {/* 2. Upload Bukti Bayar */}
             <div className="bg-white rounded-[2rem] p-8 shadow-lg shadow-pink-100/50 border border-gray-50">
-              <h3 className={`font-bold text-xl text-[#5B4A3B] mb-4 flex items-center gap-2 ${fredoka.className}`}>
+              <h3
+                className={`font-bold text-xl text-[#5B4A3B] mb-4 flex items-center gap-2 ${fredoka.className}`}
+              >
                 <UploadCloud className="w-6 h-6 text-[#d43893ff]" />
                 Konfirmasi Transfer
               </h3>
 
               <p className="text-gray-500 mb-6 text-sm">
-                Bantu kami memverifikasi dukungan Anda lebih cepat dengan mengunggah bukti transfer/struk di sini.
+                Bantu kami memverifikasi dukungan Anda lebih cepat dengan
+                mengunggah bukti transfer/struk di sini.
               </p>
 
               <div className="border-2 border-dashed border-[#d43893ff]/30 rounded-3xl p-8 text-center hover:bg-[#FFF0F5] transition-colors relative group">
@@ -439,25 +467,37 @@ export default function GuestConfirmationPage() {
 
             {/* Detail Pembeli & Pengiriman */}
             <div className="bg-white rounded-[2rem] p-6 shadow-lg shadow-pink-100/50 border border-gray-50">
-              <h3 className={`font-bold text-[#5B4A3B] mb-4 flex items-center gap-2 ${fredoka.className}`}>
+              <h3
+                className={`font-bold text-[#5B4A3B] mb-4 flex items-center gap-2 ${fredoka.className}`}
+              >
                 <User className="w-5 h-5 text-[#d43893ff]" />
                 Data Pemesan
               </h3>
               <div className="space-y-3 text-sm text-gray-600 mb-6 bg-[#FFF0F5] p-4 rounded-xl">
                 <div>
-                  <p className="text-xs text-[#d43893ff] font-bold uppercase">Nama</p>
+                  <p className="text-xs text-[#d43893ff] font-bold uppercase">
+                    Nama
+                  </p>
                   <p className="font-bold text-[#5B4A3B]">
                     {transactionData.guest_name}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#d43893ff] font-bold uppercase">Kontak</p>
-                  <p className="font-medium text-[#5B4A3B]">{transactionData.guest_email}</p>
-                  <p className="font-medium text-[#5B4A3B]">{transactionData.guest_phone}</p>
+                  <p className="text-xs text-[#d43893ff] font-bold uppercase">
+                    Kontak
+                  </p>
+                  <p className="font-medium text-[#5B4A3B]">
+                    {transactionData.guest_email}
+                  </p>
+                  <p className="font-medium text-[#5B4A3B]">
+                    {transactionData.guest_phone}
+                  </p>
                 </div>
               </div>
 
-              <h3 className={`font-bold text-[#5B4A3B] mb-4 flex items-center gap-2 pt-4 border-t border-gray-100 ${fredoka.className}`}>
+              <h3
+                className={`font-bold text-[#5B4A3B] mb-4 flex items-center gap-2 pt-4 border-t border-gray-100 ${fredoka.className}`}
+              >
                 <MapPin className="w-5 h-5 text-[#d43893ff]" />
                 Tujuan Pengiriman
               </h3>
@@ -466,7 +506,9 @@ export default function GuestConfirmationPage() {
                   {transactionData.address_line_1}
                 </p>
                 {transactionData.address_line_2 && (
-                  <p className="mb-1 text-gray-500">{transactionData.address_line_2}</p>
+                  <p className="mb-1 text-gray-500">
+                    {transactionData.address_line_2}
+                  </p>
                 )}
                 <p className="text-gray-500">
                   {transactionData.district_name}, {transactionData.city_name}
@@ -479,13 +521,17 @@ export default function GuestConfirmationPage() {
                 <div className="bg-[#d43893ff] text-white px-3 py-1 rounded-lg font-bold uppercase text-xs tracking-wider">
                   {transactionData.courier}
                 </div>
-                <span className="text-gray-500 font-medium">{transactionData.service}</span>
+                <span className="text-gray-500 font-medium">
+                  {transactionData.service}
+                </span>
               </div>
             </div>
 
             {/* Detail Produk */}
             <div className="bg-white rounded-[2rem] p-6 shadow-lg shadow-pink-100/50 border border-gray-50">
-              <h3 className={`font-bold text-[#5B4A3B] mb-4 flex items-center gap-2 ${fredoka.className}`}>
+              <h3
+                className={`font-bold text-[#5B4A3B] mb-4 flex items-center gap-2 ${fredoka.className}`}
+              >
                 <Package className="w-5 h-5 text-[#d43893ff]" />
                 Rincian Karya
               </h3>
@@ -493,7 +539,10 @@ export default function GuestConfirmationPage() {
               <div className="space-y-4 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
                 {transactionData.stores?.map((store) =>
                   store.details.map((item) => (
-                    <div key={item.id} className="flex gap-3 items-start border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+                    <div
+                      key={item.id}
+                      className="flex gap-3 items-start border-b border-gray-50 pb-3 last:border-0 last:pb-0"
+                    >
                       <div className="relative w-14 h-14 flex-shrink-0">
                         <Image
                           src={item.product.image}
