@@ -6,7 +6,7 @@ const translations = {
   "filter-category": "Semua Kategori",
   "filter-category-CategoryName": "Nama Kategori",
   "hero-subtitle":
-    "Difaraja (Raden Wijaya Mart) hadir sebagai wadah kewirausahaan sosial yang menghadirkan produk kuliner dan kriya berkualitas, diciptakan dengan ketangguhan hati untuk memberdayakan ekonomi teman-teman disabilitas.",
+    "Radja Mart (Raden Wijaya Mart) hadir sebagai wadah kewirausahaan sosial yang menghadirkan produk kuliner dan kriya berkualitas, diciptakan dengan ketangguhan hati untuk memberdayakan ekonomi teman-teman disabilitas.",
   "hero-item-1-title": "100% Heart-Made",
   "hero-item-2-title": "Social Impact",
   "hero-item-1-content": "Karya Sepenuh Hati",
@@ -66,7 +66,7 @@ const translations = {
     "Mulai menjalin kerjasama dengan berbagai pihak untuk memperluas jangkauan distribusi produk.",
   "2023-title": "Apresiasi Publik",
   "2023-content":
-    "Produk Difaraja mulai dikenal luas dan mendapatkan tempat istimewa di hati masyarakat.",
+    "Produk Radja Mart mulai dikenal luas dan mendapatkan tempat istimewa di hati masyarakat.",
   "2024-title": "Era Digital",
   "2024-content":
     "Meluncurkan platform digital untuk memudahkan akses pelanggan terhadap karya-karya difabelpreneur.",

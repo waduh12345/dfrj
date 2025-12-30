@@ -6,7 +6,7 @@ const translations = {
   "filter-category": "All Categories",
   "filter-category-CategoryName": "Category Name",
   "hero-subtitle":
-    "Difaraja (Raden Wijaya Mart) stands as a social entrepreneurship platform presenting quality culinary and handicraft products, created with resilience to empower the economy of our friends with disabilities.",
+    "Radja Mart (Raden Wijaya Mart) stands as a social entrepreneurship platform presenting quality culinary and handicraft products, created with resilience to empower the economy of our friends with disabilities.",
   "hero-item-1-title": "100% Heart-Made",
   "hero-item-2-title": "Social Impact",
   "hero-item-1-content": "Wholehearted Works",
@@ -65,7 +65,7 @@ const translations = {
     "Started establishing partnerships with various parties to expand product distribution reach.",
   "2023-title": "Public Appreciation",
   "2023-content":
-    "Difaraja products began to be widely known and gained a special place in people's hearts.",
+    "Radja Mart products began to be widely known and gained a special place in people's hearts.",
   "2024-title": "Digital Era",
   "2024-content":
     "Launched a digital platform to facilitate customer access to difabelpreneur works.",

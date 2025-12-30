@@ -17,8 +17,8 @@ import {
   Share2,
   Filter,
   Utensils, // Icon untuk Kuliner
-  Shirt,     // Icon untuk Fashion
-  ShoppingBag // Icon untuk Produk Umum
+  Shirt, // Icon untuk Fashion
+  ShoppingBag, // Icon untuk Produk Umum
 } from "lucide-react";
 
 // === TYPES ===
@@ -44,7 +44,7 @@ const THEME = {
   textMain: "#5B4A3B", // Cocoa Brown
 };
 
-// Kategori untuk filter (Disesuaikan dengan Difaraja)
+// Kategori untuk filter (Disesuaikan dengan Radja Mart)
 const categories = [
   { name: "Semua", icon: <Camera className="w-4 h-4" />, color: "bg-gray-100" },
   {
@@ -95,19 +95,46 @@ function toImageUrl(img: GaleriItem["image"]): string {
 // Helper untuk mapping kategori otomatis berdasarkan judul/deskripsi
 function toCategoryFromTitle(title: string): string {
   const t = title.toLowerCase();
-  
+
   // Logic Kuliner
-  if (t.includes("makanan") || t.includes("snack") || t.includes("kue") || t.includes("keripik") || t.includes("kuliner")) return "Kuliner";
-  
+  if (
+    t.includes("makanan") ||
+    t.includes("snack") ||
+    t.includes("kue") ||
+    t.includes("keripik") ||
+    t.includes("kuliner")
+  )
+    return "Kuliner";
+
   // Logic Fashion
-  if (t.includes("baju") || t.includes("kaos") || t.includes("kain") || t.includes("batik") || t.includes("fashion")) return "Fashion";
-  
+  if (
+    t.includes("baju") ||
+    t.includes("kaos") ||
+    t.includes("kain") ||
+    t.includes("batik") ||
+    t.includes("fashion")
+  )
+    return "Fashion";
+
   // Logic Kriya
-  if (t.includes("tas") || t.includes("dompet") || t.includes("craft") || t.includes("kriya") || t.includes("kerajinan")) return "Kriya";
-  
+  if (
+    t.includes("tas") ||
+    t.includes("dompet") ||
+    t.includes("craft") ||
+    t.includes("kriya") ||
+    t.includes("kerajinan")
+  )
+    return "Kriya";
+
   // Logic Kegiatan
-  if (t.includes("pelatihan") || t.includes("workshop") || t.includes("kegiatan") || t.includes("event")) return "Kegiatan";
-  
+  if (
+    t.includes("pelatihan") ||
+    t.includes("workshop") ||
+    t.includes("kegiatan") ||
+    t.includes("event")
+  )
+    return "Kegiatan";
+
   return "Kriya"; // Default fallback
 }
 
@@ -149,14 +176,18 @@ function GaleriModal({ isOpen, onClose, item }: GaleriModalProps) {
           </div>
         </div>
         <div className="p-8 overflow-y-auto bg-gradient-to-b from-white to-pink-50/30">
-          <h2 className={`text-2xl lg:text-3xl font-bold text-[#5C4A3B] mb-4 ${fredoka.className}`}>
+          <h2
+            className={`text-2xl lg:text-3xl font-bold text-[#5C4A3B] mb-4 ${fredoka.className}`}
+          >
             {item.title}
           </h2>
-          <p className="text-gray-600 mb-6 leading-relaxed text-lg">{item.__raw.description}</p>
+          <p className="text-gray-600 mb-6 leading-relaxed text-lg">
+            {item.__raw.description}
+          </p>
           <div className="flex items-center justify-between mt-auto pt-6 border-t border-gray-100">
             <span className="text-sm text-gray-500 font-medium flex items-center gap-2">
-                <Camera className="w-4 h-4 text-[#d43893ff]" />
-                {item.date}
+              <Camera className="w-4 h-4 text-[#d43893ff]" />
+              {item.date}
             </span>
             <div className="flex gap-3">
               <button className="flex items-center gap-2 px-5 py-2.5 bg-pink-50 text-[#d43893ff] rounded-xl hover:bg-pink-100 transition-colors font-semibold">
@@ -214,13 +245,14 @@ function GaleriContent() {
     direction: "to right",
   });
 
-  // === TEXT STATES (Difaraja Context) ===
+  // === TEXT STATES (Radja Mart Context) ===
   const [pageTexts, setPageTexts] = useState({
     // Hero
-    heroBadge: "Galeri Difaraja",
+    heroBadge: "Galeri Radja Mart",
     heroTitle1: "Jejak Karya &",
     heroTitle2: "Inspirasi Kami",
-    heroSubtitle: "Menyelami ragam kreativitas difabelpreneur melalui lensa kamera. Dari dapur kuliner hingga meja kriya, inilah bukti ketangguhan kami.",
+    heroSubtitle:
+      "Menyelami ragam kreativitas difabelpreneur melalui lensa kamera. Dari dapur kuliner hingga meja kriya, inilah bukti ketangguhan kami.",
     heroItem1: "Kuliner Otentik",
     heroItem2: "Kriya Handmade",
     heroItem3: "Fashion",
@@ -228,7 +260,8 @@ function GaleriContent() {
     statsTitle: "Dampak Kebahagiaan",
     // CTA
     ctaTitle: "Tertarik dengan Karya Kami?",
-    ctaSubtitle: "Dukung kemandirian difabelpreneur dengan memiliki produk-produk istimewa ini.",
+    ctaSubtitle:
+      "Dukung kemandirian difabelpreneur dengan memiliki produk-produk istimewa ini.",
     ctaBtn1: "Hubungi Kami",
     ctaBtn2: "Lihat Produk",
   });
@@ -239,7 +272,7 @@ function GaleriContent() {
     // Kode ini mempertahankan state local jika user mengedit text via CMS mode.
     setPageTexts((prev) => ({
       ...prev,
-      heroBadge: t["hero-badge"] || "Galeri Difaraja",
+      heroBadge: t["hero-badge"] || "Galeri Radja Mart",
       // ... map others if needed from translation file
     }));
   }, [t]);
@@ -254,7 +287,9 @@ function GaleriContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const phone = "628176942128";
-  const waText = encodeURIComponent("Halo Difaraja, saya tertarik dengan karya di galeri foto...");
+  const waText = encodeURIComponent(
+    "Halo Radja Mart, saya tertarik dengan karya di galeri foto..."
+  );
   const waUrlWithPhone = `https://wa.me/${phone}?text=${waText}`;
 
   const { data, isLoading, isError, refetch } = useGetGalleryListQuery({
@@ -303,8 +338,8 @@ function GaleriContent() {
       >
         {/* Decorative Circles */}
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-             <div className="absolute -top-20 -left-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-             <div className="absolute bottom-0 right-0 w-80 h-80 bg-yellow-300 rounded-full blur-3xl"></div>
+          <div className="absolute -top-20 -left-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-80 h-80 bg-yellow-300 rounded-full blur-3xl"></div>
         </div>
 
         <div className="container mx-auto text-center text-white relative z-10">
@@ -388,9 +423,7 @@ function GaleriContent() {
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-6">
               <div className="flex items-center gap-2 text-[#5C4A3B] px-2">
                 <Filter className="w-5 h-5 text-[#d43893ff]" />
-                <h3 className="text-lg font-bold">
-                  {t["category-filter"]}
-                </h3>
+                <h3 className="text-lg font-bold">{t["category-filter"]}</h3>
               </div>
 
               <div className="flex flex-wrap gap-2 w-full">
@@ -469,7 +502,7 @@ function GaleriContent() {
                       className="object-cover will-change-transform group-hover:scale-110 transition-transform duration-700"
                       sizes="(min-width:1280px) 25vw, (min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
                     />
-                    
+
                     {/* Badge Category */}
                     <div className="absolute top-4 left-4 z-20">
                       <span className="bg-white/95 backdrop-blur-sm text-[#d43893ff] px-3 py-1 rounded-full text-xs font-bold shadow-sm uppercase tracking-wide">
@@ -479,10 +512,12 @@ function GaleriContent() {
 
                     {/* Overlay Gradient */}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#5C4A3B]/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
-                    
+
                     {/* Hover Content */}
                     <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-6 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                      <h3 className={`font-bold text-lg mb-2 leading-tight ${fredoka.className}`}>
+                      <h3
+                        className={`font-bold text-lg mb-2 leading-tight ${fredoka.className}`}
+                      >
                         {item.title}
                       </h3>
                       {item.__raw.description && (
@@ -492,12 +527,12 @@ function GaleriContent() {
                       )}
                       {item.date && (
                         <div className="flex items-center gap-2 text-xs font-medium text-pink-200">
-                           <Camera className="w-3 h-3" /> {item.date}
+                          <Camera className="w-3 h-3" /> {item.date}
                         </div>
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Mobile Only Title (Below Image) */}
                   <div className="p-4 sm:hidden bg-white">
                     <h3 className="font-bold text-[#5C4A3B] text-center text-sm mb-1">
@@ -520,7 +555,9 @@ function GaleriContent() {
               <h3 className="text-2xl font-bold text-[#5C4A3B] mb-4">
                 {t["empty-title"]}
               </h3>
-              <p className="text-gray-500 mb-8 max-w-md mx-auto">{t["empty-subtile"]}</p>
+              <p className="text-gray-500 mb-8 max-w-md mx-auto">
+                {t["empty-subtile"]}
+              </p>
               <button
                 onClick={() => setSelectedCategory("Semua")}
                 className="bg-[#d43893ff] text-white px-8 py-3 rounded-full hover:bg-[#b02e7a] transition-colors font-bold shadow-lg shadow-pink-200"
@@ -550,23 +587,33 @@ function GaleriContent() {
             </h3>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-x divide-white/20">
               <div>
-                <div className="text-5xl font-bold mb-3 tracking-tight">500+</div>
-                <div className="text-white/90 font-medium text-lg">Mitra Difabel</div>
+                <div className="text-5xl font-bold mb-3 tracking-tight">
+                  500+
+                </div>
+                <div className="text-white/90 font-medium text-lg">
+                  Mitra Difabel
+                </div>
               </div>
               <div>
-                <div className="text-5xl font-bold mb-3 tracking-tight">50+</div>
+                <div className="text-5xl font-bold mb-3 tracking-tight">
+                  50+
+                </div>
                 <div className="text-white/90 font-medium text-lg">
                   {lang === "id" ? "Varian Produk" : "Product Variants"}
                 </div>
               </div>
               <div>
-                <div className="text-5xl font-bold mb-3 tracking-tight">1000+</div>
+                <div className="text-5xl font-bold mb-3 tracking-tight">
+                  1000+
+                </div>
                 <div className="text-white/90 font-medium text-lg">
                   {lang === "id" ? "Karya Terjual" : "Works Sold"}
                 </div>
               </div>
               <div>
-                <div className="text-5xl font-bold mb-3 tracking-tight">100%</div>
+                <div className="text-5xl font-bold mb-3 tracking-tight">
+                  100%
+                </div>
                 <div className="text-white/90 font-medium text-lg">
                   {lang === "id" ? "Buatan Hati" : "Heart Made"}
                 </div>
@@ -580,9 +627,9 @@ function GaleriContent() {
       <section className="px-6 lg:px-12 mb-16">
         <div className="container mx-auto">
           <div className="bg-white rounded-[2.5rem] p-10 text-center shadow-xl border border-gray-100 relative overflow-hidden">
-             {/* Decor */}
-             <div className="absolute top-0 right-0 w-32 h-32 bg-[#d43893ff]/5 rounded-bl-full"></div>
-             <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#d43893ff]/5 rounded-tr-full"></div>
+            {/* Decor */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#d43893ff]/5 rounded-bl-full"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#d43893ff]/5 rounded-tr-full"></div>
 
             <h3
               className={`text-4xl font-bold text-[#5C4A3B] mb-4 relative z-10 ${fredoka.className}`}

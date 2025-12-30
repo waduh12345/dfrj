@@ -134,7 +134,7 @@ export default function LoginPage() {
     if (!registerData.password) newErrors.push("Password wajib diisi");
     if (registerData.password !== registerData.confirmPassword)
       newErrors.push("Konfirmasi password tidak sesuai");
-    
+
     if (newErrors.length > 0) {
       setErrors(newErrors);
       return;
@@ -150,7 +150,9 @@ export default function LoginPage() {
 
     try {
       await registerMutation(payload).unwrap();
-      setSuccessMsg("Registrasi berhasil! Silakan masuk untuk mulai mendukung difabelpreneur.");
+      setSuccessMsg(
+        "Registrasi berhasil! Silakan masuk untuk mulai mendukung difabelpreneur."
+      );
       setLoginData((p) => ({ ...p, email: registerData.email }));
       setIsLogin(true);
     } catch (err) {
@@ -184,7 +186,9 @@ export default function LoginPage() {
             <div className="w-20 h-20 bg-[#d43893ff]/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
               <Lock className="w-8 h-8 text-[#d43893ff]" />
             </div>
-            <h2 className={`text-2xl font-bold text-[#5B4A3B] mb-2 ${fredoka.className}`}>
+            <h2
+              className={`text-2xl font-bold text-[#5B4A3B] mb-2 ${fredoka.className}`}
+            >
               {t["fp-title"]}
             </h2>
             <p className="text-gray-500">{t["fp-subtitle"]}</p>
@@ -248,7 +252,6 @@ export default function LoginPage() {
 
       {/* Main Container */}
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white rounded-[2.5rem] shadow-2xl shadow-pink-100/50 overflow-hidden my-4 lg:my-0 border border-gray-50">
-        
         {/* Left Side (Branding Panel) */}
         <div className="bg-gradient-to-br from-[#d43893ff] to-[#b02e7a] p-8 lg:p-12 flex flex-col justify-center text-white relative overflow-hidden min-h-[220px] lg:min-h-[600px]">
           {/* Desktop Back Button */}
@@ -263,8 +266,15 @@ export default function LoginPage() {
           </Button>
 
           {/* Pattern Overlay */}
-          <div className="absolute inset-0 opacity-10 pointer-events-none" style={{backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "32px 32px"}}></div>
-          
+          <div
+            className="absolute inset-0 opacity-10 pointer-events-none"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
+              backgroundSize: "32px 32px",
+            }}
+          ></div>
+
           <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
 
           <div className="relative z-10 flex flex-col items-center lg:items-start text-center lg:text-left">
@@ -273,7 +283,7 @@ export default function LoginPage() {
               <div className="w-full backdrop-blur-md rounded-2xl flex items-center justify-center overflow-hidden">
                 <Image
                   src="/new-radjamart.webp"
-                  alt="Logo Difaraja"
+                  alt="Logo Radja Mart"
                   width={320}
                   height={80}
                   className="object-contain w-full h-20"
@@ -286,8 +296,8 @@ export default function LoginPage() {
             <div className={`mb-6 lg:mb-8 ${fredoka.className}`}>
               <h2 className="text-3xl lg:text-5xl font-bold mb-3 lg:mb-5 leading-tight text-white drop-shadow-sm">
                 {isLogin ? "Selamat Datang" : "Bergabunglah"}
-                <br/>
-                <span className="text-pink-100">di Difaraja</span>
+                <br />
+                <span className="text-pink-100">di Radja Mart</span>
               </h2>
               <p className="text-white/90 text-sm lg:text-lg font-medium leading-relaxed max-w-md">
                 {isLogin
@@ -308,7 +318,9 @@ export default function LoginPage() {
                   {isLogin ? "Akses Akun" : "Buat Akun Baru"}
                 </span>
               </div>
-              <h3 className={`text-2xl lg:text-3xl font-bold text-[#5B4A3B] mb-2 ${fredoka.className}`}>
+              <h3
+                className={`text-2xl lg:text-3xl font-bold text-[#5B4A3B] mb-2 ${fredoka.className}`}
+              >
                 {isLogin ? t["right-login-title"] : t["right-register-title"]}
               </h3>
               <p className="text-gray-500 text-sm lg:text-base">

@@ -51,7 +51,7 @@ export default function Footer() {
     router.push("/faq");
   };
 
-  // FAQ Disesuaikan dengan Difaraja (Kuliner, Kriya, Fashion)
+  // FAQ Disesuaikan dengan Radja Mart (Kuliner, Kriya, Fashion)
   const faqs = [
     {
       question: "Apa itu Radja Mart?",
@@ -101,7 +101,7 @@ export default function Footer() {
                   <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-xl">
                     <Image
                       src="/logo-difaraja-only.webp"
-                      alt="Logo Difaraja"
+                      alt="Logo Radja Mart"
                       width={48}
                       height={48}
                       className="object-contain"
@@ -330,7 +330,7 @@ export default function Footer() {
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs lg:text-sm text-gray-500">
               <div className="flex items-center gap-4">
                 <p>
-                  © {new Date().getFullYear()} <strong>Difaraja</strong>.
+                  © {new Date().getFullYear()} <strong>Radja Mart</strong>.
                   Raden Wijaya Mart. All rights reserved.
                 </p>
               </div>

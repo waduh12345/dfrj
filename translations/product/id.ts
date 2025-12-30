@@ -13,7 +13,7 @@ const translations = {
   // Penyesuaian Filter Kategori
   "filter-category": "Semua Kategori",
 
-  // Penyesuaian Filter Usia (Direpurpose menjadi Jenis/Peruntukan karena Difaraja sifatnya umum)
+  // Penyesuaian Filter Usia (Direpurpose menjadi Jenis/Peruntukan karena Radja Mart sifatnya umum)
   "filter-age": "Semua Jenis",
   "filter-age-0-3": "Kuliner & Cemilan", // Menggantikan slot filter usia
   "filter-age-4-7": "Fashion & Aksesoris",

@@ -345,7 +345,7 @@ export default function GuestConfirmationPage() {
                       <div className="relative w-48 h-48 md:w-56 md:h-56 bg-white p-2 rounded-xl shadow-sm">
                         <Image
                           src="/images/qris-transfer.jpeg"
-                          alt="QRIS Difaraja"
+                          alt="QRIS Radja Mart"
                           fill
                           className="object-contain rounded-lg"
                         />
@@ -355,7 +355,7 @@ export default function GuestConfirmationPage() {
                       <p
                         className={`font-bold text-[#5B4A3B] mb-2 text-lg ${fredoka.className}`}
                       >
-                        Scan QRIS Difaraja
+                        Scan QRIS Radja Mart
                       </p>
                       <p className="text-gray-500 text-sm mb-4 leading-relaxed">
                         Gunakan aplikasi E-Wallet (GoPay, OVO, ShopeePay, DANA)

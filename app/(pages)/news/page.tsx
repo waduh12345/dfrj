@@ -106,19 +106,21 @@ function NewsContent() {
 
   // 2. Text Configs
   const [texts, setTexts] = useState({
-    heroBadge: "Jurnal Difaraja",
+    heroBadge: "Jurnal Radja Mart",
     heroTitle1: "Cerita,",
     heroTitle2: "Inspirasi & Karya",
-    heroSubtitle: "Temukan kisah ketangguhan para difabelpreneur, update produk terbaru, dan wawasan seputar dunia kriya & kuliner.",
+    heroSubtitle:
+      "Temukan kisah ketangguhan para difabelpreneur, update produk terbaru, dan wawasan seputar dunia kriya & kuliner.",
     nlTitle: "Dapatkan Kabar Terbaru",
-    nlSubtitle: "Berlangganan newsletter kami untuk info promo, rilis produk baru, dan kisah inspiratif langsung ke inbox Anda.",
+    nlSubtitle:
+      "Berlangganan newsletter kami untuk info promo, rilis produk baru, dan kisah inspiratif langsung ke inbox Anda.",
     nlPlaceholder: "Masukkan alamat email Anda...",
     nlCta: "Berlangganan",
   });
 
   // 3. Sync Language (Optional: jika ingin multi-bahasa aktif, sesuaikan initial state di atas dengan t[key])
-  // Di sini saya set default hardcoded Bahasa Indonesia agar sesuai brand Difaraja dulu.
-  
+  // Di sini saya set default hardcoded Bahasa Indonesia agar sesuai brand Radja Mart dulu.
+
   const updateText = (key: keyof typeof texts, val: string) => {
     setTexts((prev) => ({ ...prev, [key]: val }));
   };
@@ -243,9 +245,16 @@ function NewsContent() {
       <div className={`min-h-screen bg-white ${sniglet.className}`}>
         {/* Header Detail */}
         <div className="relative bg-gradient-to-r from-[#d43893ff] to-[#a0226d] text-white">
-            {/* Pattern Overlay */}
-            <div className="absolute inset-0 opacity-10" style={{backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "32px 32px"}}></div>
-          
+          {/* Pattern Overlay */}
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
+              backgroundSize: "32px 32px",
+            }}
+          ></div>
+
           <div className="container mx-auto px-6 lg:px-12 py-8 relative z-10">
             <button
               onClick={closeArticle}
@@ -256,16 +265,18 @@ function NewsContent() {
             <div className="max-w-4xl">
               <div className="flex items-center gap-4 mb-4">
                 <span className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-bold tracking-wide">
-                  Inspirasi Difaraja
+                  Inspirasi Radja Mart
                 </span>
               </div>
-              <h1 className={`text-3xl lg:text-5xl font-bold mb-6 leading-tight ${fredoka.className}`}>
+              <h1
+                className={`text-3xl lg:text-5xl font-bold mb-6 leading-tight ${fredoka.className}`}
+              >
                 {isDetailLoading ? "Memuat Cerita..." : title}
               </h1>
               <div className="flex flex-wrap items-center gap-6 text-white/90 text-sm lg:text-base">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4" />
-                  <span>Tim Difaraja</span>
+                  <span>Tim Radja Mart</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
@@ -307,12 +318,14 @@ function NewsContent() {
                 </button>
               </div>
             )}
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
               {/* Main Text */}
               <div className="lg:col-span-8">
                 {isDetailLoading ? (
-                  <div className="flex justify-center py-10"><DotdLoader/></div>
+                  <div className="flex justify-center py-10">
+                    <DotdLoader />
+                  </div>
                 ) : (
                   <div
                     className="text-[#5B4A3B] leading-loose text-lg space-y-6"
@@ -327,13 +340,11 @@ function NewsContent() {
                           /### (.*?)(<br\/>|$)/g,
                           `<h3 class="${fredoka.className} text-2xl font-semibold text-[#5B4A3B] mt-8 mb-3">$1</h3>`
                         )
-                        .replace(
-                          /<p>/g, '<p class="mb-4 opacity-90">'
-                        ),
+                        .replace(/<p>/g, '<p class="mb-4 opacity-90">'),
                     }}
                   />
                 )}
-                
+
                 {/* Interaction Bar */}
                 <div className="mt-12 pt-8 border-t border-gray-100">
                   <div className="flex items-center gap-4">
@@ -363,7 +374,9 @@ function NewsContent() {
                 <div className="sticky top-24 space-y-8">
                   {/* Author Card */}
                   <div className="bg-gradient-to-br from-[#FFF0F5] to-white rounded-[2rem] p-8 shadow-sm border border-pink-100">
-                    <h4 className={`font-bold text-[#d43893ff] mb-4 text-lg ${fredoka.className}`}>
+                    <h4
+                      className={`font-bold text-[#d43893ff] mb-4 text-lg ${fredoka.className}`}
+                    >
                       Dibalik Layar
                     </h4>
                     <div className="flex items-center gap-4 mb-4">
@@ -372,20 +385,25 @@ function NewsContent() {
                       </div>
                       <div>
                         <div className="font-bold text-[#5C4A3B] text-lg">
-                          Redaksi Difaraja
+                          Redaksi Radja Mart
                         </div>
-                        <div className="text-sm text-gray-500">Menebar Inspirasi</div>
+                        <div className="text-sm text-gray-500">
+                          Menebar Inspirasi
+                        </div>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 leading-relaxed">
-                      Kami berkomitmen mengangkat cerita ketangguhan difabelpreneur dan inovasi produk lokal.
+                      Kami berkomitmen mengangkat cerita ketangguhan
+                      difabelpreneur dan inovasi produk lokal.
                     </p>
                   </div>
 
                   {/* Related Articles */}
                   {listItems.length > 1 && (
                     <div className="bg-white rounded-[2rem] p-8 shadow-lg border border-gray-100">
-                      <h4 className={`font-bold text-[#5C4A3B] mb-6 text-lg ${fredoka.className}`}>
+                      <h4
+                        className={`font-bold text-[#5C4A3B] mb-6 text-lg ${fredoka.className}`}
+                      >
                         Baca Juga
                       </h4>
                       <div className="space-y-6">
@@ -399,7 +417,12 @@ function NewsContent() {
                               className="cursor-pointer group flex gap-4 items-start"
                             >
                               <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
-                                <Image src={getImageUrl(a.image)} alt={a.title} fill className="object-cover" />
+                                <Image
+                                  src={getImageUrl(a.image)}
+                                  alt={a.title}
+                                  fill
+                                  className="object-cover"
+                                />
                               </div>
                               <div>
                                 <h5 className="font-bold text-[#5C4A3B] group-hover:text-[#d43893ff] transition-colors text-sm leading-snug line-clamp-2 mb-1">
@@ -499,7 +522,7 @@ function NewsContent() {
 
               {/* Categories Desktop */}
               <div className="hidden lg:flex items-center gap-2 p-1.5 bg-gray-50 rounded-3xl">
-                 <div className="flex gap-1 overflow-x-auto no-scrollbar max-w-md px-2">
+                <div className="flex gap-1 overflow-x-auto no-scrollbar max-w-md px-2">
                   {categories.map((category) => (
                     <button
                       key={category.name}
@@ -516,26 +539,26 @@ function NewsContent() {
                       {category.name}
                     </button>
                   ))}
-                 </div>
+                </div>
               </div>
 
-               {/* Categories Mobile */}
-               <div className="lg:hidden p-2 border-t border-gray-100">
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => {
-                      setSelectedCategory(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="w-full py-3 px-4 rounded-2xl bg-gray-50 border-none text-[#5C4A3B] font-medium"
-                  >
-                    {categories.map((c) => (
-                      <option key={c.name} value={c.name}>
-                        {c.name} ({c.count})
-                      </option>
-                    ))}
-                  </select>
-               </div>
+              {/* Categories Mobile */}
+              <div className="lg:hidden p-2 border-t border-gray-100">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full py-3 px-4 rounded-2xl bg-gray-50 border-none text-[#5C4A3B] font-medium"
+                >
+                  {categories.map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name} ({c.count})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -575,13 +598,14 @@ function NewsContent() {
                   <p className="text-gray-600 text-lg mb-8 leading-relaxed line-clamp-3">
                     {makeExcerpt(featured.content, 220)}
                   </p>
-                  
+
                   <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 mb-8 font-medium">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-[#d43893ff]" />
                       <span>
                         {new Date(featured.published_at).toLocaleDateString(
-                          "id-ID", {day: 'numeric', month: 'long', year: 'numeric'}
+                          "id-ID",
+                          { day: "numeric", month: "long", year: "numeric" }
                         )}
                       </span>
                     </div>
@@ -608,12 +632,15 @@ function NewsContent() {
           {isError && (
             <div className="p-8 rounded-3xl bg-red-50 text-red-700 mb-8 text-center">
               <p className="font-bold mb-2">Gagal memuat konten</p>
-              <button className="underline hover:text-red-800" onClick={() => refetch()}>
+              <button
+                className="underline hover:text-red-800"
+                onClick={() => refetch()}
+              >
                 Coba lagi
               </button>
             </div>
           )}
-          
+
           {isLoading && (
             <div className="w-full flex justify-center items-center py-20">
               <DotdLoader />
@@ -622,70 +649,85 @@ function NewsContent() {
 
           {!isLoading && (
             <>
-                <div className="flex items-end justify-between mb-10 border-b border-gray-100 pb-4">
-                  <div>
-                    <h3 className={`text-3xl font-bold text-[#5C4A3B] mb-2 ${fredoka.className}`}>
-                        {selectedCategory === "Semua" ? "Kabar Terbaru" : selectedCategory}
-                    </h3>
-                    <p className="text-gray-500">
-                        Menemukan {filteredArticles.length} inspirasi untuk Anda
-                    </p>
-                  </div>
+              <div className="flex items-end justify-between mb-10 border-b border-gray-100 pb-4">
+                <div>
+                  <h3
+                    className={`text-3xl font-bold text-[#5C4A3B] mb-2 ${fredoka.className}`}
+                  >
+                    {selectedCategory === "Semua"
+                      ? "Kabar Terbaru"
+                      : selectedCategory}
+                  </h3>
+                  <p className="text-gray-500">
+                    Menemukan {filteredArticles.length} inspirasi untuk Anda
+                  </p>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {displayedArticles.map((article) => (
-                    <div
+                  <div
                     key={article.id}
                     onClick={() => openArticle(article)}
                     className="bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-lg shadow-gray-100/50 hover:shadow-2xl hover:shadow-pink-100/50 transition-all duration-500 cursor-pointer group flex flex-col h-full"
-                    >
+                  >
                     <div className="relative h-56 overflow-hidden">
-                        <Image
+                      <Image
                         src={getImageUrl(article.image)}
                         alt={article.title}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                        <div className="absolute top-4 left-4">
-                            {/* Chip Kategori (Mockup logic) */}
-                            <span className="bg-white/95 backdrop-blur-sm text-[#5C4A3B] px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                                Inspirasi
-                            </span>
-                        </div>
+                      />
+                      <div className="absolute top-4 left-4">
+                        {/* Chip Kategori (Mockup logic) */}
+                        <span className="bg-white/95 backdrop-blur-sm text-[#5C4A3B] px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                          Inspirasi
+                        </span>
+                      </div>
                     </div>
                     <div className="p-6 flex-1 flex flex-col">
-                        <h3 className={`text-xl font-bold text-[#5C4A3B] mb-3 group-hover:text-[#d43893ff] transition-colors line-clamp-2 ${fredoka.className}`}>
+                      <h3
+                        className={`text-xl font-bold text-[#5C4A3B] mb-3 group-hover:text-[#d43893ff] transition-colors line-clamp-2 ${fredoka.className}`}
+                      >
                         {article.title}
-                        </h3>
-                        <p className="text-gray-500 mb-6 line-clamp-3 text-sm leading-relaxed flex-1">
+                      </h3>
+                      <p className="text-gray-500 mb-6 line-clamp-3 text-sm leading-relaxed flex-1">
                         {makeExcerpt(article.content, 120)}
-                        </p>
-                        
-                        <div className="pt-4 border-t border-gray-50 flex items-center justify-between mt-auto">
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-                                {new Date(article.published_at).toLocaleDateString("id-ID", {month:'short', day:'numeric'})}
-                            </span>
-                            <div className="flex items-center gap-2">
-                                <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleLike(article.id);
-                                }}
-                                className={`p-2 rounded-full transition-colors ${
-                                    likedArticles.includes(article.id)
-                                    ? "bg-pink-50 text-[#d43893ff]"
-                                    : "text-gray-400 hover:bg-pink-50 hover:text-[#d43893ff]"
-                                }`}
-                                >
-                                <Heart className={`w-5 h-5 ${likedArticles.includes(article.id) ? "fill-current" : ""}`} />
-                                </button>
-                            </div>
+                      </p>
+
+                      <div className="pt-4 border-t border-gray-50 flex items-center justify-between mt-auto">
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+                          {new Date(article.published_at).toLocaleDateString(
+                            "id-ID",
+                            { month: "short", day: "numeric" }
+                          )}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleLike(article.id);
+                            }}
+                            className={`p-2 rounded-full transition-colors ${
+                              likedArticles.includes(article.id)
+                                ? "bg-pink-50 text-[#d43893ff]"
+                                : "text-gray-400 hover:bg-pink-50 hover:text-[#d43893ff]"
+                            }`}
+                          >
+                            <Heart
+                              className={`w-5 h-5 ${
+                                likedArticles.includes(article.id)
+                                  ? "fill-current"
+                                  : ""
+                              }`}
+                            />
+                          </button>
                         </div>
+                      </div>
                     </div>
-                    </div>
+                  </div>
                 ))}
-                </div>
+              </div>
             </>
           )}
 
@@ -694,7 +736,9 @@ function NewsContent() {
               <div className="w-24 h-24 bg-[#d43893ff]/5 rounded-full flex items-center justify-center mx-auto mb-6">
                 <BookOpen className="w-10 h-10 text-[#d43893ff]" />
               </div>
-              <h3 className={`text-2xl font-bold text-[#5C4A3B] mb-3 ${fredoka.className}`}>
+              <h3
+                className={`text-2xl font-bold text-[#5C4A3B] mb-3 ${fredoka.className}`}
+              >
                 Belum ada cerita ditemukan
               </h3>
               <p className="text-gray-500 mb-8 max-w-md mx-auto">
@@ -727,7 +771,7 @@ function NewsContent() {
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              
+
               <div className="flex gap-2">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                   (page) => (
@@ -745,7 +789,7 @@ function NewsContent() {
                   )
                 )}
               </div>
-              
+
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((prev) => prev + 1)}

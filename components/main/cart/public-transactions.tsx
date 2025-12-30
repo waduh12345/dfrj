@@ -60,7 +60,7 @@ interface CartItemView {
   image: string;
   quantity: number;
   category: string;
-  // ageGroup removed/ignored for Difaraja branding
+  // ageGroup removed/ignored for Radja Mart branding
   isEcoFriendly: boolean;
   inStock: boolean;
 }
@@ -87,7 +87,7 @@ interface ShippingCostOption {
 
 type PaymentType = "automatic" | "manual" | "cod";
 
-// Theme Colors for Difaraja
+// Theme Colors for Radja Mart
 const THEME = {
   primary: "#d43893ff", // Magenta/Pink
   primaryLight: "#FFF0F5", // Soft Pink
@@ -118,7 +118,7 @@ export default function PublicTransaction() {
     removeItem,
     increaseItemQuantity,
     decreaseItemQuantity,
-    addItem, 
+    addItem,
     clearCart,
   } = useCart();
 
@@ -130,7 +130,7 @@ export default function PublicTransaction() {
 
   // Map data dari Zustand ke format View
   const cartItems: CartItemView[] = useMemo(() => {
-    if (!isMounted) return []; 
+    if (!isMounted) return [];
     return rawCartItems.map((it) => ({
       id: it.id,
       name: it.name,
@@ -182,7 +182,7 @@ export default function PublicTransaction() {
       timer: 2000,
       background: "#fff",
       color: THEME.textMain,
-      iconColor: THEME.primary
+      iconColor: THEME.primary,
     });
   };
 
@@ -437,11 +437,14 @@ export default function PublicTransaction() {
             <div className="w-32 h-32 bg-[#d43893ff]/10 rounded-full flex items-center justify-center mx-auto mb-8">
               <ShoppingBag className="w-16 h-16 text-[#d43893ff]" />
             </div>
-            <h1 className={`text-4xl font-bold text-[#5B4A3B] mb-4 ${fredoka.className}`}>
+            <h1
+              className={`text-4xl font-bold text-[#5B4A3B] mb-4 ${fredoka.className}`}
+            >
               Keranjang Belum Terisi
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-lg mx-auto">
-              Mari dukung karya difabelpreneur! Jelajahi ragam kuliner otentik, kriya, dan fashion kami.
+              Mari dukung karya difabelpreneur! Jelajahi ragam kuliner otentik,
+              kriya, dan fashion kami.
             </p>
             <a
               href="/product"
@@ -651,7 +654,9 @@ export default function PublicTransaction() {
 
             {/* 2. Informasi Pengiriman (Form Guest) */}
             <div className="bg-white rounded-[2rem] p-8 shadow-lg shadow-gray-100 border border-gray-50">
-              <h3 className={`font-bold text-[#5B4A3B] text-xl mb-6 flex items-center gap-2 ${fredoka.className}`}>
+              <h3
+                className={`font-bold text-[#5B4A3B] text-xl mb-6 flex items-center gap-2 ${fredoka.className}`}
+              >
                 <Truck className="w-6 h-6 text-[#d43893ff]" />
                 Tujuan Pengiriman
               </h3>
@@ -831,7 +836,9 @@ export default function PublicTransaction() {
 
             {/* 3. Metode Pengiriman (Kurir) */}
             <div className="bg-white rounded-[2rem] p-8 shadow-lg shadow-gray-100 border border-gray-50">
-              <h3 className={`font-bold text-[#5B4A3B] text-xl mb-4 ${fredoka.className}`}>
+              <h3
+                className={`font-bold text-[#5B4A3B] text-xl mb-4 ${fredoka.className}`}
+              >
                 Jasa Pengiriman
               </h3>
               <div className="mb-4">
@@ -891,7 +898,9 @@ export default function PublicTransaction() {
                       />
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
-                          <p className="font-bold text-[#5B4A3B] uppercase">{option.service}</p>
+                          <p className="font-bold text-[#5B4A3B] uppercase">
+                            {option.service}
+                          </p>
                           <p className="text-lg font-bold text-[#d43893ff]">
                             Rp {option.cost.toLocaleString("id-ID")}
                           </p>
@@ -900,7 +909,8 @@ export default function PublicTransaction() {
                           {option.description}
                         </p>
                         <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          <Truck className="w-3 h-3"/> Estimasi: {option.etd} hari
+                          <Truck className="w-3 h-3" /> Estimasi: {option.etd}{" "}
+                          hari
                         </p>
                       </div>
                     </label>
@@ -933,7 +943,9 @@ export default function PublicTransaction() {
 
             {/* 3. Ringkasan Pesanan */}
             <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200 border border-gray-100">
-              <h3 className={`font-bold text-[#5B4A3B] text-xl mb-6 ${fredoka.className}`}>
+              <h3
+                className={`font-bold text-[#5B4A3B] text-xl mb-6 ${fredoka.className}`}
+              >
                 Rincian Biaya
               </h3>
               <div className="space-y-4 mb-8">
@@ -949,16 +961,20 @@ export default function PublicTransaction() {
                 {discount > 0 && (
                   <div className="flex justify-between text-[#d43893ff] bg-pink-50 px-3 py-1 rounded-lg">
                     <span className="flex items-center gap-1 text-sm font-bold">
-                       <Sparkles className="w-3 h-3"/> Diskon
+                      <Sparkles className="w-3 h-3" /> Diskon
                     </span>
-                    <span className="font-bold">- Rp {discount.toLocaleString("id-ID")}</span>
+                    <span className="font-bold">
+                      - Rp {discount.toLocaleString("id-ID")}
+                    </span>
                   </div>
                 )}
 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Ongkos Kirim</span>
                   <span className="font-semibold text-[#5B4A3B]">
-                    {shippingMethod ? `Rp ${shippingCost.toLocaleString("id-ID")}` : "-"}
+                    {shippingMethod
+                      ? `Rp ${shippingCost.toLocaleString("id-ID")}`
+                      : "-"}
                   </span>
                 </div>
 
@@ -1015,7 +1031,9 @@ export default function PublicTransaction() {
         {/* Produk Rekomendasi */}
         <div className="mt-20 border-t border-gray-200 pt-12">
           <div className="text-center mb-12">
-            <h2 className={`text-3xl font-bold text-[#5B4A3B] mb-3 ${fredoka.className}`}>
+            <h2
+              className={`text-3xl font-bold text-[#5B4A3B] mb-3 ${fredoka.className}`}
+            >
               Lengkapi <span className="text-[#d43893ff]">Koleksi Anda</span>
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
@@ -1047,7 +1065,7 @@ export default function PublicTransaction() {
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-[#d43893ff] shadow-sm uppercase">
-                         {product.category}
+                      {product.category}
                     </div>
                   </div>
                   <div className="p-6">
@@ -1074,22 +1092,22 @@ export default function PublicTransaction() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex flex-col">
                         <span className="text-xl font-bold text-[#d43893ff]">
-                            Rp {product.price.toLocaleString("id-ID")}
+                          Rp {product.price.toLocaleString("id-ID")}
                         </span>
                         {product.originalPrice && (
-                            <span className="text-xs text-gray-400 line-through">
+                          <span className="text-xs text-gray-400 line-through">
                             Rp {product.originalPrice.toLocaleString("id-ID")}
-                            </span>
+                          </span>
                         )}
                       </div>
                     </div>
-                    
+
                     <button
-                        onClick={() => addRelatedToCart(product.__raw)}
-                        className="w-full bg-gray-50 text-[#5B4A3B] py-3 rounded-xl font-bold hover:bg-[#d43893ff] hover:text-white transition-all flex items-center justify-center gap-2 group-hover:shadow-md"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Tambah
+                      onClick={() => addRelatedToCart(product.__raw)}
+                      className="w-full bg-gray-50 text-[#5B4A3B] py-3 rounded-xl font-bold hover:bg-[#d43893ff] hover:text-white transition-all flex items-center justify-center gap-2 group-hover:shadow-md"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Tambah
                     </button>
                   </div>
                 </div>

@@ -62,10 +62,9 @@ export default function PrivacyPolicyPage() {
               Pendahuluan
             </h2>
             <p className="leading-loose mb-4 text-[#5B4A3B]">
-              Selamat datang di{" "}
-              <strong>Radja Mart (Raden Wijaya Mart)</strong>. Kami
-              berkomitmen penuh untuk melindungi privasi Anda saat berbelanja
-              produk Kuliner, Kriya, dan Fashion kami.
+              Selamat datang di <strong>Radja Mart (Raden Wijaya Mart)</strong>.
+              Kami berkomitmen penuh untuk melindungi privasi Anda saat
+              berbelanja produk Kuliner, Kriya, dan Fashion kami.
             </p>
             <p className="leading-loose text-[#5B4A3B]">
               Kebijakan ini dibuat agar Anda memahami informasi apa yang kami
@@ -158,7 +157,7 @@ export default function PrivacyPolicyPage() {
               </h2>
               <p className="leading-loose pl-0 lg:pl-16 text-gray-600">
                 Kami bekerja sama dengan gateway pembayaran terpercaya
-                (Midtrans) untuk memastikan setiap transaksi aman. Difaraja{" "}
+                (Midtrans) untuk memastikan setiap transaksi aman. Radja Mart{" "}
                 <strong>tidak pernah</strong> menyimpan data kartu kredit atau
                 kredensial perbankan Anda di server kami.
               </p>
@@ -191,7 +190,7 @@ export default function PrivacyPolicyPage() {
                 Butuh Bantuan Lebih Lanjut?
               </h2>
               <p className="mb-8 text-white/90 max-w-lg mx-auto leading-relaxed">
-                Tim Difaraja siap membantu menjawab pertanyaan Anda seputar
+                Tim Radja Mart siap membantu menjawab pertanyaan Anda seputar
                 privasi data dan keamanan berbelanja.
               </p>
               <a

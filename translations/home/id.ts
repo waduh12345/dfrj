@@ -8,7 +8,7 @@ const translations = {
   "hero-other-1": "Keluarga Puas",
   "hero-other-2": "Produk Kreatif",
   "sec-2-title-1": "Jelajahi Mahakarya",
-  "sec-2-title-2": "Difaraja",
+  "sec-2-title-2": "Radja Mart",
   "sec-2-subtitle":
     "Temukan kurasi produk terbaik kami, mulai dari kuliner bercita rasa otentik hingga kerajinan tangan (kriya) yang bernilai seni. Setiap karya dirancang dengan ketelitian dan lahir dari semangat ketangguhan para difabelpreneur untuk Anda apresiasi.",
   "sec-2-card-active": "Aktif",
@@ -44,7 +44,7 @@ const translations = {
   "sec-5-title-4": "",
   "sec-5-title-5": "",
   "sec-5-subtitle":
-    "Lengkapi hari Anda dengan cita rasa otentik dan keindahan karya tangan istimewa. Pesan produk Difaraja sekarang dan rasakan perpaduan sempurna antara kualitas premium dan semangat pantang menyerah di setiap kemasannya.",
+    "Lengkapi hari Anda dengan cita rasa otentik dan keindahan karya tangan istimewa. Pesan produk Radja Mart sekarang dan rasakan perpaduan sempurna antara kualitas premium dan semangat pantang menyerah di setiap kemasannya.",
   "sec-5-cta-1": "Mulai Belanja",
   "sec-5-cta-2": "Pelajari Lebih Lanjut",
   "sec-5-item-1-title": "Ramah Lingkungan",

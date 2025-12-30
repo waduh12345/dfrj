@@ -14,7 +14,7 @@ const translations = {
   "nav-step-title-1": "Ordering",
   "nav-step-title-2": "Steps",
   "nav-step-subtitle":
-    "A practical guide to shopping on the Difaraja platform, designed for your convenience.",
+    "A practical guide to shopping on the Radja Mart platform, designed for your convenience.",
   "nav-step-prev": "Previous Step",
   "nav-step-next": "Next Step",
   "nav-step-header-1": "Step",
@@ -29,7 +29,7 @@ const translations = {
     "Your payment data security is our priority. Every transaction is processed through an encrypted and verified system.",
   "help-title": "Need Help?",
   "help-subtitle":
-    "The Difaraja Admin Team is ready to assist you every Monday - Friday (08.00 - 17.00 WIB) and Saturday (08.00 - 14.00 WIB).",
+    "The Radja Mart Admin Team is ready to assist you every Monday - Friday (08.00 - 17.00 WIB) and Saturday (08.00 - 14.00 WIB).",
   "help-content-1": "Fast response via WhatsApp",
   "help-content-2": "Product consultation",
   "help-content-3": "Order technical support",

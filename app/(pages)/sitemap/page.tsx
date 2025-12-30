@@ -56,11 +56,11 @@ export default function SitemapPage() {
     { name: "Syarat & Ketentuan", href: "/terms-of-service", icon: FileText },
   ];
 
-  // Updated Social Links for Difaraja
+  // Updated Social Links for Radja Mart
   const socialLinks = [
     {
       icon: FaInstagram,
-      href: "https://www.instagram.com/difaraja/", // Ganti dengan link Difaraja jika ada
+      href: "https://www.instagram.com/difaraja/", // Ganti dengan link Radja Mart jika ada
       color:
         "hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-red-500 hover:to-purple-500",
       text: "IG",

@@ -8,7 +8,7 @@ const translations = {
   "hero-other-1": "Happy Families",
   "hero-other-2": "Creative Products",
   "sec-2-title-1": "Explore Masterpieces",
-  "sec-2-title-2": "of Difaraja",
+  "sec-2-title-2": "of Radja Mart",
   "sec-2-subtitle":
     "Discover our finest curation of products, ranging from authentic culinary delights to artistic handicrafts. Each piece is crafted with precision and born from the resilient spirit of difabelpreneurs for you to appreciate.",
   "sec-2-card-active": "Active",
@@ -44,7 +44,7 @@ const translations = {
   "sec-5-title-4": "",
   "sec-5-title-5": "",
   "sec-5-subtitle":
-    "Complete your day with authentic flavors and the beauty of exquisite handmade works. Order Difaraja products now and experience the perfect blend of premium quality and the spirit of perseverance in every package.",
+    "Complete your day with authentic flavors and the beauty of exquisite handmade works. Order Radja Mart products now and experience the perfect blend of premium quality and the spirit of perseverance in every package.",
   "sec-5-cta-1": "Start Shopping",
   "sec-5-cta-2": "Learn More",
   "sec-5-item-1-title": "Eco-Friendly",

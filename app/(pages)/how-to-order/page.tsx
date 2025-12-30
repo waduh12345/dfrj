@@ -22,7 +22,7 @@ import {
   ChevronDown,
   ChevronUp,
   Utensils, // Added for Culinary
-  Gift,     // Added for Crafts
+  Gift, // Added for Crafts
 } from "lucide-react";
 
 // --- IMPORTS MODE EDIT ---
@@ -77,7 +77,7 @@ function HowToOrderContent() {
   const [heroBg, setHeroBg] = useState<BackgroundConfig>({
     type: "solid",
     color1: "transparent",
-  }); 
+  });
   const [stepsBg, setStepsBg] = useState<BackgroundConfig>({
     type: "solid",
     color1: "transparent",
@@ -86,7 +86,7 @@ function HowToOrderContent() {
     type: "gradient",
     color1: THEME.primary,
     color2: "#e05da9",
-    direction: "to bottom right", 
+    direction: "to bottom right",
   });
   const [faqBg, setFaqBg] = useState<BackgroundConfig>({
     type: "solid",
@@ -130,7 +130,7 @@ function HowToOrderContent() {
     },
   ]);
 
-  // 3. Order Steps List (Disesuaikan untuk Difaraja: Kuliner & Kriya)
+  // 3. Order Steps List (Disesuaikan untuk Radja Mart: Kuliner & Kriya)
   const initialSteps: Record<"id" | "en", Step[]> = {
     id: [
       {
@@ -212,7 +212,8 @@ function HowToOrderContent() {
       {
         id: 5,
         title: "Diproses Sepenuh Hati",
-        description: "Pesanan Anda dikonfirmasi dan sedang disiapkan oleh tim Difaraja.",
+        description:
+          "Pesanan Anda dikonfirmasi dan sedang disiapkan oleh tim Radja Mart.",
         details: [
           "Notifikasi pesanan masuk via Email/WA",
           "Produk dikemas dengan standar higienis & aman",
@@ -230,7 +231,8 @@ function HowToOrderContent() {
       {
         id: 6,
         title: "Lacak & Apresiasi",
-        description: "Pantau perjalanan paket dan berikan ulasan untuk mendukung difabelpreneur.",
+        description:
+          "Pantau perjalanan paket dan berikan ulasan untuk mendukung difabelpreneur.",
         details: [
           "Lacak posisi kurir secara real-time",
           "Konfirmasi saat pesanan diterima",
@@ -250,7 +252,8 @@ function HowToOrderContent() {
       {
         id: 1,
         title: "Choose Culinary & Craft",
-        description: "Explore authentic snacks and handmade crafts by difabelpreneurs.",
+        description:
+          "Explore authentic snacks and handmade crafts by difabelpreneurs.",
         details: [
           "Select category: Food, Fashion, or Craft",
           "Read taste notes or material specs",
@@ -259,16 +262,29 @@ function HowToOrderContent() {
         ],
         icon: <Utensils className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Check 'Best Seller' labels", "Confirm flavor variants", "Check size charts for Fashion"],
+        tips: [
+          "Check 'Best Seller' labels",
+          "Confirm flavor variants",
+          "Check size charts for Fashion",
+        ],
       },
       {
         id: 2,
         title: "Review Cart",
         description: "Ensure your order details are correct before payment.",
-        details: ["Check item quantity", "Add notes (e.g., spicy level)", "Use voucher codes", "Proceed to Checkout"],
+        details: [
+          "Check item quantity",
+          "Add notes (e.g., spicy level)",
+          "Use voucher codes",
+          "Proceed to Checkout",
+        ],
         icon: <Package className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Buy bundles (hampers) to save", "Check free shipping", "Verify items"],
+        tips: [
+          "Buy bundles (hampers) to save",
+          "Check free shipping",
+          "Verify items",
+        ],
       },
       {
         id: 3,
@@ -282,12 +298,17 @@ function HowToOrderContent() {
         ],
         icon: <User className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Choose 'Instant' for wet food", "Active phone number", "Save address labels"],
+        tips: [
+          "Choose 'Instant' for wet food",
+          "Active phone number",
+          "Save address labels",
+        ],
       },
       {
         id: 4,
         title: "Secure Payment",
-        description: "Easy and automatically verified transaction via Midtrans.",
+        description:
+          "Easy and automatically verified transaction via Midtrans.",
         details: [
           "Select: QRIS, E-Wallet, or Transfer",
           "Redirect to secure Midtrans page",
@@ -296,12 +317,17 @@ function HowToOrderContent() {
         ],
         icon: <CreditCard className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Save proof of payment", "QRIS is fastest", "No manual confirm needed"],
+        tips: [
+          "Save proof of payment",
+          "QRIS is fastest",
+          "No manual confirm needed",
+        ],
       },
       {
         id: 5,
         title: "Crafted with Heart",
-        description: "Your order is confirmed and being prepared by the Difaraja team.",
+        description:
+          "Your order is confirmed and being prepared by the Radja Mart team.",
         details: [
           "Order notification via Email/WA",
           "Hygienic & safe packaging",
@@ -310,13 +336,23 @@ function HowToOrderContent() {
         ],
         icon: <Gift className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
-        tips: ["Check status in 'My Orders'", "Food shipped fresh", "Wood packing for large crafts"],
+        tips: [
+          "Check status in 'My Orders'",
+          "Food shipped fresh",
+          "Wood packing for large crafts",
+        ],
       },
       {
         id: 6,
         title: "Track & Support",
-        description: "Monitor delivery and leave a review to empower difabelpreneurs.",
-        details: ["Real-time tracking", "Confirm receipt", "Rate & Review", "Share on social media"],
+        description:
+          "Monitor delivery and leave a review to empower difabelpreneurs.",
+        details: [
+          "Real-time tracking",
+          "Confirm receipt",
+          "Rate & Review",
+          "Share on social media",
+        ],
         icon: <Truck className="w-6 h-6 lg:w-8 lg:h-8" />,
         image: "/api/placeholder/500/400",
         tips: ["Your review matters", "Tag @difaraja", "Earn reward points"],
@@ -327,34 +363,40 @@ function HowToOrderContent() {
     initialSteps[lang]
   );
 
-  // 4. FAQs List (Disesuaikan untuk pertanyaan umum Difaraja)
+  // 4. FAQs List (Disesuaikan untuk pertanyaan umum Radja Mart)
   const initialFaqs: Record<"en" | "id", FAQ[]> = {
     id: [
       {
         question: "Apakah makanan aman dikirim ke luar kota?",
-        answer: "Untuk produk kering (keripik, cookies), aman dikirim ke seluruh Indonesia dengan packing standar bubble wrap & kardus. Untuk makanan basah, kami sarankan menggunakan pengiriman Instant/Sameday atau Paxel (Frozen).",
+        answer:
+          "Untuk produk kering (keripik, cookies), aman dikirim ke seluruh Indonesia dengan packing standar bubble wrap & kardus. Untuk makanan basah, kami sarankan menggunakan pengiriman Instant/Sameday atau Paxel (Frozen).",
       },
       {
         question: "Apakah bisa request custom hampers?",
-        answer: "Tentu! Difaraja melayani pemesanan hampers custom untuk acara kantor, pernikahan, atau ulang tahun. Silakan hubungi admin WhatsApp kami untuk katalog dan penawaran khusus.",
+        answer:
+          "Tentu! Radja Mart melayani pemesanan hampers custom untuk acara kantor, pernikahan, atau ulang tahun. Silakan hubungi admin WhatsApp kami untuk katalog dan penawaran khusus.",
       },
       {
         question: "Berapa lama proses pembuatan produk kriya?",
-        answer: "Sebagian besar produk kriya kami Ready Stock. Namun untuk pemesanan dalam jumlah banyak (bulk order), estimasi pengerjaan adalah 3-7 hari kerja tergantung tingkat kerumitan dan jumlah pesanan.",
+        answer:
+          "Sebagian besar produk kriya kami Ready Stock. Namun untuk pemesanan dalam jumlah banyak (bulk order), estimasi pengerjaan adalah 3-7 hari kerja tergantung tingkat kerumitan dan jumlah pesanan.",
       },
     ],
     en: [
-      { 
-        question: "Is the food safe for inter-city shipping?", 
-        answer: "Dry products (chips, cookies) are safe for nationwide shipping with standard bubble wrap & box packing. For wet food, we recommend Instant/Sameday delivery or Frozen courier services." 
+      {
+        question: "Is the food safe for inter-city shipping?",
+        answer:
+          "Dry products (chips, cookies) are safe for nationwide shipping with standard bubble wrap & box packing. For wet food, we recommend Instant/Sameday delivery or Frozen courier services.",
       },
-      { 
-        question: "Can I request custom hampers?", 
-        answer: "Absolutely! Difaraja offers custom hampers for corporate events, weddings, or birthdays. Please contact our WhatsApp admin for catalogs and special offers." 
+      {
+        question: "Can I request custom hampers?",
+        answer:
+          "Absolutely! Radja Mart offers custom hampers for corporate events, weddings, or birthdays. Please contact our WhatsApp admin for catalogs and special offers.",
       },
-      { 
-        question: "How long is the craft production process?", 
-        answer: "Most of our craft items are Ready Stock. However, for bulk orders, the estimated production time is 3-7 business days depending on complexity and quantity." 
+      {
+        question: "How long is the craft production process?",
+        answer:
+          "Most of our craft items are Ready Stock. However, for bulk orders, the estimated production time is 3-7 business days depending on complexity and quantity.",
       },
     ],
   };
