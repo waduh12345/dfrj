@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Menu, X, ShoppingCart, User, Globe } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePathname, useRouter } from "next/navigation";
@@ -25,7 +25,7 @@ const safeImage = (img: string | null | undefined, fallback: string) => {
   return fallback;
 };
 
-export default function Header() {
+function HeaderContent() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { lang, switchLang } = useLanguage();
   const t = useTranslation({ id, en });
@@ -35,7 +35,7 @@ export default function Header() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  // --- FETCH SETTINGS (Header Logo) ---
+  // --- FETCH SETTINGS (Logo) ---
   const clientCode =
     "$2b$10$a74s.Y6pPzOth48FuLdS5eaNNrvI2GwYHyYehlDUdXY9S4XYzPwyC";
   const { data: settingsData } = useGetPengaturanListQuery(
@@ -44,10 +44,9 @@ export default function Header() {
   );
 
   const settings = settingsData?.data?.items?.[0];
-  // Logo Header dari API (fallback ke default image)
   const logoUrl = safeImage(settings?.logo, "/new-radjamart.webp");
 
-  // --- Cart Logic ---
+  // --- CART LOGIC ---
   const readCartFromLocalStorage = () => {
     try {
       const raw = localStorage.getItem("cart-storage");
@@ -199,7 +198,7 @@ export default function Header() {
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative">
                 <Image
-                  src={logoUrl} // Dynamic Logo
+                  src={logoUrl}
                   alt={settings?.judul || "Radja Mart Logo"}
                   width={180}
                   height={180}
@@ -232,7 +231,7 @@ export default function Header() {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-4">
-              {/* Language Toggle */}
+              {/* Language Toggle - Desktop */}
               <button
                 onClick={toggleLanguage}
                 className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-[#DFF1AD] hover:bg-[#D1E7A0] transition-all duration-300 group shadow-md hover:shadow-lg"
@@ -304,8 +303,8 @@ export default function Header() {
                 <Link href="/" className="flex items-center gap-3 group">
                   <div className="relative">
                     <Image
-                      src={logoUrl} // Dynamic Logo
-                      alt="Colore Logo"
+                      src={logoUrl}
+                      alt={settings?.judul || "Colore Logo"}
                       width={100}
                       height={100}
                     />
@@ -392,5 +391,13 @@ export default function Header() {
         }
       `}</style>
     </>
+  );
+}
+
+export default function Header() {
+  return (
+    <Suspense fallback={<div className="h-20 bg-white/90 shadow-sm" />}>
+      <HeaderContent />
+    </Suspense>
   );
 }

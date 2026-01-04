@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, Suspense } from "react";
 import { useTranslation } from "@/hooks/use-translation";
 import id from "@/translations/footer/id";
 import en from "@/translations/footer/en";
@@ -13,8 +13,7 @@ import {
   Shield,
   ArrowRight,
   MapPin,
-  Phone,
-  Settings, // Icon untuk tombol edit
+  Settings,
 } from "lucide-react";
 import { FaInstagram, FaFacebookF, FaWhatsapp, FaTiktok } from "react-icons/fa";
 import Image from "next/image";
@@ -26,7 +25,7 @@ import type { ProductCategory } from "@/types/master/product-category";
 // Services for Settings
 import { useGetPengaturanListQuery } from "@/services/customize/setting.service";
 import { GlobalSettingsModal } from "../global-setting-modal";
-import { useEditMode } from "@/hooks/use-edit-mode"; // Hook edit mode Anda
+import { useEditMode } from "@/hooks/use-edit-mode";
 
 const BASE_IMAGE_URL = "https://api-content-web.naditechno.id/media/";
 
@@ -37,13 +36,13 @@ const safeImage = (img: string | null | undefined, fallback: string) => {
   return fallback;
 };
 
-export default function Footer() {
+function FooterContent() {
   const router = useRouter();
   const t = useTranslation({ id, en });
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   // Edit Mode Logic
-  const isEditMode = useEditMode(); // Pastikan Anda punya hook ini
+  const isEditMode = useEditMode();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // --- FETCH SETTINGS ---
@@ -60,11 +59,7 @@ export default function Footer() {
     "/logo-difaraja-only.webp"
   );
 
-  // Dynamic Socials (Fallback to static if needed or render conditionally)
-  // Di sini saya gabungkan manual render dengan data dinamis jika ada
-  const instagramUrl =
-    settings?.instagram || "https://www.instagram.com/difaraja/";
-  const tiktokUrl = settings?.tiktok || "#";
+  // Dynamic Contact Info
   const whatsappUrl = settings?.nomer_whatsapp
     ? `https://wa.me/${settings.nomer_whatsapp}`
     : "https://wa.me/62811223213";
@@ -72,6 +67,11 @@ export default function Footer() {
   const phone = settings?.no_telepon || "+62 856-4244-3375";
   const address =
     settings?.alamat || "Jalan Kantil, Bulusulur\nWonogiri, Jawa Tengah";
+
+  // Dynamic Socials
+  const instagramUrl =
+    settings?.instagram || "https://www.instagram.com/difaraja/";
+  const tiktokUrl = settings?.tiktok || "#";
 
   // Fetch categories from API
   const {
@@ -416,5 +416,19 @@ export default function Footer() {
         clientCode={clientCode}
       />
     </>
+  );
+}
+
+export default function Footer() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-white py-12 text-center text-gray-400">
+          Loading Footer...
+        </div>
+      }
+    >
+      <FooterContent />
+    </Suspense>
   );
 }
