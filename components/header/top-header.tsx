@@ -12,6 +12,19 @@ import en from "@/translations/header/en";
 import useCart from "@/hooks/use-cart";
 import Image from "next/image";
 
+// Services
+import { useGetPengaturanListQuery } from "@/services/customize/setting.service";
+
+const BASE_IMAGE_URL = "https://api-content-web.naditechno.id/media/";
+
+// Helper Safe Image
+const safeImage = (img: string | null | undefined, fallback: string) => {
+  if (typeof img === "string" && img.length > 0) {
+    return img.startsWith("http") ? img : `${BASE_IMAGE_URL}${img}`;
+  }
+  return fallback;
+};
+
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { lang, switchLang } = useLanguage();
@@ -22,6 +35,19 @@ export default function Header() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
+  // --- FETCH SETTINGS (Header Logo) ---
+  const clientCode =
+    "$2b$10$a74s.Y6pPzOth48FuLdS5eaNNrvI2GwYHyYehlDUdXY9S4XYzPwyC";
+  const { data: settingsData } = useGetPengaturanListQuery(
+    { client_code: clientCode },
+    { skip: !clientCode }
+  );
+
+  const settings = settingsData?.data?.items?.[0];
+  // Logo Header dari API (fallback ke default image)
+  const logoUrl = safeImage(settings?.logo, "/new-radjamart.webp");
+
+  // --- Cart Logic ---
   const readCartFromLocalStorage = () => {
     try {
       const raw = localStorage.getItem("cart-storage");
@@ -47,23 +73,19 @@ export default function Header() {
   });
 
   useEffect(() => {
-    // helper: hitung total dari array cart items
     const calcFromItems = (items: Array<{ quantity?: number }>) =>
       items.reduce((t, it) => t + (it.quantity ?? 0), 0);
 
-    // 1) subscribe ke zustand: jika store diubah via aksi useCart -> update langsung
     const unsubZustand = useCart.subscribe((state) => {
       const items = state.cartItems ?? [];
       setCartCount(calcFromItems(items));
     });
 
-    // onCartUpdated: selalu baca langsung dari localStorage dan set (tidak ada fallback)
     const onCartUpdated = () => {
       const count = readCartFromLocalStorage();
       setCartCount(count);
     };
 
-    // onStorage: ketika tab lain mengubah localStorage
     const onStorage = (e: StorageEvent) => {
       if (e.key === "cart-storage") {
         setCartCount(readCartFromLocalStorage());
@@ -80,47 +102,46 @@ export default function Header() {
     };
   }, []);
 
-  // Mapping warna hover untuk setiap menu sesuai palet
   const menuItemColors = [
     {
       name: t.about,
       href: "/about",
-      hoverBg: "hover:bg-[#DFF1AD]", // Light green
+      hoverBg: "hover:bg-[#DFF1AD]",
       activeBg: "bg-[#DFF1AD]",
       textColor: "text-[#6B7280]",
     },
     {
       name: t.howToOrder,
       href: "/how-to-order",
-      hoverBg: "hover:bg-[#BFF0F5]", // Light blue
+      hoverBg: "hover:bg-[#BFF0F5]",
       activeBg: "bg-[#BFF0F5]",
       textColor: "text-[#6B7280]",
     },
     {
       name: t.products,
       href: "/product",
-      hoverBg: "hover:bg-[#F6CCD0]", // Light pink
+      hoverBg: "hover:bg-[#F6CCD0]",
       activeBg: "bg-[#F6CCD0]",
       textColor: "text-[#6B7280]",
     },
     {
       name: t.cekOrder,
       href: "/cek-order",
-      hoverBg: "hover:bg-[#BFF0F5]", // Light blue
+      hoverBg: "hover:bg-[#BFF0F5]",
       activeBg: "bg-[#BFF0F5]",
       textColor: "text-[#6B7280]",
     },
     {
       name: t.news,
       href: "/news",
-      hoverBg: "hover:bg-[#DFF1AD]", // Light green
+      hoverBg: "hover:bg-[#DFF1AD]",
       activeBg: "bg-[#DFF1AD]",
       textColor: "text-[#6B7280]",
     },
     {
       name: t.gallery,
       href: "/gallery",
-      hoverBg: "hover:bg-[#F6CCD0]", // Light pink
+      hoverBg: "hover:bg-[#F6CCD0]",
       activeBg: "bg-[#F6CCD0]",
       textColor: "text-[#6B7280]",
     },
@@ -178,25 +199,13 @@ export default function Header() {
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative">
                 <Image
-                  src="/new-radjamart.webp"
-                  alt="Colore Logo"
+                  src={logoUrl} // Dynamic Logo
+                  alt={settings?.judul || "Radja Mart Logo"}
                   width={180}
                   height={180}
+                  className="object-contain"
                 />
               </div>
-              {/* <div className="hidden sm:block">
-                <h1 className="text-2xl font-bold transition-all duration-300">
-                  <span className="text-[#B8D68C]">C</span>
-                  <span className="text-[#E8A5AB]">O</span>
-                  <span className="text-[#8FCED6]">L</span>
-                  <span className="text-[#B8D68C]">O</span>
-                  <span className="text-[#E8A5AB]">R</span>
-                  <span className="text-[#8FCED6]">E</span>
-                </h1>
-                <p className="text-xs text-gray-600 font-medium leading-tight">
-                  {t.tagline}
-                </p>
-              </div> */}
             </Link>
 
             {/* Desktop Menu */}
@@ -223,7 +232,7 @@ export default function Header() {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-4">
-              {/* Language Toggle - Desktop */}
+              {/* Language Toggle */}
               <button
                 onClick={toggleLanguage}
                 className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-[#DFF1AD] hover:bg-[#D1E7A0] transition-all duration-300 group shadow-md hover:shadow-lg"
@@ -295,7 +304,7 @@ export default function Header() {
                 <Link href="/" className="flex items-center gap-3 group">
                   <div className="relative">
                     <Image
-                      src="/logo-colore.png"
+                      src={logoUrl} // Dynamic Logo
                       alt="Colore Logo"
                       width={100}
                       height={100}

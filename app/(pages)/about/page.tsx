@@ -66,7 +66,8 @@ function AboutContent() {
   const [clientCode, setClientCode] = useState<string>("");
 
   useEffect(() => {
-    const code = localStorage.getItem("code_client");
+    // const code = localStorage.getItem("code_client");
+    const code = "$2b$10$a74s.Y6pPzOth48FuLdS5eaNNrvI2GwYHyYehlDUdXY9S4XYzPwyC";
     if (code) setClientCode(code);
   }, []);
 

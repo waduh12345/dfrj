@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import {
   Star,
   Heart,
@@ -16,14 +15,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import en from "@/translations/home/en";
 import id from "@/translations/home/id";
 
-import { useCallback, useMemo, useState, useEffect, Suspense } from "react";
+import { useMemo, useState, useEffect, Suspense } from "react";
 import { Button } from "@/components/ui/button";
-
-// --- SERVICES ---
-import {
-  useGetProductMerkListQuery,
-  useGetProductMerkBySlugQuery,
-} from "@/services/products-merk.service";
 import type { ProductMerk } from "@/types/master/product-merk";
 
 // Service Hero
@@ -65,12 +58,19 @@ import {
   EditableSection,
   BackgroundConfig,
 } from "@/components/ui/editable-section";
-import { useCreateProdukMutation, useGetProdukListQuery, useUpdateProdukMutation } from "@/services/customize/home/product.service";
-import { useCreateCTAMutation, useGetCTAListQuery, useUpdateCTAMutation } from "@/services/customize/home/cta.service";
+import {
+  useCreateProdukMutation,
+  useGetProdukListQuery,
+  useUpdateProdukMutation,
+} from "@/services/customize/home/product.service";
+import {
+  useCreateCTAMutation,
+  useGetCTAListQuery,
+  useUpdateCTAMutation,
+} from "@/services/customize/home/cta.service";
+import { useGetProductCategoryListQuery } from "@/services/public/product-category.service";
 
 function HomeContent() {
-  const router = useRouter();
-
   // 1. Ambil Language Context & Translation
   const { lang } = useLanguage();
   const t = useTranslation({ en, id }); // Static translation
@@ -113,7 +113,8 @@ function HomeContent() {
   const [clientCode, setClientCode] = useState<string>("");
 
   useEffect(() => {
-    const code = localStorage.getItem("code_client");
+    // const code = localStorage.getItem("code_client");
+    const code = "$2b$10$a74s.Y6pPzOth48FuLdS5eaNNrvI2GwYHyYehlDUdXY9S4XYzPwyC";
     if (code) setClientCode(code);
   }, []);
 
@@ -368,36 +369,28 @@ function HomeContent() {
     setFeatureItems([
       {
         id: 1,
-        icon:
-          currentMengapaData?.info_icon_1 ||
-          "/mengapa-1.webp",
+        icon: currentMengapaData?.info_icon_1 || "/mengapa-1.webp",
         title: currentMengapaData?.info_judul_1 || t["sec-3-item-1-title"],
         description:
           currentMengapaData?.info_deskripsi_1 || t["sec-3-item-1-content"],
       },
       {
         id: 2,
-        icon:
-          currentMengapaData?.info_icon_2 ||
-          "/mengapa-2.webp",
+        icon: currentMengapaData?.info_icon_2 || "/mengapa-2.webp",
         title: currentMengapaData?.info_judul_2 || t["sec-3-item-2-title"],
         description:
           currentMengapaData?.info_deskripsi_2 || t["sec-3-item-2-content"],
       },
       {
         id: 3,
-        icon:
-          currentMengapaData?.info_icon_3 ||
-          "/mengapa-3.webp",
+        icon: currentMengapaData?.info_icon_3 || "/mengapa-3.webp",
         title: currentMengapaData?.info_judul_3 || t["sec-3-item-3-title"],
         description:
           currentMengapaData?.info_deskripsi_3 || t["sec-3-item-3-content"],
       },
       {
         id: 4,
-        icon:
-          currentMengapaData?.info_icon_4 ||
-          "/mengapa-4.webp",
+        icon: currentMengapaData?.info_icon_4 || "/mengapa-4.webp",
         title: currentMengapaData?.info_judul_4 || t["sec-3-item-4-title"],
         description:
           currentMengapaData?.info_deskripsi_4 || t["sec-3-item-4-content"],
@@ -674,69 +667,20 @@ function HomeContent() {
     return list[i % list.length];
   };
 
-  // Data Fetching List Products
-  // Hardcoded categories data
-  const categories = [
-    {
-      id: 1,
-      name: "Kuliner",
-      slug: "kuliner",
-      image: "/kategori-kuliner.webp",
-      description: "Aneka makanan lezat dan khas.",
-      status: 1,
-    },
-    {
-      id: 2,
-      name: "Minuman",
-      slug: "minuman",
-      image: "/kategori-minuman.webp",
-      description: "Minuman segar dan sehat.",
-      status: 1,
-    },
-    {
-      id: 3,
-      name: "Kerajinan",
-      slug: "kerajinan",
-      image: "/kategori-kerajinan.webp",
-      description: "Kerajinan tangan kreatif.",
-      status: 1,
-    },
-    {
-      id: 4,
-      name: "Fashion",
-      slug: "fashion",
-      image: "/kategori-fashion.webp",
-      description: "Busana dan aksesoris trendi.",
-      status: 1,
-    },
-  ];
-  const isListLoading = false;
-  const isListError = false;
-  const total = categories.length;
-  const lastPage = 1;
-  const currentPage = 1;
+  const {
+    data: categoryDataResult,
+    isLoading: isListLoading,
+    isError: isListError,
+  } = useGetProductCategoryListQuery({ page, paginate });
 
-  // const {
-  //   data: listData,
-  //   isLoading: isListLoading,
-  //   isError: isListError,
-  // } = useGetProductMerkListQuery({ page, paginate });
-  // const categories = useMemo(() => listData?.data ?? [], [listData]);
-  // const lastPage = listData?.last_page ?? 1;
-  // const currentPage = listData?.current_page ?? 1;
-  // const total = listData?.total ?? 0;
-
-  const { data: detailData, isLoading: isDetailLoading } =
-    useGetProductMerkBySlugQuery(selectedSlug ?? "", { skip: !selectedSlug });
-  const handleOpenDetail = useCallback((slug: string) => {
-    setSelectedSlug(slug);
-    setOpenDetail(true);
-  }, []);
-  const handleCloseDetail = useCallback(() => {
-    setOpenDetail(false);
-    setTimeout(() => setSelectedSlug(null), 150);
-  }, []);
-
+  // Mapping data response
+  const categories = useMemo(
+    () => categoryDataResult?.data ?? [],
+    [categoryDataResult]
+  );
+  const lastPage = categoryDataResult?.last_page ?? 1;
+  const currentPage = categoryDataResult?.current_page ?? 1;
+  const total = categoryDataResult?.total ?? 0;
   const {
     data: productList,
     isLoading: isProductsLoading,
@@ -838,9 +782,9 @@ function HomeContent() {
                 </span>
               </div>
 
-                <h1
+              <h1
                 className={`${fredoka.className} text-5xl lg:text-6xl font-semibold text-[#5C4A3B] leading-tight`}
-                >
+              >
                 <EditableText
                   isEditMode={isEditMode}
                   text={editableData.heroTitle1}
@@ -848,21 +792,21 @@ function HomeContent() {
                 />
                 <span>
                   <EditableText
-                  isEditMode={isEditMode}
-                  text={editableData.heroTitle2}
-                  onSave={(val) => updateContent("heroTitle2", val)}
-                  as="span"
-                  className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent"
+                    isEditMode={isEditMode}
+                    text={editableData.heroTitle2}
+                    onSave={(val) => updateContent("heroTitle2", val)}
+                    as="span"
+                    className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent"
                   />
                   <EditableText
-                  isEditMode={isEditMode}
-                  text={editableData.heroTitle3}
-                  onSave={(val) => updateContent("heroTitle3", val)}
-                  as="span"
-                  className="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent ml-2"
+                    isEditMode={isEditMode}
+                    text={editableData.heroTitle3}
+                    onSave={(val) => updateContent("heroTitle3", val)}
+                    as="span"
+                    className="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent ml-2"
                   />
                 </span>
-                </h1>
+              </h1>
 
               <EditableText
                 isEditMode={isEditMode}
