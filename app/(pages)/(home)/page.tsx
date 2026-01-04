@@ -1030,7 +1030,7 @@ function HomeContent() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-8">
                   {categories.map((category, index) => (
                     <div key={category.id} className="group h-96">
-                      <div className="relative h-full flex flex-col overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 transform">
+                      <div className="relative h-auto flex flex-col overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 transform">
                         <div
                           className={`${gradientByIndex(
                             index
@@ -1063,7 +1063,7 @@ function HomeContent() {
                           <p className="text-gray-600 text-sm line-clamp-2 mb-4">
                             {category.description || "—"}
                           </p>
-                          <div className="mt-auto">
+                          {/* <div className="mt-auto">
                             <button
                               onClick={() => handleOpenDetail(category.slug)}
                               className="flex items-center text-emerald-600 font-semibold"
@@ -1071,7 +1071,7 @@ function HomeContent() {
                               <span>{t["sec-2-card-cta"]}</span>
                               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </button>
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                     </div>

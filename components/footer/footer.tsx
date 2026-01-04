@@ -129,22 +129,22 @@ export default function Footer() {
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                       <IconBrandWhatsapp className="w-4 h-4 text-white" />
                     </div>
-                    <span>+62 817-1111-222</span>
+                    <span>+62 856-4244-3375</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                       <Mail className="w-4 h-4 text-white" />
                     </div>
-                    <span>admin@difaraja.id</span>
+                    <span>info@radjamart.com</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
                       <MapPin className="w-4 h-4 text-white" />
                     </div>
                     <span>
-                      Jl. Raden Wijaya No. 12,
+                      Jalan Kantil, Bulusulur
                       <br />
-                      Mojokerto, Jawa Timur
+                      Wonogiri, Jawa Tengah
                     </span>
                   </div>
                 </div>

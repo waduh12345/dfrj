@@ -70,11 +70,11 @@ export default function PaymentType({
 
                   <div className="bg-white p-3 rounded-lg">
                     <p className="font-semibold text-gray-900">
-                      Warna Kreasi Alam PT
+                      Muhammad Zayn Alfarizky
                     </p>
                     <p className="text-sm text-gray-600">Bank BCA</p>
                     <p className="font-mono text-lg font-bold text-gray-900">
-                      7311087405
+                      1122334455
                     </p>
                   </div>
 
