@@ -64,9 +64,11 @@ function FooterContent() {
     ? `https://wa.me/${settings.nomer_whatsapp}`
     : "https://wa.me/62811223213";
   const email = settings?.email || "info@radjamart.com";
-  const phone = settings?.no_telepon || "+62 856-4244-3375";
-  const address =
-    settings?.alamat || "Jalan Kantil, Bulusulur\nWonogiri, Jawa Tengah";
+  // const phone = settings?.no_telepon || "+62 856-4244-3375";
+  const phone = "+62 856-4244-3375";
+  // const address =
+  //   settings?.alamat || "Jalan Kantil, Bulusulur\nWonogiri, Jawa Tengah";
+  const address = "Jalan Kantil, Bulusulur\nWonogiri, Jawa Tengah";
 
   // Dynamic Socials
   const instagramUrl =
@@ -151,27 +153,32 @@ function FooterContent() {
                 {/* Company Info */}
                 <div className="lg:col-span-1">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-xl overflow-hidden relative">
+                    <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl overflow-hidden relative">
                       <Image
-                        src={logoFooterUrl}
+                        // src={logoFooterUrl}
+                        src="/logo-difaraja-only.webp"
                         alt={settings?.judul || "Logo Radja Mart"}
                         fill
-                        className="object-contain p-2"
+                        className="object-contain"
                       />
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-white tracking-wide">
-                        {settings?.judul || "Radja Mart"}
+                        {/* {settings?.judul || "Radja Mart"} */}
+                        Radja Mart
                       </h3>
                       <p className="text-xs text-pink-100 uppercase tracking-wider font-semibold">
-                        {settings?.kata_kunci || "Raden Wijaya Mart"}
+                        {/* {settings?.kata_kunci || "Raden Wijaya Mart"} */}
+                        Raden Wijaya Mart
                       </p>
                     </div>
                   </div>
 
                   <p className="text-white/90 leading-relaxed mb-8 text-sm">
-                    {settings?.deskripsi ||
-                      "Membangun kemandirian ekonomi dan inklusivitas melalui karya otentik."}
+                    Membangun kemandirian ekonomi dan inklusivitas melalui karya
+                    otentik.
+                    {/* {settings?.deskripsi ||
+                      "Membangun kemandirian ekonomi dan inklusivitas melalui karya otentik."} */}
                   </p>
 
                   {/* Contact Info */}

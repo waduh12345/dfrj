@@ -198,7 +198,8 @@ function HeaderContent() {
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative">
                 <Image
-                  src={logoUrl}
+                  // src={logoUrl}
+                  src="/logo-difaraja.webp"
                   alt={settings?.judul || "Radja Mart Logo"}
                   width={180}
                   height={180}
