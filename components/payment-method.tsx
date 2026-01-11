@@ -24,7 +24,7 @@ export default function PaymentType({
             Tipe Pembayaran
           </label>
           <div className="space-y-2">
-            <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors hover:bg-neutral-50">
+            {/* <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors hover:bg-neutral-50">
               <input
                 type="radio"
                 name="payment-type"
@@ -39,7 +39,7 @@ export default function PaymentType({
                   Pembayaran online (Gateway)
                 </p>
               </div>
-            </label>
+            </label> */}
 
             <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors hover:bg-neutral-50">
               <input

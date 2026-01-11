@@ -199,7 +199,7 @@ function HeaderContent() {
               <div className="relative">
                 <Image
                   // src={logoUrl}
-                  src="/logo-difaraja.webp"
+                  src="/new-radjamart.webp"
                   alt={settings?.judul || "Radja Mart Logo"}
                   width={180}
                   height={180}
