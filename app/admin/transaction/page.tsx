@@ -153,8 +153,19 @@ export default function TransactionPage() {
       "Customer": item.user_name,
       "Total Belanja": item.grand_total, // Biarkan number agar bisa dihitung di excel
       "Status Pembayaran": getStatusInfo(item.status).label,
-      "Resi": item.receipt_code || "-", // Asumsi ada field receipt_code
-      "Status Pengiriman": item.shipment_status || "-", // Asumsi ada field shipment_status
+      "Resi": item.stores?.[0]?.receipt_code || "-",
+      "Status Pengiriman": (() => {
+        const status = item.stores?.[0]?.shipment_status;
+        if (!status && status !== 0) return "-";
+        switch (String(status)) {
+          case "0": return "Menunggu Diproses";
+          case "1": return "Sedang Dikirim";
+          case "2": return "Telah Diterima";
+          case "3": return "Dikembalikan";
+          case "4": return "Dibatalkan";
+          default: return "-";
+        }
+      })(),
       "Tanggal": formatDateTime(item.created_at),
     }));
 
@@ -204,8 +215,8 @@ export default function TransactionPage() {
     setSelectedShipmentTransaction(transaction);
     // Isi form dengan data yang sudah ada (jika ada)
     setShipmentForm({
-      receipt_code: transaction.receipt_code || "", 
-      shipment_status: String(transaction.shipment_status) || "",
+      receipt_code: transaction.stores?.[0]?.receipt_code || "", 
+      shipment_status: String(transaction.stores?.[0]?.shipment_status ?? ""),
     });
     setIsShipmentModalOpen(true);
   };
@@ -332,7 +343,7 @@ export default function TransactionPage() {
                                 onClick={() => handleShipmentClick(item)}
                               >
                                 <Truck className="w-3 h-3 mr-1" />
-                                {item.receipt_code ? "Update Resi" : "Input Resi"}
+                                {item.stores?.[0]?.receipt_code ? "Update Resi" : "Input Resi"}
                               </Button>
                           )}
                         </div>
@@ -342,8 +353,11 @@ export default function TransactionPage() {
                       </td>
                       <td className="px-4 py-2">{item.guest_name}</td>
                       <td className="px-4 py-2 font-bold text-green-700">
-                        {formatRupiah(
+                        {/* {formatRupiah(
                           (item.stores?.[0]?.total ?? 0) + (item.stores?.[0]?.shipment_cost ?? 0)
+                        )} */}
+                        {formatRupiah(
+                          (item.total ?? 0)
                         )}
                       </td>
                       <td className="px-4 py-2">
@@ -368,11 +382,14 @@ export default function TransactionPage() {
                       {/* Kolom Informasi Pengiriman */}
                       <td className="px-4 py-2 whitespace-nowrap">
                          <div className="flex flex-col text-xs">
-                            <span>Resi: {item.stores[0].receipt_code || "-"}</span>
+                            <span>Resi: {item.stores?.[0]?.receipt_code || "-"}</span>
                             <span className="text-muted-foreground">
                               {
                                 (() => {
-                                  switch (String(item.stores[0].shipment_status)) {
+                                  const shipmentStatus = item.stores?.[0]?.shipment_status;
+                                  if (!shipmentStatus && shipmentStatus !== 0) return "-";
+                                  
+                                  switch (String(shipmentStatus)) {
                                     case "0":
                                       return "Menunggu Diproses";
                                     case "1":

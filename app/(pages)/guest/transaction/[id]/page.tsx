@@ -198,7 +198,8 @@ export default function GuestConfirmationPage() {
 
   const totalProductPrice = calculateTotal();
   const totalWithShipping =
-    totalProductPrice + (transactionData.stores?.[0]?.shipment_cost ?? 0);
+    // totalProductPrice + (transactionData.stores?.[0]?.shipment_cost ?? 0);
+    totalProductPrice + (transactionData.total ?? 0);
 
   return (
     <div

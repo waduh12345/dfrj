@@ -13,7 +13,6 @@ import {
   Shield,
   ArrowRight,
   MapPin,
-  Settings,
 } from "lucide-react";
 import { FaInstagram, FaFacebookF, FaWhatsapp, FaTiktok } from "react-icons/fa";
 import Image from "next/image";
@@ -22,58 +21,21 @@ import { IconBrandWhatsapp } from "@tabler/icons-react";
 import { useGetProductCategoryListQuery } from "@/services/public/product-category.service";
 import type { ProductCategory } from "@/types/master/product-category";
 
-// Services for Settings
-import { useGetPengaturanListQuery } from "@/services/customize/setting.service";
-import { GlobalSettingsModal } from "../global-setting-modal";
-import { useEditMode } from "@/hooks/use-edit-mode";
-
-const BASE_IMAGE_URL = "https://api-content-web.naditechno.id/media/";
-
-const safeImage = (img: string | null | undefined, fallback: string) => {
-  if (typeof img === "string" && img.length > 0) {
-    return img.startsWith("http") ? img : `${BASE_IMAGE_URL}${img}`;
-  }
-  return fallback;
-};
-
 function FooterContent() {
   const router = useRouter();
   const t = useTranslation({ id, en });
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  // Edit Mode Logic
-  const isEditMode = useEditMode();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // --- FETCH SETTINGS ---
-  const clientCode =
-    "$2b$10$a74s.Y6pPzOth48FuLdS5eaNNrvI2GwYHyYehlDUdXY9S4XYzPwyC";
-  const { data: settingsData } = useGetPengaturanListQuery(
-    { client_code: clientCode },
-    { skip: !clientCode }
-  );
-
-  const settings = settingsData?.data?.items?.[0];
-  const logoFooterUrl = safeImage(
-    settings?.logo_footer,
-    "/logo-difaraja-only.webp"
-  );
-
-  // Dynamic Contact Info
-  const whatsappUrl = settings?.nomer_whatsapp
-    ? `https://wa.me/${settings.nomer_whatsapp}`
-    : "https://wa.me/62811223213";
-  const email = settings?.email || "info@radjamart.com";
-  // const phone = settings?.no_telepon || "+62 856-4244-3375";
+  // Hardcoded Contact Info
+  const whatsappUrl = "https://wa.me/6285642443375";
+  const email = "info@radjamart.com";
   const phone = "+62 856-4244-3375";
-  // const address =
-  //   settings?.alamat || "Jalan Kantil, Bulusulur\nWonogiri, Jawa Tengah";
   const address = "Jalan Kantil, Bulusulur\nWonogiri, Jawa Tengah";
 
-  // Dynamic Socials
-  const instagramUrl =
-    settings?.instagram || "https://www.instagram.com/difaraja/";
-  const tiktokUrl = settings?.tiktok || "#";
+  // Hardcoded Socials
+  const instagramUrl = "https://www.instagram.com/difaraja/";
+  const facebookUrl = "https://www.facebook.com/difaraja/";
+  const tiktokUrl = "https://www.tiktok.com/@difaraja";
 
   // Fetch categories from API
   const {
@@ -99,7 +61,6 @@ function FooterContent() {
     {
       question: "Apa itu Radja Mart?",
       answer:
-        settings?.deskripsi ||
         "Radja Mart (Raden Wijaya Mart) adalah wadah pemberdayaan ekonomi bagi penyandang disabilitas untuk menghasilkan karya mandiri berupa Kuliner, Kriya, dan Fashion yang berkualitas.",
     },
     {
@@ -127,16 +88,6 @@ function FooterContent() {
   return (
     <>
       <footer className="bg-gradient-to-br from-[#d43893ff] to-[#a0226d] text-white relative overflow-hidden">
-        {/* EDIT BUTTON */}
-        {isEditMode && (
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="absolute top-4 right-4 bg-yellow-400 text-black px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs font-bold uppercase tracking-wider hover:bg-yellow-300 transition-all z-50"
-          >
-            <Settings size={16} /> Edit Global Settings
-          </button>
-        )}
-
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute top-10 left-10 w-48 h-48 bg-white rounded-full blur-3xl"></div>
@@ -155,20 +106,17 @@ function FooterContent() {
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl overflow-hidden relative">
                       <Image
-                        // src={logoFooterUrl}
                         src="/logo-difaraja-only.webp"
-                        alt={settings?.judul || "Logo Radja Mart"}
+                        alt="Logo Radja Mart"
                         fill
                         className="object-contain"
                       />
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-white tracking-wide">
-                        {/* {settings?.judul || "Radja Mart"} */}
                         Radja Mart
                       </h3>
                       <p className="text-xs text-pink-100 uppercase tracking-wider font-semibold">
-                        {/* {settings?.kata_kunci || "Raden Wijaya Mart"} */}
                         Raden Wijaya Mart
                       </p>
                     </div>
@@ -177,8 +125,6 @@ function FooterContent() {
                   <p className="text-white/90 leading-relaxed mb-8 text-sm">
                     Membangun kemandirian ekonomi dan inklusivitas melalui karya
                     otentik.
-                    {/* {settings?.deskripsi ||
-                      "Membangun kemandirian ekonomi dan inklusivitas melalui karya otentik."} */}
                   </p>
 
                   {/* Contact Info */}
@@ -334,7 +280,7 @@ function FooterContent() {
                       <FaInstagram size={20} />
                     </a>
                     <a
-                      href="#"
+                      href={facebookUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white hover:text-blue-600 transition-all shadow-md hover:scale-110"
@@ -385,8 +331,7 @@ function FooterContent() {
                 <div className="flex items-center gap-4">
                   <p>
                     © {new Date().getFullYear()}{" "}
-                    <strong>{settings?.judul || "Radja Mart"}</strong>.
-                    {settings?.kata_kunci || "Raden Wijaya Mart"}. All rights
+                    <strong>Radja Mart</strong>. Raden Wijaya Mart. All rights
                     reserved.
                   </p>
                 </div>
@@ -415,13 +360,6 @@ function FooterContent() {
           </div>
         </div>
       </footer>
-
-      {/* GLOBAL SETTINGS MODAL */}
-      <GlobalSettingsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        clientCode={clientCode}
-      />
     </>
   );
 }
